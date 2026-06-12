@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import OptimizedPicture from '../../components/OptimizedPicture.astro';
+
+const regions = (await getCollection('regions')).sort((a, b) => a.data.name.localeCompare(b.data.name));
+const byMacro = regions.reduce<Record<string, typeof regions>>((acc, r) => {
+  (acc[r.data.macroArea] ||= []).push(r);
+  return acc;
+}, {});
+const macroOrder: Array<keyof typeof byMacro> = ['Nord', 'Centre', 'Sud', 'Îles'];
+---
+<Base
+  title="Les 20 régions italiennes — Spécialités, AOP/DOP, plats emblématiques"
+  description="Découvrez les vingt régions de l'Italie, leurs spécialités culinaires, AOP et DOP régionales, et les marques artisanales recommandées par DaRocco."
+>
+  <section class="mx-auto max-w-7xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Régions' }]} />
+
+    <header class="mb-12 max-w-3xl">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Encyclopédie régionale</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
+        Les vingt régions italiennes
+      </h1>
+      <p class="text-lg text-ink-700 leading-relaxed">
+        L'Italie n'a pas une cuisine. Elle en a vingt, parfois plus si l'on descend au niveau des provinces. Cette section regroupe les fiches régionales : spécialités emblématiques, AOP/DOP locales, plats de référence et liens vers les pâtes et techniques associées.
+      </p>
+    </header>
+
+    {macroOrder.map((macro) => byMacro[macro]?.length ? (
+      <div class="mb-12">
+        <h2 class="font-serif text-2xl text-ink-900 mb-4 border-b border-cream-200 pb-2">
+          Italie {macro === 'Îles' ? 'insulaire' : macro.toLowerCase() === 'nord' ? 'du Nord' : macro.toLowerCase() === 'sud' ? 'du Sud' : `du ${macro.toLowerCase()}`}
+        </h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {byMacro[macro].map((region) => (
+            <a href={`/regions/${region.id}`} class="group rounded-lg border border-cream-200 bg-white overflow-hidden hover:border-terra-300 hover:shadow-md transition flex flex-col">
+              {region.data.image && (
+                <div class="overflow-hidden aspect-[16/10]">
+                  <OptimizedPicture
+                    src={region.data.image}
+                    alt={`${region.data.name} — paysage et cuisine`}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              )}
+              <div class="p-6 flex flex-col flex-1">
+                <h3 class="font-serif text-2xl text-ink-900 mb-1 group-hover:text-terra-700 transition">{region.data.name}</h3>
+                <p class="text-xs text-olive-700 italic mb-4">{region.data.nameItalian} — {region.data.capital}</p>
+                <p class="text-sm text-ink-700/80 line-clamp-3 flex-1">{region.data.description}</p>
+                <p class="mt-4 text-xs uppercase tracking-widest text-olive-700">
+                  {region.data.specialties.length} spécialités
+                  {region.data.aopDop ? ` · ${region.data.aopDop.length} AOP/DOP` : ''}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ) : null)}
+
+    <p class="text-sm text-ink-700/60 mt-12">
+      Au total : {regions.length} fiches publiées sur 20 régions. Les fiches manquantes sont en cours de rédaction.
+    </p>
+  </section>
+</Base>

@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import MantecaturaTimer from '../../components/MantecaturaTimer.tsx';
+---
+<Base
+  title="Timer mantecatura — chronomètre risotto"
+  description="Chronomètre interactif pour la mantecatura, étape finale du risotto où l'on émulsionne beurre et parmigiano hors du feu pour obtenir le crémeux all'onda."
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Timer mantecatura',
+    description: 'Chronomètre interactif pour l\'étape finale du risotto.',
+    applicationCategory: 'FoodApplication',
+    operatingSystem: 'Web',
+    isPartOf: { '@id': 'https://darocco.fr#website' },
+  }}
+>
+  <section class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Outils', href: '/outils' }, { label: 'Timer mantecatura' }]} />
+
+    <header class="mb-10">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Outil interactif</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
+        Timer mantecatura
+      </h1>
+      <p class="text-lg text-ink-700 leading-relaxed">
+        La <em>mantecatura</em> est l'étape finale du risotto, juste après avoir éteint le feu : on ajoute beurre froid + parmigiano râpé,
+        on couvre 30 secondes, puis on agite vivement la casserole en mouvements circulaires pendant 60-90 s. Le résultat doit être
+        <em>all'onda</em> : ça forme une vague quand on incline l'assiette.
+      </p>
+    </header>
+
+    <MantecaturaTimer client:load />
+
+    <div class="mt-12 prose prose-lg max-w-none">
+      <h2>Pourquoi ce geste, hors du feu ?</h2>
+      <p>
+        Le beurre froid et le parmigiano contiennent de l'eau et des protéines. Sur le feu, ils risquent de cuire trop vite et de
+        <em>tirer</em> (le beurre se sépare en gouttes huileuses, le fromage forme des fils). Hors du feu, l'amidon libéré par le riz
+        pendant la cuisson sert d'émulsifiant et lie tout ensemble en une crème lisse.
+      </p>
+
+      <h2>Combien de temps ?</h2>
+      <ul>
+        <li><strong>60 s</strong> — risotto léger, peu de beurre (riz vialone nano par exemple)</li>
+        <li><strong>90 s</strong> — risotto classique milanais, ratio beurre/parmigiano standard (recommandé)</li>
+        <li><strong>120 s</strong> — risotto riche, beaucoup de beurre, type alla parmigiana</li>
+      </ul>
+
+      <h2>Le test de l'onde</h2>
+      <p>
+        Inclinez la casserole : si le risotto forme une vague qui s'étale en quelques secondes et garde la marque de la spatule sans
+        être figée, vous êtes à <em>all'onda</em>. S'il glisse sans laisser de trace, il manque de matière (rajoutez beurre+parmigiano).
+        S'il reste figé en motte, il est trop sec (un trait de bouillon chaud).
+      </p>
+
+      <p>
+        Pour aller plus loin, voyez aussi notre <a href="/lexique/mantecatura">fiche lexique sur la mantecatura</a> et notre
+        <a href="/lexique/all-onda">fiche all'onda</a>.
+      </p>
+    </div>
+  </section>
+</Base>

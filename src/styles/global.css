@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Fonts auto-hébergées (variable woff2, range latin uniquement) — élimine
+   le render-blocking sur fonts.googleapis.com + gstatic.com (LCP). */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* =============================================================================
+   Thème DaRocco — palette inspirée du Mezzogiorno : terracotta, vert olivier,
+   ivoire crème, encre profonde. Typographie : serif moderne pour le titrage,
+   sans humaniste pour le corps de texte.
+   ========================================================================== */
+
+@theme {
+  /* Couleurs */
+  --color-cream-50:  #faf6ef;
+  --color-cream-100: #f3ecdf;
+  --color-cream-200: #e8dcc4;
+
+  --color-terra-50:  #fbeee8;
+  --color-terra-100: #f3d3c2;
+  --color-terra-300: #e09075;
+  --color-terra-500: #c4543a;
+  --color-terra-600: #a33d28;
+  --color-terra-700: #7e2e1f;
+
+  --color-olive-50:  #f1f3ea;
+  --color-olive-200: #cdd5b1;
+  --color-olive-500: #6f7d3f;
+  --color-olive-600: #586733;
+  --color-olive-700: #424d27;
+
+  --color-ink-700: #2b2118;
+  --color-ink-900: #1a1411;
+
+  /* Typographie */
+  --font-serif: "Cormorant Garamond", "EB Garamond", ui-serif, Georgia, serif;
+  --font-sans:  "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:  ui-monospace, "Courier New", monospace;
+
+  /* Layout */
+  --tracking-tight: -0.02em;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-cream-50);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-serif);
+    letter-spacing: var(--tracking-tight);
+    font-weight: 600;
+    color: var(--color-ink-900);
+  }
+
+  a { color: var(--color-terra-600); }
+  a:hover { color: var(--color-terra-700); }
+
+  /* Liens dans le texte courant : soulignement subtil */
+  .prose a {
+    text-decoration: underline;
+    text-decoration-color: var(--color-terra-300);
+    text-underline-offset: 3px;
+  }
+
+  /* Liens insérés automatiquement par le maillage interne (item #42).
+     Soulignement pointillé pour les distinguer des liens éditoriaux explicites
+     sans rompre l'unité graphique. */
+  .prose a.autolink {
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-olive-500);
+  }
+}
+
+/* Bouton primaire utilitaire */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium transition;
+  background-color: var(--color-terra-600);
+  color: var(--color-cream-50);
+}
+.btn-primary:hover {
+  background-color: var(--color-terra-700);
+  color: var(--color-cream-50);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium transition border;
+  background-color: transparent;
+  color: var(--color-ink-900);
+  border-color: var(--color-ink-700);
+}
+.btn-secondary:hover {
+  background-color: var(--color-ink-900);
+  color: var(--color-cream-50);
+}

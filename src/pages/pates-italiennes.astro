@@ -1,0 +1,223 @@
+---
+/**
+ * Pillar page « Pâtes italiennes » (item #44 roadmap).
+ *
+ * Stratégie SEO : URL courte, mot-clé head ("pâtes italiennes"), agrège tous
+ * les contenus profonds du site (fiches pâtes, articles techniques, lexique
+ * pertinent, fiches régionales). Devient la page-cible pour les recherches
+ * génériques et redistribue le link juice vers les fiches profondes.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+
+const allPates = await getCollection('pates');
+const allRegions = await getCollection('regions');
+const allArticles = await getCollection('blog', ({ data }) => !data.draft);
+const allLexique = await getCollection('lexique');
+
+const longues = allPates.filter((p) => p.data.type === 'longue');
+const courtes = allPates.filter((p) => p.data.type === 'courte');
+const farcies = allPates.filter((p) => p.data.type === 'farcie');
+const autres = allPates.filter((p) => !['longue', 'courte', 'farcie'].includes(p.data.type));
+
+const articlesPasta = allArticles.filter((a) =>
+  a.data.tags.some((t) => /(p[âa]tes?|pasta|cuisson|cacio|sauce)/i.test(t)),
+);
+
+const lexiqueTechniques = allLexique.filter((l) =>
+  ['cuisson', 'technique'].includes(l.data.category),
+);
+
+// 4-5 régions emblématiques pour la pasta
+const regionsAvecPasta = allRegions.filter(
+  (r) => (r.data.relatedPasta?.length ?? 0) > 0,
+);
+---
+<Base
+  title="Pâtes italiennes — guide complet : formats, sauces, cuisson, régions"
+  description="Le guide complet des pâtes italiennes authentiques : 300 formats référencés (longues, courtes, farcies), règle d'aderenza pour les sauces, temps de cuisson al dente, lexique technique et recettes traditionnelles régionales."
+  schema={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Pâtes italiennes — guide complet',
+    description: 'Guide encyclopédique des pâtes italiennes : formats, sauces, cuisson, traditions régionales.',
+    isPartOf: { '@id': 'https://darocco.fr#website' },
+    about: { '@type': 'Thing', name: 'Pâtes italiennes' },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: allPates.slice(0, 30).map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://darocco.fr/pates/${p.id}`,
+        name: p.data.name,
+      })),
+    },
+  }}
+>
+  <section class="mx-auto max-w-5xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Pâtes italiennes' }]} />
+
+    <header class="mb-12">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Pillar page · Encyclopédie</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
+        Pâtes italiennes — le guide complet
+      </h1>
+      <p class="text-xl text-ink-700 leading-relaxed max-w-3xl">
+        Plus de 300 formats répertoriés en Italie, chacun conçu pour une famille de sauces précise.
+        Cette page hub réunit nos fiches pâtes, articles techniques, lexique culinaire et fiches
+        régionales pour comprendre la pasta authentique : quelle pâte avec quelle sauce, comment cuire al dente,
+        quelle origine pour quelle technique.
+      </p>
+    </header>
+
+    {/* Bandeau de chiffres clés */}
+    <div class="grid sm:grid-cols-4 gap-3 mb-12">
+      <div class="rounded-lg border border-cream-200 bg-white p-5 text-center">
+        <p class="font-serif text-3xl text-terra-700">{allPates.length}</p>
+        <p class="text-xs text-ink-700/70 mt-1">formats référencés</p>
+      </div>
+      <div class="rounded-lg border border-cream-200 bg-white p-5 text-center">
+        <p class="font-serif text-3xl text-terra-700">300+</p>
+        <p class="text-xs text-ink-700/70 mt-1">formats existants en Italie</p>
+      </div>
+      <div class="rounded-lg border border-cream-200 bg-white p-5 text-center">
+        <p class="font-serif text-3xl text-terra-700">20</p>
+        <p class="text-xs text-ink-700/70 mt-1">régions productrices</p>
+      </div>
+      <div class="rounded-lg border border-cream-200 bg-white p-5 text-center">
+        <p class="font-serif text-3xl text-terra-700">10g/L</p>
+        <p class="text-xs text-ink-700/70 mt-1">sel — règle italienne</p>
+      </div>
+    </div>
+
+    {/* Hub : par catégorie de format */}
+    <h2 class="font-serif text-2xl text-ink-900 mb-6">Explorer par format</h2>
+    <div class="grid lg:grid-cols-2 gap-5 mb-14">
+      {longues.length > 0 && (
+        <div class="rounded-lg border border-cream-200 bg-white p-6">
+          <h3 class="font-serif text-lg text-ink-900 mb-3">Pâtes longues</h3>
+          <p class="text-sm text-ink-700/80 mb-4">Spaghetti, linguine, bucatini, tagliatelle, pappardelle… enroulées à la fourchette, sauces fluides ou émulsions à l'huile.</p>
+          <ul class="text-sm space-y-1.5">
+            {longues.map((p) => (
+              <li>
+                <a href={`/pates/${p.id}`} class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">{p.data.name}</a>
+                {p.data.region && <span class="text-ink-700/60"> — {p.data.region}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {courtes.length > 0 && (
+        <div class="rounded-lg border border-cream-200 bg-white p-6">
+          <h3 class="font-serif text-lg text-ink-900 mb-3">Pâtes courtes</h3>
+          <p class="text-sm text-ink-700/80 mb-4">Penne, rigatoni, fusilli, conchiglie, orecchiette, cavatelli… sauces épaisses, ragù, légumes en morceaux.</p>
+          <ul class="text-sm space-y-1.5">
+            {courtes.map((p) => (
+              <li>
+                <a href={`/pates/${p.id}`} class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">{p.data.name}</a>
+                {p.data.region && <span class="text-ink-700/60"> — {p.data.region}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {farcies.length > 0 && (
+        <div class="rounded-lg border border-cream-200 bg-white p-6">
+          <h3 class="font-serif text-lg text-ink-900 mb-3">Pâtes farcies</h3>
+          <p class="text-sm text-ink-700/80 mb-4">Ravioli, tortellini, agnolotti, cappelletti… cuisson rapide, sauces simples au beurre/sauge ou bouillon.</p>
+          <ul class="text-sm space-y-1.5">
+            {farcies.map((p) => (
+              <li>
+                <a href={`/pates/${p.id}`} class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">{p.data.name}</a>
+                {p.data.region && <span class="text-ink-700/60"> — {p.data.region}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {autres.length > 0 && (
+        <div class="rounded-lg border border-cream-200 bg-white p-6">
+          <h3 class="font-serif text-lg text-ink-900 mb-3">Autres formats</h3>
+          <p class="text-sm text-ink-700/80 mb-4">Lasagne, gnocchi, pâtes plates, pâtes à four, pâtes à soupe…</p>
+          <ul class="text-sm space-y-1.5">
+            {autres.map((p) => (
+              <li>
+                <a href={`/pates/${p.id}`} class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">{p.data.name}</a>
+                {p.data.region && <span class="text-ink-700/60"> — {p.data.region}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    {/* La règle d'aderenza — bloc explicatif */}
+    <section class="bg-olive-50 border border-olive-200 rounded-lg p-6 sm:p-8 mb-14">
+      <h2 class="font-serif text-2xl text-ink-900 mb-3">La règle d'aderenza : pourquoi chaque pâte a sa sauce</h2>
+      <p class="text-ink-700 leading-relaxed mb-3">
+        En Italie, le mariage pâte-sauce n'est pas affaire de goût personnel : c'est un principe technique
+        appelé <em>aderenza</em>. La forme et la texture de la pâte déterminent quelle sauce elle peut retenir.
+      </p>
+      <ul class="text-ink-700 space-y-2 text-sm leading-relaxed">
+        <li>· Les <strong>pâtes longues lisses</strong> (spaghetti, linguine) appellent des sauces qui les enrobent — huile, ail, fruits de mer, émulsions à l'eau de cuisson.</li>
+        <li>· Les <strong>pâtes longues poreuses</strong> (bucatini, pici) retiennent les sauces plus épaisses (amatriciana, cacio e pepe).</li>
+        <li>· Les <strong>pâtes courtes striées</strong> (penne rigate, rigatoni) accrochent les ragù, les sauces tomate-viande, les crèmes.</li>
+        <li>· Les <strong>pâtes courtes creuses</strong> (conchiglie, orecchiette) capturent les morceaux de légumes et les sauces épaisses.</li>
+        <li>· Les <strong>pâtes farcies</strong> doivent rester sobres : un beurre-sauge, un bouillon, parfois une sauce tomate fluide — jamais de sauce qui couvre la farce.</li>
+      </ul>
+    </section>
+
+    {/* Articles techniques */}
+    {articlesPasta.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-serif text-2xl text-ink-900 mb-6">Articles techniques</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          {articlesPasta.map((a) => (
+            <a href={`/blog/${a.id}`} class="block rounded-lg border border-cream-200 bg-white p-5 hover:border-terra-300 hover:bg-cream-50 transition">
+              <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">{a.data.category}</p>
+              <p class="font-serif text-lg text-ink-900 mb-1">{a.data.title}</p>
+              <p class="text-sm text-ink-700/70 line-clamp-2">{a.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* Lexique technique */}
+    {lexiqueTechniques.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-serif text-2xl text-ink-900 mb-6">Vocabulaire technique italien</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {lexiqueTechniques.map((l) => (
+            <a href={`/lexique/${l.id}`} class="block rounded-md border border-cream-200 bg-white p-4 hover:border-terra-300 hover:bg-cream-50 transition">
+              <p class="font-serif text-base text-ink-900">{l.data.term}</p>
+              <p class="text-xs text-ink-700/70 line-clamp-2 mt-1">{l.data.definition}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* Régions productrices */}
+    {regionsAvecPasta.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-serif text-2xl text-ink-900 mb-6">Régions emblématiques</h2>
+        <p class="text-ink-700 leading-relaxed mb-5">
+          Chaque région italienne a ses formats endémiques, façonnés par le blé local, l'eau, la culture
+          alimentaire. Voici les régions dont les pâtes traditionnelles sont les plus identifiables.
+        </p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {regionsAvecPasta.map((r) => (
+            <a href={`/regions/${r.id}`} class="block rounded-md border border-cream-200 bg-white p-4 hover:border-terra-300 hover:bg-cream-50 transition">
+              <p class="font-serif text-base text-ink-900">{r.data.name}</p>
+              {r.data.relatedPasta && r.data.relatedPasta.length > 0 && (
+                <p class="text-xs text-ink-700/70 mt-1">{r.data.relatedPasta.join(', ')}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </section>
+</Base>

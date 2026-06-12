@@ -1,0 +1,64 @@
+---
+/**
+ * "Articles récemment lus" via localStorage (item #56 roadmap).
+ *
+ * Au chargement d'un article, on push le slug + titre + URL dans une queue
+ * localStorage de 6 entrées max. Sur la home (et autres listings), on rend
+ * la liste si elle existe.
+ *
+ * 100 % côté client, pas de SSR (zéro overhead build). Comportement gracieux
+ * si localStorage absent (private mode).
+ */
+interface Props {
+  /** Slug à logger comme "lu" si rendu sur une page article. */
+  logSlug?: string;
+  /** Titre de l'article courant. */
+  logTitle?: string;
+  /** URL canonique. */
+  logUrl?: string;
+  /** Mode display: rendre la liste si elle existe. Mutuellement exclusif avec logSlug. */
+  display?: boolean;
+  title?: string;
+}
+
+const { logSlug, logTitle, logUrl, display = false, title = 'Articles consultés récemment' } = Astro.props;
+---
+{logSlug && logTitle && logUrl && (
+  <script is:inline define:vars={{ slug: logSlug, title: logTitle, url: logUrl }}>
+    try {
+      const KEY = 'darocco_recent_v1';
+      const MAX = 6;
+      const raw = localStorage.getItem(KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      // Retire l'éventuelle entrée existante avec le même slug
+      const filtered = list.filter((it) => it.slug !== slug);
+      filtered.unshift({ slug, title, url, ts: Date.now() });
+      localStorage.setItem(KEY, JSON.stringify(filtered.slice(0, MAX)));
+    } catch (_) { /* private mode, quota, etc. */ }
+  </script>
+)}
+
+{display && (
+  <aside id="recently-read" class="not-prose hidden mt-12 pt-6 border-t border-cream-200" aria-label={title}>
+    <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">{title}</p>
+    <ul id="recently-read-list" class="grid sm:grid-cols-2 gap-3"></ul>
+    <script is:inline>
+      try {
+        const KEY = 'darocco_recent_v1';
+        const raw = localStorage.getItem(KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        // Filtre la page courante
+        const here = location.pathname.replace(/\/$/, '');
+        const items = list.filter((it) => it.url.replace(/\/$/, '').replace(/^https?:\/\/[^/]+/, '') !== here);
+        if (items.length > 0) {
+          const root = document.getElementById('recently-read');
+          const ul = document.getElementById('recently-read-list');
+          ul.innerHTML = items.map((it) =>
+            '<li><a href="' + it.url + '" class="block rounded-lg border border-cream-200 bg-white p-4 hover:border-terra-300 hover:bg-cream-50 transition"><span class="font-serif text-base text-ink-900">' + it.title.replace(/</g, '&lt;') + '</span></a></li>'
+          ).join('');
+          root.classList.remove('hidden');
+        }
+      } catch (_) { /* skip */ }
+    </script>
+  </aside>
+)}

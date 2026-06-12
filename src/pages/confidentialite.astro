@@ -1,0 +1,126 @@
+---
+/**
+ * Politique de confidentialité (Privacy Policy) + RGPD (item #87 roadmap).
+ *
+ * Détaille les traitements de données et exerce les droits RGPD : accès,
+ * rectification, suppression, limitation, opposition, portabilité.
+ */
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE } from '../consts';
+
+const lastUpdate = '29 avril 2026';
+---
+<Base
+  title="Politique de confidentialité"
+  description="Politique de confidentialité et conformité RGPD de DaRocco — encyclopédie de la cuisine italienne authentique."
+  noindex
+>
+  <section class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Confidentialité' }]} />
+
+    <header class="mb-8">
+      <h1 class="font-serif text-4xl text-ink-900">Politique de confidentialité</h1>
+      <p class="text-sm text-ink-700/60 mt-2">Dernière mise à jour : {lastUpdate}</p>
+    </header>
+
+    <div class="prose prose-lg max-w-none">
+      <p>
+        Cette politique de confidentialité explique quelles données personnelles {SITE.name} collecte
+        lorsque vous utilisez {SITE.url}, à quelles fins, et quels sont vos droits au regard du
+        Règlement Général sur la Protection des Données (RGPD, UE 2016/679).
+      </p>
+
+      <h2>Responsable du traitement</h2>
+      <p>
+        DaRocco Media — média éditorial indépendant.<br/>
+        Contact : <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </p>
+
+      <h2>Données collectées</h2>
+      <p>Nous collectons uniquement les données strictement nécessaires :</p>
+      <ul>
+        <li><strong>Formulaire de devis B2B</strong> (<code>/devis</code>) : nom de l'établissement, type, nom du contact, email, téléphone (optionnel), code postal, volume estimé, message libre.</li>
+        <li><strong>Formulaire de contact</strong> (<code>/contact</code>) : email + contenu du message.</li>
+        <li><strong>Inscription newsletter</strong> (footer) : email uniquement.</li>
+        <li><strong>Logs serveur Cloudflare</strong> : adresse IP, user-agent, page consultée. Conservés 7 jours pour la sécurité, jamais utilisés à des fins commerciales.</li>
+        <li><strong>Cloudflare Web Analytics</strong> (si activé) : statistiques de visite agrégées, sans cookie, sans identifiant utilisateur. RGPD-compliant by design.</li>
+      </ul>
+
+      <h2>Finalités</h2>
+      <ul>
+        <li><strong>Devis B2B</strong> : répondre à votre demande commerciale (durée de conservation : 3 ans après dernière interaction).</li>
+        <li><strong>Contact</strong> : répondre à votre question (1 an après réponse).</li>
+        <li><strong>Newsletter</strong> : vous envoyer un email mensuel (jusqu'à votre désabonnement, en un clic).</li>
+        <li><strong>Logs / Analytics</strong> : sécurité, statistiques agrégées (jamais de profilage individuel).</li>
+      </ul>
+
+      <h2>Base légale</h2>
+      <p>
+        Les traitements reposent sur l'article 6.1.b (exécution d'un contrat / pré-contrat) pour le devis,
+        l'article 6.1.a (consentement) pour la newsletter, et l'article 6.1.f (intérêt légitime) pour les
+        logs et analytics agrégés.
+      </p>
+
+      <h2>Destinataires</h2>
+      <p>
+        Vos données sont consultables uniquement par l'éditeur ({SITE.email}). Aucune transmission à des
+        partenaires commerciaux, aucune revente. Les sous-traitants techniques sont :
+      </p>
+      <ul>
+        <li><strong>Cloudflare</strong> (USA) : hébergement, CDN, analytics. Sous DPF (Data Privacy Framework).</li>
+        <li><strong>Resend</strong> (USA, optionnel) : envoi des emails de notification (devis, newsletter). Sous DPF.</li>
+        <li><strong>Email Routing Cloudflare</strong> : forwarding de <code>contact@darocco.fr</code> vers l'éditeur.</li>
+      </ul>
+
+      <h2>Cookies</h2>
+      <p>
+        Le site n'utilise <strong>aucun cookie tiers de tracking publicitaire</strong>. Aucune
+        technologie de fingerprinting ou de profilage. Pas de bandeau de consentement requis.
+      </p>
+      <p>
+        Si Cloudflare Web Analytics est activé, il fonctionne <strong>sans cookie</strong> et collecte
+        uniquement des données agrégées non-identifiantes. Aucun consentement préalable nécessaire.
+      </p>
+
+      <h2>Vos droits RGPD</h2>
+      <p>Vous disposez des droits suivants, exerçables à tout moment par email à {SITE.email} :</p>
+      <ul>
+        <li><strong>Accès</strong> : obtenir une copie de vos données.</li>
+        <li><strong>Rectification</strong> : corriger une donnée inexacte.</li>
+        <li><strong>Suppression</strong> (droit à l'oubli) : effacement de vos données.</li>
+        <li><strong>Limitation</strong> : suspendre temporairement un traitement.</li>
+        <li><strong>Opposition</strong> : refuser un traitement (notamment newsletter).</li>
+        <li><strong>Portabilité</strong> : récupérer vos données dans un format structuré.</li>
+        <li><strong>Réclamation</strong> : auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener nofollow">cnil.fr</a>).</li>
+      </ul>
+      <p>Réponse sous 30 jours maximum, gratuite (sauf demandes manifestement infondées ou répétitives).</p>
+
+      <h2>Sécurité</h2>
+      <p>
+        Le site est servi exclusivement en <strong>HTTPS</strong> (TLS 1.3). Headers de sécurité actifs :
+        Content-Security-Policy strict, X-Frame-Options DENY, HSTS un an. Les données des formulaires
+        transitent uniquement via les API officielles Cloudflare/Resend.
+      </p>
+
+      <h2>Transferts hors UE</h2>
+      <p>
+        Cloudflare et Resend sont des entités américaines, certifiées sous le <strong>EU-US Data Privacy
+        Framework</strong> (décision d'adéquation 2023). Les transferts sont donc encadrés conformément
+        au RGPD.
+      </p>
+
+      <h2>Modifications</h2>
+      <p>
+        Cette politique peut évoluer. Toute modification substantielle sera signalée par email aux
+        abonnés newsletter. La date en haut indique la dernière mise à jour.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Pour toute question, exercice de droits ou réclamation :<br/>
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </p>
+    </div>
+  </section>
+</Base>

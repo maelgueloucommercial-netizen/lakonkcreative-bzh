@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page introuvable" description="Cette page n'existe pas." noindex>
+  <section class="mx-auto max-w-2xl px-6 py-24 text-center">
+    <p class="font-serif text-6xl text-terra-600 mb-4">404</p>
+    <h1 class="font-serif text-3xl text-ink-900 mb-4">Page introuvable</h1>
+    <p class="text-lg text-ink-700 mb-8">
+      Cette adresse n'existe pas ou plus. Peut-être cherchez-vous l'une de nos sections principales :
+    </p>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a href="/regions" class="btn-secondary">Régions</a>
+      <a href="/pates" class="btn-secondary">Pâtes</a>
+      <a href="/lexique" class="btn-secondary">Lexique</a>
+      <a href="/blog" class="btn-secondary">Articles</a>
+      <a href="/" class="btn-primary">Accueil</a>
+    </div>
+  </section>
+</Base>

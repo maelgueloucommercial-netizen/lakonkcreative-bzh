@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE } from '../consts';
+---
+<Base title="Conditions générales de vente — Pros" description="Conditions générales de vente B2B pour les commandes via le catalogue DaRocco." noindex>
+  <section class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'CGV pro' }]} />
+
+    <header class="mb-8">
+      <h1 class="font-serif text-4xl text-ink-900">Conditions générales de vente — Pros</h1>
+    </header>
+
+    <div class="prose prose-lg max-w-none">
+      <h2>1. Champ d'application</h2>
+      <p>
+        Les présentes conditions générales de vente s'appliquent à toute commande de produits passée par un client professionnel via le catalogue {SITE.name}. Elles sont communiquées par devis individuel et acceptées par retour signé.
+      </p>
+
+      <h2>2. Devis</h2>
+      <p>
+        Tout devis est établi sur demande, calibré selon le volume, la fréquence et le mode de livraison souhaités. Le devis a une validité de 30 jours à compter de son émission.
+      </p>
+
+      <h2>3. Prix</h2>
+      <p>
+        Les prix sont indiqués en euros, hors taxes, hors frais de livraison sauf mention contraire. La TVA est appliquée au taux légal en vigueur.
+      </p>
+
+      <h2>4. Commandes minimales</h2>
+      <p>
+        Chaque produit indique sa quantité minimale de commande. Les commandes inférieures peuvent être acceptées sur dérogation, avec ajustement tarifaire.
+      </p>
+
+      <h2>5. Livraison</h2>
+      <p>
+        Livraison France métropolitaine sous 4 à 7 jours ouvrés à compter de la confirmation de commande. Pour les produits frais (fromages, charcuteries), respect strict de la chaîne du froid en transport réfrigéré.
+      </p>
+
+      <h2>6. Paiement</h2>
+      <p>
+        Premier achat : paiement à la commande. À partir de la deuxième commande, possibilité de paiement à 30 jours sur acceptation après vérification de solvabilité.
+      </p>
+
+      <h2>7. Retours et réclamations</h2>
+      <p>
+        Tout produit non conforme doit faire l'objet d'une réclamation dans les 48 h suivant la livraison, par écrit, accompagnée de photographies. Remplacement ou avoir selon disponibilité.
+      </p>
+
+      <h2>8. Force majeure et limites de responsabilité</h2>
+      <p>
+        En cas de rupture de stock chez le producteur italien (récolte, lait, affinage), le délai de livraison peut être prolongé. La responsabilité de {SITE.name} est limitée au montant de la commande.
+      </p>
+
+      <h2>9. Litiges</h2>
+      <p>
+        En cas de litige, les parties s'engagent à rechercher une solution amiable avant toute procédure judiciaire. À défaut, compétence du tribunal de commerce du siège de l'éditeur.
+      </p>
+    </div>
+  </section>
+</Base>

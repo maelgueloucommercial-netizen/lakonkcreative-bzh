@@ -1,0 +1,49 @@
+---
+/**
+ * Bloc bio auteur signée — rendu en fin d'article (item #40 roadmap).
+ *
+ * Crucial pour l'E-E-A-T : Google attribue plus de crédit aux contenus
+ * signés par un auteur identifié et lié à une page biographique. Ici on
+ * pointe vers /a-propos où la persona Lorenzo Da Rocco est détaillée
+ * (et où le schema Person est rendu).
+ */
+import { PERSONA, SITE } from '../consts';
+
+interface Props {
+  /** Auteur affiché. Par défaut Lorenzo Da Rocco. */
+  author?: string;
+}
+
+const { author = PERSONA.fullName } = Astro.props;
+const isPersona = author === PERSONA.fullName;
+---
+<aside
+  class="not-prose mt-12 rounded-lg border border-cream-200 bg-cream-50 p-6 sm:p-8 flex gap-5 sm:gap-6"
+  aria-label="À propos de l'auteur"
+>
+  <div class="flex-shrink-0 w-16 h-16 rounded-full bg-terra-600 text-cream-50 flex items-center justify-center font-serif text-2xl">
+    {(isPersona ? PERSONA.firstName.charAt(0) : author.charAt(0))}
+  </div>
+  <div class="flex-1">
+    <p class="font-serif text-base text-ink-900 mb-1">
+      {isPersona ? (
+        <a href="/a-propos" class="hover:text-terra-700">{author}</a>
+      ) : (
+        author
+      )}
+    </p>
+    <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">
+      {isPersona ? PERSONA.role : 'Contributeur'}
+    </p>
+    <p class="text-sm text-ink-700 leading-relaxed mb-3">
+      {isPersona ? PERSONA.shortBio : `Contributeur DaRocco — ${SITE.shortDescription}`}
+    </p>
+    {isPersona && (
+      <p class="text-sm">
+        <a href="/a-propos" class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">
+          En savoir plus sur l'auteur →
+        </a>
+      </p>
+    )}
+  </div>
+</aside>

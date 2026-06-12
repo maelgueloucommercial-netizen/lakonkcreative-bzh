@@ -1,0 +1,43 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** Profondeur min/max des titres affichés (1-6) */
+  minDepth?: number;
+  maxDepth?: number;
+  /** Nombre minimum de titres pour afficher la TOC. En dessous, masquée. */
+  minHeadings?: number;
+  title?: string;
+}
+
+const {
+  headings,
+  minDepth = 2,
+  maxDepth = 3,
+  minHeadings = 3,
+  title = 'Sommaire',
+} = Astro.props;
+
+const items = headings.filter((h) => h.depth >= minDepth && h.depth <= maxDepth);
+const display = items.length >= minHeadings;
+---
+{display && (
+  <nav
+    class="toc not-prose mb-10 rounded-lg border border-cream-200 bg-cream-50/60 p-5 sm:p-6"
+    aria-label={title}
+    data-pagefind-ignore
+  >
+    <p class="font-serif text-sm uppercase tracking-widest text-olive-700 mb-3">{title}</p>
+    <ol class="space-y-1.5 text-sm text-ink-700">
+      {items.map((h) => (
+        <li class:list={['leading-snug', h.depth === 3 && 'pl-4']}>
+          <a
+            href={`#${h.slug}`}
+            class="text-ink-700 hover:text-terra-700 underline-offset-2 hover:underline"
+          >{h.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}

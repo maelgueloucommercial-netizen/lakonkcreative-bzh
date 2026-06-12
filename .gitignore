@@ -1,0 +1,24 @@
+dist/
+.astro/
+.wrangler/
+node_modules/
+.env
+.env.*
+!.env.example
+.dev.vars
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Assets dérivés régénérés par les scripts (idempotents) — ne polluent pas Git.
+# scripts/optimize-images.mjs : variantes AVIF/WebP + dimensions
+# scripts/generate-og-images.mjs : OG images par fiche
+public/images/**/*.avif
+public/images/**/*.webp
+public/images/**/*.meta.json
+public/og/
+
+# Backups manuels d'images générées (avant regen Flux)
+pates-flux-backup/
+regions-flux-backup/

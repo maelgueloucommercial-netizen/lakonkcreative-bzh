@@ -1,0 +1,160 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import FAQBlock from '../../components/FAQBlock.astro';
+import SeeAlso from '../../components/SeeAlso.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+import RecentlyRead from '../../components/RecentlyRead.astro';
+import OptimizedPicture from '../../components/OptimizedPicture.astro';
+import { buildRegionFaq } from '../../lib/faq-heuristics';
+import { SITE } from '../../consts';
+
+export async function getStaticPaths() {
+  const regions = await getCollection('regions');
+  return regions.map((region) => ({
+    params: { region: region.id },
+    props: { region },
+  }));
+}
+
+const { region } = Astro.props;
+const { Content, headings } = await render(region);
+
+const faqItems = region.data.faq ?? buildRegionFaq(region.data);
+const updatedAtNotPub = region.data.updatedAt.valueOf() !== region.data.publishedAt.valueOf();
+
+/**
+ * Item #41 — résolution des slugs de pâtes liées (relatedPasta) pour créer
+ * des liens entrants vers les fiches pâte. relatedPasta contient des slugs
+ * dans le front-matter, mais on vérifie qu'ils existent vraiment dans la
+ * collection pour éviter des liens 404.
+ */
+const relatedPastaResolved: Array<{ slug: string; name: string }> = [];
+if (region.data.relatedPasta && region.data.relatedPasta.length > 0) {
+  const allPasta = await getCollection('pates');
+  for (const slug of region.data.relatedPasta) {
+    const found = allPasta.find((p) => p.id === slug);
+    if (found) relatedPastaResolved.push({ slug: found.id, name: found.data.name });
+  }
+}
+---
+<Base
+  title={`${region.data.name} (${region.data.nameItalian}) — Cuisine régionale italienne`}
+  description={region.data.description}
+  type="article"
+  publishedAt={region.data.publishedAt}
+  updatedAt={region.data.updatedAt}
+  preloadImage={region.data.image}
+  schema={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: `${region.data.name} — Cuisine régionale italienne`,
+      description: region.data.description,
+      author: { '@type': 'Person', name: 'Lorenzo Da Rocco' },
+      datePublished: region.data.publishedAt.toISOString(),
+      dateModified: region.data.updatedAt.toISOString(),
+      mentions: region.data.specialties.map((s) => ({ '@type': 'Thing', name: s })),
+      about: { '@id': `https://darocco.fr/regions/${region.id}#place` },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': ['Place', 'AdministrativeArea', 'TouristDestination'],
+      '@id': `https://darocco.fr/regions/${region.id}#place`,
+      name: region.data.name,
+      alternateName: region.data.nameItalian,
+      description: region.data.description,
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'IT',
+        addressRegion: region.data.name,
+        addressLocality: region.data.capital,
+      },
+      geo: { '@type': 'GeoCoordinates', latitude: region.data.coords.lat, longitude: region.data.coords.lng },
+      ...(region.data.population ? { additionalProperty: { '@type': 'PropertyValue', name: 'population', value: region.data.population } } : {}),
+      hasPart: (region.data.aopDop ?? []).map((aop) => ({ '@type': 'Thing', name: aop })),
+    },
+  ]}
+>
+  <RecentlyRead logSlug={region.id} logTitle={`${region.data.name} — cuisine régionale italienne`} logUrl={new URL(`/regions/${region.id}`, SITE.url).toString()} />
+  <article class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Régions', href: '/regions' }, { label: region.data.name }]} />
+
+    <header class="mb-10">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Italie {region.data.macroArea === 'Îles' ? 'insulaire' : `du ${region.data.macroArea}`}</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-3">{region.data.name}</h1>
+      <p class="text-lg italic text-ink-700">
+        {region.data.nameItalian} — capitale : {region.data.capital}
+      </p>
+      {updatedAtNotPub && (
+        <p class="mt-3 text-xs text-ink-700/60">
+          Mis à jour le {region.data.updatedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </p>
+      )}
+    </header>
+
+    {region.data.image && (
+      <figure class="mb-10 -mx-6 sm:mx-0">
+        <OptimizedPicture src={region.data.image} alt={`Cuisine de ${region.data.name}`} lazy={false} />
+      </figure>
+    )}
+
+    <p class="text-lg text-ink-700 leading-relaxed mb-8 border-l-4 border-terra-500 pl-5">
+      {region.data.description}
+    </p>
+
+    <section class="grid sm:grid-cols-2 gap-6 mb-10">
+      <div class="rounded-lg border border-cream-200 bg-white p-5">
+        <h2 class="font-serif text-lg text-ink-900 mb-3">Spécialités emblématiques</h2>
+        <ul class="space-y-1.5 text-sm text-ink-700">
+          {region.data.specialties.map((s) => <li>· {s}</li>)}
+        </ul>
+      </div>
+
+      {region.data.aopDop && region.data.aopDop.length > 0 && (
+        <div class="rounded-lg border border-olive-200 bg-olive-50 p-5">
+          <h2 class="font-serif text-lg text-ink-900 mb-3">AOP / DOP / IGP de la région</h2>
+          <ul class="space-y-1.5 text-sm text-ink-700">
+            {region.data.aopDop.map((s) => <li>· {s}</li>)}
+          </ul>
+        </div>
+      )}
+    </section>
+
+    <TableOfContents headings={headings} />
+
+    <div class="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-ink-900 prose-a:text-terra-700 prose-h2:scroll-mt-24 prose-h3:scroll-mt-24">
+      <Content />
+    </div>
+
+    {relatedPastaResolved.length > 0 && (
+      <section class="not-prose mt-10 rounded-lg border border-cream-200 bg-cream-50/60 p-5 sm:p-6">
+        <p class="font-serif text-sm uppercase tracking-widest text-olive-700 mb-3">Pâtes traditionnelles de {region.data.name}</p>
+        <ul class="flex flex-wrap gap-2">
+          {relatedPastaResolved.map((p) => (
+            <li>
+              <a href={`/pates/${p.slug}`} class="inline-block rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-terra-700 hover:border-terra-300 hover:bg-cream-100">
+                {p.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <FAQBlock items={faqItems} />
+
+    <ShareButtons title={`${region.data.name} — cuisine régionale italienne`} />
+
+    <SeeAlso kind="region" currentSlug={region.id} macroArea={region.data.macroArea} />
+
+    <footer class="mt-16 pt-6 border-t border-cream-200 text-sm text-ink-700/60">
+      Publié le {region.data.publishedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+      {updatedAtNotPub && (
+        <> · Mis à jour le {region.data.updatedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+      )}
+    </footer>
+  </article>
+</Base>

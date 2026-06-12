@@ -1,0 +1,190 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE, PERSONA } from '../consts';
+
+const SUBJECT = 'Sponsoring DaRocco — demande tarif';
+const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(SUBJECT)}`;
+---
+<Base
+  title="Annoncer chez nous — sponsoring éditorial"
+  description="Espaces sponsorisés sur DaRocco, l'encyclopédie francophone de la cuisine italienne authentique : articles dédiés, intégrations natives, mentions produits dans les fiches AOP/DOP. Contact direct, conditions claires."
+  type="website"
+  schema={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Annoncer chez nous',
+      description: 'Annoncer chez DaRocco — sponsoring éditorial pour producteurs italiens, importateurs, marques AOP/DOP/IGP.',
+      url: `${SITE.url}/annoncer-chez-nous`,
+      isPartOf: { '@id': `${SITE.url}#website` },
+      primaryImageOfPage: `${SITE.url}/images/og-default.jpg`,
+      about: {
+        '@type': 'Service',
+        serviceType: 'Sponsoring éditorial',
+        provider: { '@id': `${SITE.url}#organization` },
+        areaServed: { '@type': 'Country', name: 'France' },
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      '@id': `${SITE.url}/annoncer-chez-nous#service`,
+      name: 'Sponsoring éditorial DaRocco',
+      provider: { '@id': `${SITE.url}#organization` },
+      serviceType: 'Article sponsorisé / mention produit / partenariat éditorial',
+      areaServed: { '@type': 'Country', name: 'France' },
+      audience: {
+        '@type': 'BusinessAudience',
+        audienceType: 'Producteurs italiens AOP/DOP/IGP, importateurs, distributeurs, marques alimentaires',
+      },
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Formats de sponsoring DaRocco',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            name: 'Article sponsorisé éditorial',
+            description: 'Article rédigé par notre équipe au ton du site, intégré dans une rubrique éditoriale, mention "En partenariat avec…" visible, lien rel="sponsored".',
+            availability: 'https://schema.org/InStock',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Mention produit dans une fiche AOP/DOP',
+            description: 'Inclusion d\'un produit AOP/DOP/IGP italien authentique dans la fiche région, lexique ou base produits correspondante.',
+            availability: 'https://schema.org/InStock',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Présence dans l\'annuaire des épiciers',
+            description: 'Listing détaillé d\'une épicerie italienne authentique en France. Gratuit pour les épiciers répondant aux critères ; mise en avant éditoriale sponsorisée possible.',
+            availability: 'https://schema.org/InStock',
+            price: '0',
+            priceCurrency: 'EUR',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Partenariat éditorial long',
+            description: 'Série d\'articles thématiques, étude d\'appellation, reportage en région. Calendrier sur 6 mois minimum.',
+            availability: 'https://schema.org/InStock',
+          },
+        ],
+      },
+    },
+  ]}
+>
+  <section class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Annoncer chez nous' }]} />
+
+    <header class="mb-10">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Annoncer chez nous</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
+        Pour les marques italiennes qui veulent toucher un public éditorial qualifié
+      </h1>
+      <p class="text-xl text-ink-700 leading-relaxed">
+        DaRocco est un média éditorial spécialisé sur la cuisine italienne authentique.
+        Notre lectorat est principalement composé de <strong>professionnels de la restauration</strong>,
+        d'épiciers, de chefs et d'amateurs exigeants. Si votre produit s'inscrit dans cette logique
+        de qualité — <em>AOP</em>, <em>DOP</em>, <em>IGP</em>, savoir-faire artisanal — nous étudions volontiers
+        une collaboration.
+      </p>
+    </header>
+
+    <section class="rounded-lg border border-olive-200 bg-olive-50 p-6 mb-10">
+      <h2 class="font-serif text-xl text-ink-900 mb-3">Le profil du lectorat</h2>
+      <ul class="space-y-2 text-ink-700">
+        <li>· <strong>Restaurateurs et chefs</strong> à la recherche de produits authentiques pour leur carte</li>
+        <li>· <strong>Épiciers fins</strong> et caves à fromage souhaitant élargir leur sourcing italien</li>
+        <li>· <strong>Acheteurs hôteliers</strong> et traiteurs exigeants sur la traçabilité</li>
+        <li>· <strong>Amateurs cultivés</strong> attentifs aux marques de qualité (les plus prolifiques en bouche-à-oreille)</li>
+      </ul>
+      <p class="text-sm text-ink-700/70 mt-4">
+        Trafic : encyclopédie en croissance organique. Nous communiquons les chiffres réels de Search Console
+        et de la régie sur demande, dossier sous accord de confidentialité.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="font-serif text-2xl text-ink-900 mb-4">Formats disponibles</h2>
+
+      <div class="space-y-4">
+        <div class="rounded-lg border border-cream-200 bg-white p-5">
+          <h3 class="font-serif text-lg text-ink-900 mb-2">Article sponsorisé éditorial</h3>
+          <p class="text-ink-700 text-sm leading-relaxed mb-2">
+            Article rédigé par notre équipe (ou validé par elle), au ton du site, intégré naturellement
+            dans une rubrique éditoriale (région, produit, technique). Mention <em>"En partenariat avec…"</em>
+            visible. Lien <code>rel="sponsored"</code> conforme aux guidelines Google.
+          </p>
+          <p class="text-xs text-ink-700/60">
+            Idéal pour : producteurs régionaux, importateurs spécialisés, fromageries, salaisons, distilleries.
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-cream-200 bg-white p-5">
+          <h3 class="font-serif text-lg text-ink-900 mb-2">Mention produit dans une fiche AOP/DOP</h3>
+          <p class="text-ink-700 text-sm leading-relaxed mb-2">
+            Si votre produit est <strong>réellement</strong> AOP/DOP/IGP italien, nous étudions son inclusion
+            dans la fiche correspondante (région, lexique, base produits). Critère unique : authenticité documentée.
+          </p>
+          <p class="text-xs text-ink-700/60">
+            Aucune fiche-mention n'est vendue sur la simple base d'un budget : nous refusons les italian sounding.
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-cream-200 bg-white p-5">
+          <h3 class="font-serif text-lg text-ink-900 mb-2">Présence dans l'annuaire des épiciers</h3>
+          <p class="text-ink-700 text-sm leading-relaxed mb-2">
+            Listing détaillé d'une épicerie italienne authentique en France, avec descriptif éditorial,
+            spécialités, photo. <strong>Gratuit</strong> par défaut pour les épiceries qui répondent à nos critères ;
+            mise en avant éditoriale sponsorisée possible.
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-cream-200 bg-white p-5">
+          <h3 class="font-serif text-lg text-ink-900 mb-2">Partenariat éditorial long</h3>
+          <p class="text-ink-700 text-sm leading-relaxed">
+            Pour les marques bien établies : série d'articles thématiques, étude d'appellation,
+            reportage de production en région. Calendrier sur 6 mois minimum. Tarification sur dossier.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="font-serif text-2xl text-ink-900 mb-3">Ce que nous refusons</h2>
+      <ul class="space-y-2 text-ink-700">
+        <li>· Les <strong>italian sounding</strong> (produits prétendus italiens fabriqués hors d'Italie ou avec ingrédients non conformes)</li>
+        <li>· Les liens injectés dans des articles existants sans mention claire de partenariat</li>
+        <li>· Les articles entièrement fournis par l'annonceur sans réécriture éditoriale (notre voix reste la nôtre)</li>
+        <li>· Les marques en concurrence directe avec une fiche éditoriale déjà publiée, sauf dossier sérieux</li>
+      </ul>
+    </section>
+
+    <section class="rounded-lg border border-terra-300 bg-terra-50 p-6 mb-10">
+      <h2 class="font-serif text-2xl text-ink-900 mb-3">Contact direct</h2>
+      <p class="text-ink-700 mb-3">
+        Toutes les demandes passent par mail. Réponse sous 48 heures ouvrées avec premier échange,
+        grille tarifaire et calendrier. Pas de formulaire intermédiaire — on parle directement à
+        {PERSONA.firstName}.
+      </p>
+      <p class="text-lg">
+        <a href={mailto} class="font-medium text-terra-700 hover:text-terra-900">
+          {SITE.email}
+        </a>
+      </p>
+      <p class="text-xs text-ink-700/60 mt-4">
+        Précisez dans votre mail : <strong>nom de marque</strong>, <strong>produit(s) concerné(s)</strong>,
+        <strong>format de partenariat envisagé</strong>, <strong>budget indicatif</strong>. Plus c'est clair,
+        plus la réponse est rapide.
+      </p>
+    </section>
+
+    <section class="text-sm text-ink-700/70">
+      <p>
+        Notre approche est documentée dans nos <a href="/cgv-pro">CGV pro</a> et nos
+        <a href="/mentions-legales">mentions légales</a>. Pour la confidentialité de votre démarche
+        commerciale, nous signons volontiers un NDA avant échange détaillé.
+      </p>
+    </section>
+  </section>
+</Base>

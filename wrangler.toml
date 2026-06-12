@@ -1,0 +1,21 @@
+name = "darocco-fr-v2"
+compatibility_date = "2026-04-01"
+compatibility_flags = ["nodejs_compat"]
+main = "src/worker.ts"
+
+# Workers Static Assets — site statique servi via Workers (nouvelle architecture
+# Cloudflare qui remplace Pages). On déploie tout `./dist` comme assets, et le
+# worker `src/worker.ts` intercepte les routes dynamiques (formulaire B2B).
+# Le binding `ASSETS` permet au worker de servir les statics en fallback.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "404-page"
+
+[vars]
+APP_ENV = "production"
+
+# Secrets en prod via `wrangler secret put NAME` :
+# - DEVIS_FORWARD_EMAIL    (où forwarder les leads B2B, défaut mael.guelou.commercial@gmail.com)
+# - RESEND_API_KEY         (clé API Resend, free 3000/mois — sans elle, log only)
+# - RESEND_FROM_EMAIL      (expéditeur, défaut "DaRocco Devis <devis@darocco.fr>")

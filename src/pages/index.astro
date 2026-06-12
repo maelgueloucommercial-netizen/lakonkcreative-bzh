@@ -1,0 +1,312 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import RegionsMap from '../components/RegionsMap.astro';
+import OptimizedPicture from '../components/OptimizedPicture.astro';
+import { SITE, PERSONA, PILLARS } from '../consts';
+
+// Sprint 5.14 — Entity disambiguation (auto-généré par cron worker dans
+// src/data/disambiguation.json si confusion knowledge graph détectée).
+// Si le fichier existe : override title/desc/JSON-LD pour clarifier que ce
+// site est éditorial et non l'entité concurrente (ex: restaurant Da Rocco).
+let disambig: {
+  metaTitle?: string;
+  metaDescription?: string;
+  heroBlockHtml?: string;
+  jsonLd?: Record<string, unknown>;
+  competingEntity?: string;
+} | null = null;
+try {
+  // @ts-ignore — fichier optionnel généré par admin
+  disambig = (await import('../data/disambiguation.json')).default;
+} catch { /* pas de disambig détectée, normal */ }
+
+const recentArticles = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
+  .slice(0, 3);
+
+const featuredArticle = recentArticles[0];
+
+const allPates = await getCollection('pates');
+const allRegions = await getCollection('regions');
+
+const counts: Record<string, number> = {
+  regions: allRegions.length,
+  pates: allPates.length,
+  lexique: (await getCollection('lexique')).length,
+  annuaire: (await getCollection('epiciers')).length,
+  boutique: (await getCollection('produits')).length,
+};
+
+// "Pâte du jour" + "Région à l'honneur" — sélection déterministe
+// basée sur le jour de l'année (jour 1-366 mod n). Build statique :
+// ce qui est compilé reste stable jusqu'au prochain build (les fiches changent
+// néanmoins quand auto-pub déclenche un nouveau build).
+const today = new Date();
+const dayOfYear = Math.floor(
+  (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400_000,
+);
+const pasteOfDay = allPates[dayOfYear % allPates.length];
+const regionOfDay = allRegions[dayOfYear % allRegions.length];
+---
+<Base
+  title={disambig?.metaTitle ?? "L'encyclopédie de la cuisine italienne authentique"}
+  description={disambig?.metaDescription ?? SITE.description}
+  schema={disambig?.jsonLd}
+>
+  <!-- HERO with background image -->
+  <section class="relative overflow-hidden border-b border-cream-200">
+    <!-- Background image, faded with cream gradient overlay for text legibility -->
+    <div class="absolute inset-0 z-0">
+      <OptimizedPicture
+        src="/images/home/hero-tuscany.jpg"
+        alt="Paysage de Toscane — collines, oliviers et cyprès"
+        class="w-full h-full object-cover"
+        lazy={false}
+        sizes="100vw"
+      />
+      <div class="absolute inset-0 bg-gradient-to-r from-cream-50/95 via-cream-50/90 to-cream-50/40 lg:from-cream-50/95 lg:via-cream-50/85 lg:to-cream-50/30"></div>
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-32 grid lg:grid-cols-12 gap-12 items-center">
+      {/* Sprint 5.14 — bloc disambiguation auto-injecté si entity confusion détectée */}
+      {disambig?.heroBlockHtml && (
+        <div class="lg:col-span-12 mb-4 rounded-md bg-cream-100/90 backdrop-blur-sm p-4 text-sm text-ink-900 border border-olive-200" set:html={disambig.heroBlockHtml} />
+      )}
+      <div class="lg:col-span-7">
+        <p class="font-sans uppercase tracking-widest text-xs text-olive-700 mb-4">L'encyclopédie francophone</p>
+        <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-ink-900 mb-6">
+          La cuisine italienne authentique<br/>
+          <span class="italic text-terra-600">comme on la fait là-bas.</span>
+        </h1>
+        <p class="text-lg text-ink-700 leading-relaxed max-w-2xl mb-8">
+          Vingt régions, plus de trois cents formats de pâtes, des produits AOP et DOP que vous chercheriez en vain en grande surface. Et l'opinion d'un calabrais formé en cuisine, qui a passé trente ans à séparer le vrai italien de l'<em>italian sounding</em>.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="/regions" class="btn-primary">Découvrir les régions</a>
+          <a href="/devis" class="btn-secondary">Sourcing pro — Devis</a>
+        </div>
+      </div>
+      <div class="lg:col-span-5 hidden lg:block">
+        <blockquote class="border-l-4 border-terra-500 pl-6 italic text-ink-900 text-lg leading-relaxed bg-cream-50/80 rounded-r p-6 backdrop-blur-sm shadow-sm">
+          « Pour cuisiner italien, il ne faut pas plus d'ingrédients qu'ailleurs. Il en faut moins. Mais ils doivent être les bons. »
+          <footer class="mt-4 not-italic font-medium text-sm text-ink-900">— {PERSONA.fullName}</footer>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS — encyclopédie en chiffres -->
+  <section class="bg-ink-900 text-cream-50">
+    <div class="mx-auto max-w-7xl px-6 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+        <a href="/regions" class="group">
+          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.regions}</div>
+          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">régions</div>
+        </a>
+        <a href="/pates" class="group">
+          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.pates}</div>
+          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">pâtes</div>
+        </a>
+        <a href="/lexique" class="group">
+          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.lexique}</div>
+          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">termes lexique</div>
+        </a>
+        <a href="/boutique" class="group">
+          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.boutique}</div>
+          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">produits AOP/DOP</div>
+        </a>
+        <a href="/annuaire" class="group">
+          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.annuaire}</div>
+          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">épiciers</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTICLE À LA UNE -->
+  {featuredArticle && (
+    <section class="mx-auto max-w-7xl px-6 py-16">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">À la une</p>
+      <a href={`/blog/${featuredArticle.id}`} class="group grid lg:grid-cols-2 gap-8 items-center rounded-2xl overflow-hidden bg-cream-100 border border-cream-200 hover:border-terra-300 transition">
+        {featuredArticle.data.image && (
+          <div class="aspect-[4/3] lg:aspect-auto lg:h-full overflow-hidden">
+            <OptimizedPicture
+              src={featuredArticle.data.image}
+              alt={featuredArticle.data.imageAlt ?? featuredArticle.data.title}
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+            />
+          </div>
+        )}
+        <div class="p-8 lg:p-12">
+          <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">{featuredArticle.data.category}</p>
+          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-4 leading-tight group-hover:text-terra-700 transition">
+            {featuredArticle.data.title}
+          </h2>
+          <p class="text-ink-700 leading-relaxed mb-6">{featuredArticle.data.description}</p>
+          <span class="text-sm font-medium text-terra-700">Lire l'article →</span>
+        </div>
+      </a>
+    </section>
+  )}
+
+  <!-- CARTE INTERACTIVE DES RÉGIONS -->
+  <section class="bg-cream-100 border-y border-cream-200">
+    <div class="mx-auto max-w-7xl px-6 py-16">
+      <div class="grid lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-4">
+          <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Carte interactive</p>
+          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-4 leading-tight">Vingt régions, vingt cuisines</h2>
+          <p class="text-ink-700 leading-relaxed">L'Italie n'a pas <em>une</em> cuisine, mais vingt — une par région administrative. Cliquez sur une région pour découvrir ses spécialités, ses AOP, et les marques artisanales qu'on y produit encore aujourd'hui.</p>
+        </div>
+        <div class="lg:col-span-8">
+          <RegionsMap />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- À L'HONNEUR AUJOURD'HUI : Pâte du jour + Région à l'honneur -->
+  <section class="mx-auto max-w-7xl px-6 py-16">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">À l'honneur aujourd'hui</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-ink-900">Sélection du {today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</h2>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      {pasteOfDay && (
+        <a href={`/pates/${pasteOfDay.id}`} class="group rounded-2xl border border-cream-200 bg-white overflow-hidden hover:border-terra-300 hover:shadow-md transition flex flex-col sm:flex-row">
+          {pasteOfDay.data.image && (
+            <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto overflow-hidden bg-cream-200">
+              <OptimizedPicture
+                src={pasteOfDay.data.image}
+                alt={pasteOfDay.data.name}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+          )}
+          <div class="p-6 flex-1 flex flex-col">
+            <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Pâte du jour</p>
+            <h3 class="font-serif text-2xl text-ink-900 mb-1 group-hover:text-terra-700 transition">{pasteOfDay.data.name}</h3>
+            <p class="text-xs text-olive-700 italic mb-3">
+              {pasteOfDay.data.fresh ? 'Pâte fraîche' : 'Pâte sèche'}
+              {pasteOfDay.data.region && ` · ${pasteOfDay.data.region}`}
+            </p>
+            <p class="text-sm text-ink-700/80 line-clamp-3 flex-1">{pasteOfDay.data.description}</p>
+            <span class="mt-3 text-xs font-medium text-terra-700">Découvrir →</span>
+          </div>
+        </a>
+      )}
+
+      {regionOfDay && (
+        <a href={`/regions/${regionOfDay.id}`} class="group rounded-2xl border border-cream-200 bg-white overflow-hidden hover:border-terra-300 hover:shadow-md transition flex flex-col sm:flex-row">
+          {regionOfDay.data.image && (
+            <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto overflow-hidden bg-cream-200">
+              <OptimizedPicture
+                src={regionOfDay.data.image}
+                alt={regionOfDay.data.name}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+          )}
+          <div class="p-6 flex-1 flex flex-col">
+            <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Région à l'honneur</p>
+            <h3 class="font-serif text-2xl text-ink-900 mb-1 group-hover:text-terra-700 transition">{regionOfDay.data.name}</h3>
+            <p class="text-xs text-olive-700 italic mb-3">{regionOfDay.data.nameItalian} — {regionOfDay.data.capital}</p>
+            <p class="text-sm text-ink-700/80 line-clamp-3 flex-1">{regionOfDay.data.description}</p>
+            <span class="mt-3 text-xs font-medium text-terra-700">Explorer →</span>
+          </div>
+        </a>
+      )}
+    </div>
+  </section>
+
+  <!-- LES 5 PILIERS -->
+  <section class="mx-auto max-w-7xl px-6 py-20">
+    <div class="text-center mb-14">
+      <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-3">Les cinq piliers</h2>
+      <p class="text-ink-700 max-w-2xl mx-auto">Cinq portes d'entrée, une seule logique : montrer ce qu'est la cuisine italienne authentique, et permettre de la cuisiner ou de la sourcer en France.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {PILLARS.map((pillar) => (
+        <a href={pillar.href} class="group rounded-lg border border-cream-200 bg-white p-6 hover:border-terra-300 hover:shadow-sm transition flex flex-col">
+          <div class="text-3xl mb-3" aria-hidden="true">{pillar.icon}</div>
+          <h3 class="font-serif text-xl text-ink-900 mb-2 group-hover:text-terra-700 transition">{pillar.title}</h3>
+          <p class="text-sm text-ink-700/80 leading-relaxed flex-1">{pillar.description}</p>
+          <p class="mt-4 text-xs uppercase tracking-widest text-olive-700">
+            {counts[pillar.slug] ?? 0} entrées <span class="ml-1">→</span>
+          </p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- ARTICLES RÉCENTS -->
+  {recentArticles.length > 0 && (
+    <section class="bg-cream-100 border-y border-cream-200">
+      <div class="mx-auto max-w-7xl px-6 py-20">
+        <div class="flex items-end justify-between mb-10">
+          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900">Lectures récentes</h2>
+          <a href="/blog" class="text-sm text-terra-700 hover:text-terra-600 underline-offset-2">Tous les articles →</a>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          {recentArticles.map((article) => (
+            <a href={`/blog/${article.id}`} class="group flex flex-col">
+              <div class="aspect-[16/10] rounded-lg mb-4 overflow-hidden bg-cream-200">
+                {article.data.image ? (
+                  <OptimizedPicture
+                    src={article.data.image}
+                    alt={article.data.imageAlt ?? article.data.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-cream-100/70 italic font-serif text-2xl bg-cream-200">
+                    {article.data.category}
+                  </div>
+                )}
+              </div>
+              <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">{article.data.category}</p>
+              <h3 class="font-serif text-xl text-ink-900 group-hover:text-terra-700 transition leading-snug mb-2">
+                {article.data.title}
+              </h3>
+              <p class="text-sm text-ink-700/80 leading-relaxed line-clamp-3">{article.data.description}</p>
+              <p class="mt-3 text-xs text-ink-700/60">
+                {article.data.publishedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA B2B -->
+  <section class="mx-auto max-w-7xl px-6 py-20">
+    <div class="bg-ink-900 text-cream-50 rounded-2xl p-10 lg:p-14 grid lg:grid-cols-2 gap-10 items-center">
+      <div>
+        <p class="font-sans uppercase tracking-widest text-xs text-terra-300 mb-3">Vous êtes pro ?</p>
+        <h2 class="font-serif text-3xl sm:text-4xl text-cream-50 mb-4">Sourcing direct produits AOP / DOP / IGP</h2>
+        <p class="text-cream-200/80 leading-relaxed">
+          Pour les restaurants, traiteurs, épiciers fines : un catalogue serré de produits italiens authentiques, avec contrôle d'origine. Demande de devis en ligne, livraison France métropolitaine, échantillons sur demande.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3 lg:items-end">
+        <a href="/boutique" class="inline-block rounded-md bg-cream-50 text-ink-900 px-6 py-3 font-medium text-sm hover:bg-cream-100 transition">Voir le catalogue</a>
+        <a href="/devis" class="inline-block rounded-md bg-terra-600 text-cream-50 px-6 py-3 font-medium text-sm hover:bg-terra-700 transition">Demander un devis</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT TEASER -->
+  <section class="mx-auto max-w-3xl px-6 py-16 text-center">
+    <h2 class="font-serif text-2xl sm:text-3xl text-ink-900 mb-4">Qui tient ce site</h2>
+    <p class="text-ink-700 leading-relaxed mb-4">{PERSONA.bio}</p>
+    <a href="/a-propos" class="text-sm text-terra-700 hover:text-terra-600 underline-offset-2">En savoir plus sur Lorenzo →</a>
+  </section>
+</Base>

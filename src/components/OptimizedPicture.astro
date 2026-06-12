@@ -1,0 +1,67 @@
+---
+/**
+ * <picture> avec sources AVIF/WebP + fallback JPEG, dimensions explicites
+ * pour éviter le CLS (item #46/47 roadmap).
+ *
+ * Lit le fichier `<src>.meta.json` généré par `scripts/optimize-images.mjs`
+ * pour récupérer width/height. Si le fichier absent, fallback à <img>.
+ */
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { join, parse } from 'node:path';
+
+interface Props {
+  src: string; // ex: "/images/regions/molise.jpg"
+  alt: string;
+  /** classe CSS pour le <img>. Défaut : aspect-[16/9] object-cover */
+  class?: string;
+  /** Sizes attribute pour responsive — défaut full-width */
+  sizes?: string;
+  /** Lazy loading (défaut true). Mettre false pour le LCP image au-dessus du fold. */
+  lazy?: boolean;
+  /** decoding hint — défaut async. */
+  decoding?: 'async' | 'sync' | 'auto';
+}
+
+const {
+  src,
+  alt,
+  class: className = 'w-full aspect-[16/9] object-cover sm:rounded-lg',
+  sizes = '(min-width: 768px) 768px, 100vw',
+  lazy = true,
+  decoding = 'async',
+} = Astro.props;
+
+const PUBLIC = fileURLToPath(new URL('../../public/', import.meta.url));
+const { dir, name, ext } = parse(src);
+
+const avifSrc = `${dir}/${name}.avif`;
+const webpSrc = `${dir}/${name}.webp`;
+const fallbackSrc = src;
+
+// Charger les dimensions depuis le .meta.json à côté du src
+let width: number | undefined;
+let height: number | undefined;
+try {
+  const metaPath = join(PUBLIC, dir.replace(/^\//, ''), `${name}.meta.json`);
+  const raw = await readFile(metaPath, 'utf8');
+  const meta = JSON.parse(raw) as { width?: number; height?: number };
+  width = meta.width;
+  height = meta.height;
+} catch {
+  // Pas de meta : on omet width/height, le browser inférera (CLS possible)
+}
+---
+<picture>
+  <source type="image/avif" srcset={avifSrc} sizes={sizes} />
+  <source type="image/webp" srcset={webpSrc} sizes={sizes} />
+  <img
+    src={fallbackSrc}
+    alt={alt}
+    class={className}
+    loading={lazy ? 'lazy' : 'eager'}
+    decoding={decoding}
+    width={width}
+    height={height}
+  />
+</picture>

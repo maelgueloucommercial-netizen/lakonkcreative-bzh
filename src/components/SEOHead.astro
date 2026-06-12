@@ -1,0 +1,130 @@
+---
+import { SITE, ORGANIZATION, PERSONA } from '../consts';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedAt?: Date;
+  updatedAt?: Date;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+  /** Image LCP au-dessus du fold à preloader pour gagner sur le LCP (item #49). */
+  preloadImage?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image,
+  type = 'website',
+  publishedAt,
+  updatedAt,
+  schema,
+  noindex = false,
+  preloadImage,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, SITE.url).toString();
+
+/**
+ * Conventions OG image (item #50 roadmap) :
+ *   - explicite : prop `image` passée → on l'utilise telle quelle
+ *   - convention : /og/<segment>/<slug>.png si elle existe (générée au build
+ *     par scripts/generate-og-images.mjs)
+ *   - fallback : /images/og-default.jpg
+ */
+function ogFromConvention(pathname: string): string | null {
+  const segs = pathname.split('/').filter(Boolean);
+  if (segs.length === 0) return null;
+  const KIND_MAP: Record<string, string> = {
+    regions: 'regions',
+    pates: 'pates',
+    blog: 'blog',
+    boutique: 'produits',
+    lexique: 'lexique',
+  };
+  const kind = KIND_MAP[segs[0]];
+  if (!kind || segs.length < 2) return null;
+  return `/og/${kind}/${segs[1]}.png`;
+}
+const conventionOg = ogFromConvention(Astro.url.pathname);
+const ogImage = image
+  ? new URL(image, SITE.url).toString()
+  : conventionOg
+    ? new URL(conventionOg, SITE.url).toString()
+    : `${SITE.url}/images/og-default.jpg`;
+
+const baseSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    ORGANIZATION,
+    {
+      '@type': 'WebSite',
+      url: SITE.url,
+      name: SITE.name,
+      description: SITE.description,
+      publisher: { '@id': `${SITE.url}#organization` },
+      inLanguage: SITE.locale,
+    },
+    {
+      '@type': 'Person',
+      '@id': `${SITE.url}/a-propos#lorenzo`,
+      name: PERSONA.fullName,
+      givenName: PERSONA.firstName,
+      familyName: PERSONA.lastName,
+      jobTitle: PERSONA.role,
+      description: PERSONA.shortBio,
+      knowsAbout: PERSONA.expertise,
+      url: `${SITE.url}/a-propos`,
+    },
+  ],
+};
+
+const additionalSchemas = Array.isArray(schema) ? schema : schema ? [schema] : [];
+const finalSchemaArr = [baseSchema, ...additionalSchemas];
+---
+<title>{title} — {SITE.name}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex,nofollow" />}
+
+{/* Item #49 — preload de l'image LCP si fournie. AVIF prioritaire (variante
+    générée au build) avec fallback WebP. Coût marginal pour gain LCP réel. */}
+{preloadImage && (
+  <>
+    <link rel="preload" as="image" href={preloadImage.replace(/\.(jpe?g|png)$/, '.avif')} type="image/avif" fetchpriority="high" />
+    <link rel="preload" as="image" href={preloadImage.replace(/\.(jpe?g|png)$/, '.webp')} type="image/webp" fetchpriority="high" />
+  </>
+)}
+
+{/* Vérification de propriété — Search Console / Bing Webmaster.
+    Définir PUBLIC_GSC_VERIFICATION et PUBLIC_BING_VERIFICATION dans le .env
+    de build (PUBLIC_* car lus côté static). Inoffensif si vides. */}
+{import.meta.env.PUBLIC_GSC_VERIFICATION && (
+  <meta name="google-site-verification" content={import.meta.env.PUBLIC_GSC_VERIFICATION} />
+)}
+{import.meta.env.PUBLIC_BING_VERIFICATION && (
+  <meta name="msvalidate.01" content={import.meta.env.PUBLIC_BING_VERIFICATION} />
+)}
+
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:site_name" content={SITE.name} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{publishedAt && <meta property="article:published_time" content={publishedAt.toISOString()} />}
+{updatedAt && <meta property="article:modified_time" content={updatedAt.toISOString()} />}
+
+{finalSchemaArr.map((s) => (
+  <script type="application/ld+json" set:html={JSON.stringify(s)} />
+))}

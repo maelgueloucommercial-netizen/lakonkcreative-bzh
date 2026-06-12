@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import { SITE, PERSONA, PILLARS } from '../consts';
+import NewsletterCapture from './NewsletterCapture.astro';
+
+const year = new Date().getFullYear();
+
+const recentArticles = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
+  .slice(0, 5);
+---
+<footer class="border-t border-cream-200 bg-ink-900 text-cream-100 mt-24">
+  <div class="mx-auto max-w-7xl px-6 py-14 grid gap-10 md:grid-cols-6">
+    <div class="md:col-span-2">
+      <div class="font-serif text-2xl font-semibold text-cream-50">{SITE.name}</div>
+      <p class="mt-3 text-sm text-cream-200/80 max-w-md leading-relaxed">{SITE.shortDescription}</p>
+      <p class="mt-4 text-xs text-cream-200/60 mb-4">
+        Un média éditorial fondé par <a href="/a-propos" class="text-terra-300 hover:text-terra-100 underline-offset-2">{PERSONA.fullName}</a>.
+      </p>
+      <NewsletterCapture variant="compact" />
+    </div>
+
+    <div>
+      <h3 class="font-serif text-base text-cream-50 mb-3">Explorer</h3>
+      <ul class="space-y-2 text-sm">
+        {PILLARS.map((p) => (
+          <li><a href={p.href} class="text-cream-200/80 hover:text-cream-50">{p.label}</a></li>
+        ))}
+        <li><a href="/blog" class="text-cream-200/80 hover:text-cream-50">Articles</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="font-serif text-base text-cream-50 mb-3">Outils</h3>
+      <ul class="space-y-2 text-sm">
+        <li><a href="/outils/selecteur-huile" class="text-cream-200/80 hover:text-cream-50">Sélecteur d'huile</a></li>
+        <li><a href="/outils/timer-mantecatura" class="text-cream-200/80 hover:text-cream-50">Timer mantecatura</a></li>
+        <li><a href="/outils/quiz-regions" class="text-cream-200/80 hover:text-cream-50">Quiz régions</a></li>
+        <li><a href="/outils/carte-epiciers" class="text-cream-200/80 hover:text-cream-50">Carte épiciers</a></li>
+        <li><a href="/recherche" class="text-cream-200/80 hover:text-cream-50">Recherche</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="font-serif text-base text-cream-50 mb-3">Derniers articles</h3>
+      <ul class="space-y-2 text-sm">
+        {recentArticles.map((a) => (
+          <li><a href={`/blog/${a.id}`} class="text-cream-200/80 hover:text-cream-50 line-clamp-2 leading-snug">{a.data.title}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="font-serif text-base text-cream-50 mb-3">Contact</h3>
+      <ul class="space-y-2 text-sm">
+        <li><a href={`mailto:${SITE.email}`} class="text-cream-200/80 hover:text-cream-50">{SITE.email}</a></li>
+        <li><a href="/devis" class="text-cream-200/80 hover:text-cream-50">Devis pro</a></li>
+        <li><a href="/contact" class="text-cream-200/80 hover:text-cream-50">Contact éditorial</a></li>
+        <li><a href="/annoncer-chez-nous" class="text-cream-200/80 hover:text-cream-50">Annoncer chez nous</a></li>
+        <li><a href="/pates-italiennes" class="text-cream-200/80 hover:text-cream-50">Guide pâtes</a></li>
+        <li><a href="/aop-dop-igp-italie" class="text-cream-200/80 hover:text-cream-50">Guide AOP DOP IGP</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-cream-200/10">
+    <div class="mx-auto max-w-7xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
+      <div>© {year} {SITE.name}. Tous droits réservés.</div>
+      <nav class="flex items-center gap-5 flex-wrap">
+        <a href="/mentions-legales" class="hover:text-cream-50">Mentions légales</a>
+        <a href="/confidentialite" class="hover:text-cream-50">Confidentialité</a>
+        <a href="/cgv-pro" class="hover:text-cream-50">CGV pro</a>
+        <a href="/contact" class="hover:text-cream-50">Contact</a>
+        <a href="/annoncer-chez-nous" class="hover:text-cream-50">Annoncer chez nous</a>
+      </nav>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,96 @@
+---
+/**
+ * Boutons partage social avec UTM (item #53 roadmap).
+ *
+ * Génère des liens de partage statiques pour LinkedIn, X, Facebook, WhatsApp,
+ * email, et un bouton "copier le lien". Les UTM permettent de tracer dans
+ * Plausible / Cloudflare Web Analytics quel canal apporte du trafic.
+ *
+ * Pas de SDK tiers, pas de tracking pixel — uniquement des `mailto:` et
+ * intent URLs publiques. RGPD-clean.
+ */
+import { SITE } from '../consts';
+
+interface Props {
+  title: string;
+  /** URL du contenu à partager. Défaut : URL actuelle. */
+  url?: string;
+}
+
+const { title, url } = Astro.props;
+const canonical = url ?? new URL(Astro.url.pathname, SITE.url).toString();
+
+function withUtm(channel: string): string {
+  const u = new URL(canonical);
+  u.searchParams.set('utm_source', channel);
+  u.searchParams.set('utm_medium', 'social');
+  u.searchParams.set('utm_campaign', 'share');
+  return u.toString();
+}
+
+const shareUrls = {
+  linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(withUtm('linkedin'))}`,
+  x: `https://twitter.com/intent/tweet?url=${encodeURIComponent(withUtm('twitter'))}&text=${encodeURIComponent(title)}`,
+  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(withUtm('facebook'))}`,
+  whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} — ${withUtm('whatsapp')}`)}`,
+  email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`Vu sur DaRocco : ${withUtm('email')}`)}`,
+};
+---
+<aside class="not-prose mt-12 pt-6 border-t border-cream-200" aria-label="Partager" data-pagefind-ignore>
+  <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Partager</p>
+  <div class="flex flex-wrap items-center gap-2">
+    <a
+      href={shareUrls.linkedin}
+      target="_blank"
+      rel="noopener nofollow"
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Partager sur LinkedIn"
+    >LinkedIn</a>
+    <a
+      href={shareUrls.x}
+      target="_blank"
+      rel="noopener nofollow"
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Partager sur X"
+    >X / Twitter</a>
+    <a
+      href={shareUrls.facebook}
+      target="_blank"
+      rel="noopener nofollow"
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Partager sur Facebook"
+    >Facebook</a>
+    <a
+      href={shareUrls.whatsapp}
+      target="_blank"
+      rel="noopener nofollow"
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Partager sur WhatsApp"
+    >WhatsApp</a>
+    <a
+      href={shareUrls.email}
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Partager par email"
+    >Email</a>
+    <button
+      type="button"
+      data-copy-url={canonical}
+      class="inline-flex items-center gap-1.5 rounded-md border border-cream-200 bg-white px-3 py-1.5 text-sm text-ink-700 hover:border-terra-300 hover:bg-cream-50"
+      aria-label="Copier le lien"
+    >Copier le lien</button>
+  </div>
+</aside>
+<script is:inline>
+  document.querySelectorAll('button[data-copy-url]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-copy-url');
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+        const original = btn.textContent;
+        btn.textContent = '✓ Copié';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      } catch { /* clipboard unavailable */ }
+    });
+  });
+</script>

@@ -1,0 +1,210 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import OptimizedPicture from '../../components/OptimizedPicture.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import FAQBlock from '../../components/FAQBlock.astro';
+import SeeAlso from '../../components/SeeAlso.astro';
+import AuthorBio from '../../components/AuthorBio.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+import RecentlyRead from '../../components/RecentlyRead.astro';
+import SponsoredBanner from '../../components/SponsoredBanner.astro';
+import ItalianSoundingDetector from '../../components/ItalianSoundingDetector.tsx';
+import AdaptiveCta from '../../components/AdaptiveCta.astro';
+import { pickActiveAbVariant } from '../../lib/ab-pick';
+import { SITE } from '../../consts';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('blog', ({ data }) => !data.draft);
+  return articles.map((a) => ({ params: { slug: a.id }, props: { article: a } }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+
+const wordCount = (article.body ?? '').split(/\s+/).filter(Boolean).length;
+const readingMinutes = Math.max(1, Math.round(wordCount / 220));
+const faqItems = article.data.faq ?? [];
+const hasUpdatedAt = article.data.updatedAt && article.data.updatedAt.valueOf() !== article.data.publishedAt.valueOf();
+
+/**
+ * Extraction automatique d'ingrédients + instructions pour le schema Recipe.
+ * Heuristique : détecte le bloc "Ingrédients" (le bullet list qui suit) +
+ * les sections "Étape N", "Méthode", "Préparation".
+ */
+function parseRecipeFromMarkdown(md: string): { ingredients: string[]; instructions: string[] } | null {
+  const ingredients: string[] = [];
+  const instructions: string[] = [];
+  const lines = md.split('\n');
+
+  // 1. Trouver "## Ingrédients..." puis collecter les bullets jusqu'au prochain '##'
+  let inIngredients = false;
+  let inInstructions = false;
+  let stepBuffer: string[] = [];
+
+  const flushStep = () => {
+    if (stepBuffer.length > 0) {
+      const text = stepBuffer.join(' ').replace(/\s+/g, ' ').trim();
+      if (text.length > 10) instructions.push(text);
+      stepBuffer = [];
+    }
+  };
+
+  for (const line of lines) {
+    const isH2 = /^##\s+/.test(line);
+    const isH3 = /^###\s+/.test(line);
+    if (isH2) {
+      flushStep();
+      const heading = line.replace(/^##\s+/, '').toLowerCase();
+      inIngredients = /ingr[eé]dient/i.test(heading) && !/origine|histoire/i.test(heading);
+      inInstructions = /(étape|preparation|préparation|méthode|technique|recette|geste|cuisson)/i.test(heading) && !inIngredients;
+      continue;
+    }
+    if (isH3 && inInstructions) {
+      flushStep();
+      // Le titre H3 devient début d'instruction
+      stepBuffer.push(line.replace(/^###\s+/, '').replace(/\*\*/g, '') + '.');
+      continue;
+    }
+    if (inIngredients && /^[-*]\s+/.test(line)) {
+      const item = line.replace(/^[-*]\s+/, '').replace(/\*\*/g, '').replace(/[_`]/g, '').trim();
+      if (item.length > 1) ingredients.push(item);
+    } else if (inInstructions && line.trim().length > 0 && !/^[-*]/.test(line)) {
+      stepBuffer.push(line.trim().replace(/\*\*/g, '').replace(/[_`]/g, ''));
+    } else if (inInstructions && line.trim().length === 0) {
+      flushStep();
+    }
+  }
+  flushStep();
+
+  if (ingredients.length === 0 || instructions.length === 0) return null;
+  return { ingredients, instructions: instructions.slice(0, 12) };
+}
+
+const isRecipe = article.data.category === 'recette';
+const recipeData = isRecipe ? parseRecipeFromMarkdown(article.body ?? '') : null;
+
+const baseSchema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.data.title,
+  description: article.data.description,
+  author: { '@type': 'Person', name: article.data.author },
+  datePublished: article.data.publishedAt.toISOString(),
+  dateModified: (article.data.updatedAt ?? article.data.publishedAt).toISOString(),
+  keywords: article.data.tags.join(', '),
+  articleSection: article.data.category,
+  ...(article.data.image ? { image: new URL(article.data.image, SITE.url).toString() } : {}),
+};
+
+const recipeSchema = isRecipe && recipeData ? {
+  '@context': 'https://schema.org',
+  '@type': 'Recipe',
+  name: article.data.title,
+  description: article.data.description,
+  author: { '@type': 'Person', name: article.data.author },
+  datePublished: article.data.publishedAt.toISOString(),
+  recipeCuisine: 'Italienne',
+  recipeCategory: 'Plat principal',
+  recipeIngredient: recipeData.ingredients,
+  recipeInstructions: recipeData.instructions.map((text, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    text,
+  })),
+  ...(article.data.image ? { image: new URL(article.data.image, SITE.url).toString() } : {}),
+  keywords: article.data.tags.join(', '),
+} : null;
+
+// Sprint 3.3 — fusion avec schemas frontmatter (auto-injectés par auto-publish)
+const fmSchemas = (article.data as { schemas?: Record<string, unknown>[] }).schemas ?? [];
+const schemasArr = [baseSchema, ...(recipeSchema ? [recipeSchema] : []), ...fmSchemas];
+const schemas = schemasArr.length === 1 ? schemasArr[0] : schemasArr;
+
+// Sprint 4.2 — A/B testing : pick la variante active selon abStartDate.
+const abData = article.data as { abVariants?: import('../../lib/ab-pick').AbVariants; abStartDate?: Date };
+const ab = pickActiveAbVariant(
+  { title: article.data.title, description: article.data.description },
+  abData.abVariants,
+  abData.abStartDate,
+);
+---
+<Base
+  title={ab.title}
+  description={ab.description}
+  type="article"
+  publishedAt={article.data.publishedAt}
+  updatedAt={article.data.updatedAt}
+  schema={schemas}
+>
+  <ReadingProgress />
+  <RecentlyRead logSlug={article.id} logTitle={article.data.title} logUrl={new URL(`/blog/${article.id}`, SITE.url).toString()} />
+  <article class="mx-auto max-w-3xl px-6 py-12">
+    <Breadcrumb items={[{ label: 'Articles', href: '/blog' }, { label: article.data.title }]} />
+
+    <header class="mb-10">
+      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">{article.data.category}</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">{article.data.title}</h1>
+      <p class="text-xl text-ink-700 leading-relaxed mb-6">{article.data.description}</p>
+      <p class="text-sm text-ink-700/60">
+        Par {article.data.author} ·
+        {article.data.publishedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+        {article.data.updatedAt && article.data.updatedAt.valueOf() !== article.data.publishedAt.valueOf() && (
+          <> · Mis à jour le {article.data.updatedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+        )}
+        · {readingMinutes} min de lecture
+      </p>
+    </header>
+
+    {article.data.image && (
+      <figure class="mb-10 -mx-6 sm:mx-0">
+        <OptimizedPicture
+          src={article.data.image}
+          alt={article.data.imageAlt ?? article.data.title}
+          class="w-full aspect-[16/9] object-cover sm:rounded-xl"
+          lazy={false}
+        />
+      </figure>
+    )}
+
+    <TableOfContents headings={headings} />
+
+    <div class="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-ink-900 prose-a:text-terra-700 prose-h2:scroll-mt-24 prose-h3:scroll-mt-24">
+      <Content />
+    </div>
+
+    {article.data.category === 'antifraude' && (
+      <ItalianSoundingDetector client:visible />
+    )}
+
+    <FAQBlock items={faqItems} />
+
+    <AdaptiveCta
+      intent={(article.data as { intent?: 'informational' | 'commercial' | 'transactional' | 'navigational' | 'local' }).intent}
+      cta={(article.data as { cta?: { component?: string; props?: Record<string, string> } }).cta}
+    />
+
+    <ShareButtons title={article.data.title} />
+
+    <SponsoredBanner />
+
+    <AuthorBio author={article.data.author} />
+
+    <SeeAlso kind="article" currentSlug={article.id} />
+
+    <RecentlyRead display title="Vous lisiez aussi récemment" />
+
+    {article.data.tags.length > 0 && (
+      <footer class="mt-12 pt-6 border-t border-cream-200">
+        <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Mots-clés</p>
+        <div class="flex flex-wrap gap-2 text-sm">
+          {article.data.tags.map((tag) => (
+            <span class="rounded bg-cream-100 px-3 py-1 text-ink-700">{tag}</span>
+          ))}
+        </div>
+      </footer>
+    )}
+  </article>
+</Base>

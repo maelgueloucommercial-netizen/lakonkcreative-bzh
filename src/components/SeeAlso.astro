@@ -1,0 +1,114 @@
+---
+/**
+ * Section "Voir aussi" en fin de fiche (item #43 roadmap).
+ *
+ * Crée du **maillage interne entrant** : chaque fiche reçoit 3-5 liens depuis
+ * d'autres fiches. Combiné au maillage sortant automatique du plugin
+ * `remark-autolink`, ça construit un graphe cohérent et profond pour Google.
+ *
+ * Stratégie de sélection automatique (priorité décroissante) :
+ *   1. Liens explicitement passés par la prop `items`
+ *   2. Sinon : pour les régions, autres régions de la même macro-area
+ *   3. Sinon : pour les pâtes, autres pâtes de la même région ou même type
+ *   4. Sinon : 3 régions au hasard (fallback)
+ */
+import { getCollection } from 'astro:content';
+
+interface SeeAlsoItem {
+  href: string;
+  label: string;
+  /** Légende courte (1 phrase max). */
+  hint?: string;
+}
+
+interface Props {
+  /** Liens explicites — bypass la heuristique. */
+  items?: SeeAlsoItem[];
+  /** Type de la fiche actuelle (pour heuristique). */
+  kind?: 'region' | 'pasta' | 'lexique' | 'article' | 'product' | 'epicier';
+  /** Slug de la fiche actuelle (à exclure du résultat). */
+  currentSlug?: string;
+  /** Macro-area de la fiche (pour les régions). */
+  macroArea?: string;
+  /** Région d'origine (pour les pâtes). */
+  region?: string;
+  /** Titre du bloc — par défaut "Voir aussi". */
+  title?: string;
+  /** Nombre maximum d'items à afficher. */
+  max?: number;
+}
+
+const { items, kind, currentSlug, macroArea, region, title = 'Voir aussi', max = 4 } = Astro.props;
+
+let resolved: SeeAlsoItem[] = items ?? [];
+
+if (resolved.length === 0 && kind === 'region') {
+  const regions = await getCollection('regions');
+  // Priorité 1 : autres régions de la même macro-area
+  let candidates = regions.filter(
+    (r) => r.id !== currentSlug && (!macroArea || r.data.macroArea === macroArea),
+  );
+  if (candidates.length < max) {
+    // Compléter avec d'autres régions au hasard
+    const others = regions.filter(
+      (r) => r.id !== currentSlug && !candidates.some((c) => c.id === r.id),
+    );
+    candidates = candidates.concat(others);
+  }
+  resolved = candidates.slice(0, max).map((r) => ({
+    href: `/regions/${r.id}`,
+    label: r.data.name,
+    hint: r.data.specialties[0] ?? undefined,
+  }));
+}
+
+if (resolved.length === 0 && kind === 'pasta') {
+  const pates = await getCollection('pates');
+  // Priorité : pâtes de la même région ou type
+  const candidates = pates
+    .filter((p) => p.id !== currentSlug && (!region || p.data.region === region))
+    .concat(pates.filter((p) => p.id !== currentSlug && (!region || p.data.region !== region)));
+  // Dédoublonner
+  const seen = new Set<string>();
+  resolved = candidates
+    .filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    })
+    .slice(0, max)
+    .map((p) => ({
+      href: `/pates/${p.id}`,
+      label: p.data.name,
+      hint: p.data.region ?? undefined,
+    }));
+}
+
+if (resolved.length === 0 && kind === 'article') {
+  // Fallback : 3 régions au hasard, parmi les étoffées
+  const regions = await getCollection('regions');
+  resolved = regions.slice(0, max).map((r) => ({
+    href: `/regions/${r.id}`,
+    label: r.data.name,
+    hint: r.data.specialties[0] ?? undefined,
+  }));
+}
+---
+{resolved.length > 0 && (
+  <section class="not-prose mt-12 border-t border-cream-200 pt-8" aria-label={title} data-pagefind-ignore>
+    <p class="text-xs uppercase tracking-widest text-olive-700 mb-4">{title}</p>
+    <ul class="grid sm:grid-cols-2 gap-3">
+      {resolved.map((it) => (
+        <li>
+          <a
+            href={it.href}
+            class="block rounded-lg border border-cream-200 bg-white p-4 hover:border-terra-300 hover:bg-cream-50 transition"
+          >
+            <p class="font-serif text-base text-ink-900 mb-0.5">{it.label}</p>
+            {it.hint && <p class="text-xs text-ink-700/70">{it.hint}</p>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

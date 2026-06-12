@@ -1,0 +1,33 @@
+{
+  "metaTitle": "L'encyclopédie de la cuisine italienne authentique",
+  "metaDescription": "Découvrez l'univers de la cuisine italienne avec Lorenzo Da Rocco, auteur et encyclopédiste passionné. Recettes, conseils et anecdotes pour une expérience culinaire authentique.",
+  "heroBlockHtml": "<div class=\"about-hero\">Bienvenue sur DaRocco, l'encyclopédie de la cuisine italienne authentique. Je suis Lorenzo Da Rocco, auteur et passionné de cuisine italienne. Mon objectif est de partager ma connaissance et mon amour pour la cuisine italienne traditionnelle, en vous proposant des recettes, des conseils et des anecdotes pour vous aider à découvrir et à apprécier la richesse de cette cuisine. Sur ce site, vous trouverez des recettes authentiques, des astuces de cuisine et des histoires qui vous feront voyager à travers l'Italie. Rejoignez-moi dans cette aventure culinaire et découvrez pourquoi la cuisine italienne est l'une des plus belles du monde.</div>",
+  "jsonLd": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://darocco.fr/#organization",
+        "name": "DaRocco",
+        "url": "https://darocco.fr",
+        "description": "Découvrez l'univers de la cuisine italienne avec Lorenzo Da Rocco, auteur et encyclopédiste passionné. Recettes, conseils et anecdotes pour une expérience culinaire authentique.",
+        "founder": {
+          "@id": "https://darocco.fr/a-propos#lorenzo"
+        }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://darocco.fr/a-propos#lorenzo",
+        "name": "Lorenzo Da Rocco",
+        "givenName": "Lorenzo",
+        "familyName": "Da Rocco",
+        "jobTitle": "Encyclopédiste de la cuisine italienne",
+        "worksFor": {
+          "@id": "https://darocco.fr/#organization"
+        }
+      }
+    ]
+  },
+  "competingEntity": "Daroco",
+  "generatedAt": "2026-05-04T06:31:01.560Z"
+}
