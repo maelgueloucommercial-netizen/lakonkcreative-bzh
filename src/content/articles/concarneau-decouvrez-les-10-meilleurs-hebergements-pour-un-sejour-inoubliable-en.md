@@ -136,3 +136,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port](/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/)
 - [Découvrez Concarneau en 1 ou 2 jours : litinéraire ultime pour un séjour inoubliable](/decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/)
 - [Découvrez le Marinarium de Concarneau : aquarium et station marine de référence en Bretagne](/decouvrez-le-marinarium-de-concarneau-aquarium-et-station-marine-de-reference-en/)
+- [Découvrez les meilleures écoles de voile et locations à Concarneau : Guide 2023](/decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/)

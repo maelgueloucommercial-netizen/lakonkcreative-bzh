@@ -109,3 +109,4 @@ Enfin, pour rester informé des prochains événements et festivals de cinéma o
 - [Concarneau en famille : 20 activités pour enfants en 2024](/concarneau-en-famille-20-activites-pour-enfants-en-2024/)
 - [Le port de pêche de Concarneau : découvrez les secrets de la criée et des traditions maritimes](/le-port-de-peche-de-concarneau-decouvrez-les-secrets-de-la-criee-et-des-traditio/)
 - [Découvrez le Marinarium de Concarneau : aquarium et station marine de référence en Bretagne](/decouvrez-le-marinarium-de-concarneau-aquarium-et-station-marine-de-reference-en/)
+- [Découvrez les meilleures écoles de voile et locations à Concarneau : Guide 2023](/decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/)
