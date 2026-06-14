@@ -86,3 +86,4 @@ Les visiteurs de la cité fortifiée peuvent également profiter des nombreux é
 ## Pour aller plus loin
 
 - [La Ville Close de Concarneau : histoire, remparts et visite en 2023](/la-ville-close-de-concarneau-histoire-remparts-et-visite-en-2023/)
+- [Découvrez lHistoire de Concarneau : 1000 Ans de Richesse Maritime et Commerciale](/decouvrez-l-histoire-de-concarneau-1000-ans-de-richesse-maritime-et-commerciale/)
