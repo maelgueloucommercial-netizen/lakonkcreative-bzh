@@ -123,3 +123,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 ## Pour aller plus loin
 
 - [Météo à Concarneau : Climat, Saisons et Meilleure Période pour Visiter (2024)](/meteo-a-concarneau-climat-saisons-et-meilleure-periode-pour-visiter-2024/)
+- [Thalasso à Concarneau : découvrez les 5 meilleurs centres pour un séjour de bien-être en 2024](/thalasso-a-concarneau-decouvrez-les-5-meilleurs-centres-pour-un-sejour-de-bien-e/)
