@@ -110,3 +110,6 @@ Enfin, n'oubliez pas de réserver à l'avance pour éviter les désagréments, s
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Pêche à pied à Concarneau : 5 spots incontournables et conseils de marées pour 2024](/peche-a-pied-a-concarneau-5-spots-incontournables-et-conseils-de-marees-pour-202/)

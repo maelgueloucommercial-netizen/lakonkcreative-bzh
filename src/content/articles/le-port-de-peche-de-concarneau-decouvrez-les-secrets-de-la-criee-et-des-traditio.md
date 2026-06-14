@@ -97,3 +97,4 @@ Il est important de noter que l'industrie de la pêche à Concarneau est soumise
 ## Pour aller plus loin
 
 - [Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port](/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/)
+- [Pêche à pied à Concarneau : 5 spots incontournables et conseils de marées pour 2024](/peche-a-pied-a-concarneau-5-spots-incontournables-et-conseils-de-marees-pour-202/)
