@@ -113,3 +113,6 @@ Il est important de noter que les tarifs des centres de thalasso à Concarneau p
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal](/la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/)
