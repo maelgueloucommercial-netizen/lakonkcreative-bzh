@@ -107,3 +107,6 @@ En visitant les marchés de poissons à Concarneau, les consommateurs peuvent d�
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Les 10 Meilleurs Restaurants de Concarneau [2023] : Guide Expert](/les-10-meilleurs-restaurants-de-concarneau-2023-guide-expert/)
