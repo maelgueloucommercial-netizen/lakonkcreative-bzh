@@ -158,3 +158,6 @@ De plus, des sites tels que Wikipedia fournissent des informations sur l'histoir
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Activités nautiques à Concarneau : découvrez les 10 meilleures expériences en 2024](/activites-nautiques-a-concarneau-decouvrez-les-10-meilleures-experiences-en-2024/)
