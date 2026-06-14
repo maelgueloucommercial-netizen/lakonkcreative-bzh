@@ -106,3 +106,6 @@ Selon le site officiel de l'Office de Tourisme de Concarneau, la ville propose �
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Les 10 meilleures tables et crêperies de Concarneau : guide 2023](/les-10-meilleures-tables-et-creperies-de-concarneau-guide-2023/)
