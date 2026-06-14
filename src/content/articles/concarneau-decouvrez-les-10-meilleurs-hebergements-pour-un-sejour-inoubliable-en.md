@@ -126,3 +126,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Thalasso à Concarneau : découvrez les 5 meilleurs centres pour un séjour de bien-être en 2024](/thalasso-a-concarneau-decouvrez-les-5-meilleurs-centres-pour-un-sejour-de-bien-e/)
 - [La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal](/la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/)
 - [Découvrez le Cineville de Concarneau : programmation et actualités 2024](/decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/)
+- [LUS Concarneau : découvrez lhistoire, le stade et le calendrier du club breton depuis 1911](/l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/)

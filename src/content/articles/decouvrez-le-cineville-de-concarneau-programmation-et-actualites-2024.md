@@ -101,3 +101,6 @@ Enfin, pour rester informé des prochains événements et festivals de cinéma o
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [LUS Concarneau : découvrez lhistoire, le stade et le calendrier du club breton depuis 1911](/l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/)
