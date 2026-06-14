@@ -107,3 +107,4 @@ Enfin, pour rester informé des prochains événements et festivals de cinéma o
 - [Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023](/decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/)
 - [Découvrez le marché de Concarneau : jours, horaires et bonnes adresses pour 2024](/decouvrez-le-marche-de-concarneau-jours-horaires-et-bonnes-adresses-pour-2024/)
 - [Concarneau en famille : 20 activités pour enfants en 2024](/concarneau-en-famille-20-activites-pour-enfants-en-2024/)
+- [Le port de pêche de Concarneau : découvrez les secrets de la criée et des traditions maritimes](/le-port-de-peche-de-concarneau-decouvrez-les-secrets-de-la-criee-et-des-traditio/)
