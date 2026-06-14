@@ -113,3 +113,4 @@ Enfin, n'oubliez pas de réserver à l'avance pour éviter les désagréments, s
 ## Pour aller plus loin
 
 - [Pêche à pied à Concarneau : 5 spots incontournables et conseils de marées pour 2024](/peche-a-pied-a-concarneau-5-spots-incontournables-et-conseils-de-marees-pour-202/)
+- [Manger pas cher à Concarneau : 10 bonnes adresses et snacks à partir de 5€](/manger-pas-cher-a-concarneau-10-bonnes-adresses-et-snacks-a-partir-de-5/)

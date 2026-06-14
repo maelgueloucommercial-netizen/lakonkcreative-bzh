@@ -105,3 +105,4 @@ Il est également important de se renseigner sur les labels et les certification
 ## Pour aller plus loin
 
 - [Découvrez Concarneau en 1 ou 2 jours : litinéraire ultime pour un séjour inoubliable](/decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/)
+- [Manger pas cher à Concarneau : 10 bonnes adresses et snacks à partir de 5€](/manger-pas-cher-a-concarneau-10-bonnes-adresses-et-snacks-a-partir-de-5/)
