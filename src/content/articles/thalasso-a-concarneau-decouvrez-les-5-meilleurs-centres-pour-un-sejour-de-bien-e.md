@@ -116,3 +116,4 @@ Il est important de noter que les tarifs des centres de thalasso à Concarneau p
 ## Pour aller plus loin
 
 - [La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal](/la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/)
+- [Découvrez le Cineville de Concarneau : programmation et actualités 2024](/decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/)

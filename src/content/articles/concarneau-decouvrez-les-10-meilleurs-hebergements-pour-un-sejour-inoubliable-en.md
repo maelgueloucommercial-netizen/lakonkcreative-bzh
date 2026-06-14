@@ -125,3 +125,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Météo à Concarneau : Climat, Saisons et Meilleure Période pour Visiter (2024)](/meteo-a-concarneau-climat-saisons-et-meilleure-periode-pour-visiter-2024/)
 - [Thalasso à Concarneau : découvrez les 5 meilleurs centres pour un séjour de bien-être en 2024](/thalasso-a-concarneau-decouvrez-les-5-meilleurs-centres-pour-un-sejour-de-bien-e/)
 - [La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal](/la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/)
+- [Découvrez le Cineville de Concarneau : programmation et actualités 2024](/decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/)
