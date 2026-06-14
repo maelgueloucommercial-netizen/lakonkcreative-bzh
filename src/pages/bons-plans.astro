@@ -1,0 +1,134 @@
+---
+/**
+ * Page BONS PLANS — produits en promo (oldPrice > price), triés par remise.
+ * Benchmark objetrama 2026-06-10 : « Bons plans » est une entrée de nav top-level
+ * chez les e-commerçants qui rankent = page money par intention d'achat.
+ * Complément : top des meilleures notes (la page reste riche même avec peu de promos).
+ * ⚠️ À ne déployer QUE sur les sites avec boutique (collection produits non vide).
+ * URL /bons-plans/. Schemas CollectionPage + ItemList + BreadcrumbList.
+ */
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { getCollection } from 'astro:content';
+import '../styles/templates.css';
+
+const produits = await getCollection('produits').catch(() => []);
+const score = (p: any) => (p.data.scoreGlobal ?? p.data.rating ?? 0) as number;
+const img = (p: any) => (p.data.images?.[0] ?? null) as string | null;
+const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const disc = (p: any) => (typeof p.data.oldPrice === 'number' && typeof p.data.price === 'number' && p.data.oldPrice > p.data.price)
+  ? Math.round((1 - p.data.price / p.data.oldPrice) * 100) : null;
+
+const deals = (produits as any[]).filter((p) => disc(p) !== null).sort((a, b) => (disc(b) ?? 0) - (disc(a) ?? 0));
+const best = (produits as any[]).filter((p) => score(p) >= 4.4 && disc(p) === null).sort((a, b) => score(b) - score(a)).slice(0, 8);
+const totalSave = deals.reduce((s, p) => s + (p.data.oldPrice - p.data.price), 0);
+const cats = [...new Set((produits as any[]).map((p) => p.data.category))];
+const catLabel = new Map((produits as any[]).map((p) => [p.data.category, p.data.categoryLabel ?? p.data.category]));
+
+const pageUrl = new URL('/bons-plans/', SITE_CONFIG.siteUrl).toString();
+const title = `Bons plans ${SITE_CONFIG.siteName} : ${deals.length ? `${deals.length} promo${deals.length > 1 ? 's' : ''} en cours` : 'les meilleures offres du moment'}`;
+const description = deals.length
+  ? `${deals.length} produits en promotion (jusqu'à -${disc(deals[0])}%) : prix barrés réels, notes vérifiées et fiches testées. Économisez ${Math.round(totalSave)} € au total sur notre sélection.`
+  : `Les meilleures offres et les produits les mieux notés de notre sélection, testés et comparés. Prix suivis régulièrement.`;
+
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: pageUrl,
+    mainEntity: { '@type': 'ItemList', numberOfItems: deals.length || best.length,
+      itemListElement: (deals.length ? deals : best).map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.data.title, url: new URL(`/produit/${p.data.slug}/`, SITE_CONFIG.siteUrl).toString() })) } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Boutique', item: new URL('/boutique/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: 'Bons plans', item: pageUrl }] },
+];
+
+const priceTxt = (p: any) => (typeof p.data.price === 'number' ? `${p.data.price} €` : (p.data.priceText ?? ''));
+---
+<Base title={title} description={description} canonical={pageUrl} type="website" jsonLd={jsonLd}>
+  <div class="bp">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/boutique/">Boutique</a> › <span>Bons plans</span></nav></div>
+
+    <section class="tpl-band tpl-band--tint" style="padding-bottom:1.6rem"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">🔥 Promos suivies</span>
+      <h1 class="tpl-h1">Bons plans : les vraies remises du moment</h1>
+      <p class="tpl-lead">{description}</p>
+      <ul class="bp-reassure">
+        <li>✓ Prix barrés réellement observés</li>
+        <li>✓ Produits testés &amp; notés par la rédaction</li>
+        <li>✓ Mise à jour régulière</li>
+      </ul>
+    </div></section>
+
+    {deals.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">En promotion</span>
+        <h2 class="tpl-h2">{deals.length} produit{deals.length > 1 ? 's' : ''} en baisse de prix</h2>
+        <div class="bp-grid">
+          {deals.map((p) => (
+            <a class="tpl-card bp-card" href={`/produit/${p.data.slug}/`}>
+              <div class="bp-imgwrap">
+                {img(p) && <img src={img(p)} alt={p.data.title} loading="lazy" width="240" height="180" />}
+                <span class="bp-disc">-{disc(p)}%</span>
+              </div>
+              {p.data.brand && <span class="bp-brand">{p.data.brand}</span>}
+              <strong>{p.data.title}</strong>
+              {score(p) > 0 && <span class="tpl-stars bp-stars">{stars(score(p))} <small>{score(p)}/5</small></span>}
+              <span class="bp-price"><s>{p.data.oldPrice} €</s> {priceTxt(p)}</span>
+              <span class="bp-save">Économie : {Math.round(p.data.oldPrice - p.data.price)} €</span>
+              <span class="bp-cta">Voir le bon plan →</span>
+            </a>
+          ))}
+        </div>
+      </div></section>
+    )}
+
+    {best.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Valeurs sûres</span>
+        <h2 class="tpl-h2">Les mieux notés de la sélection</h2>
+        <p class="tpl-lead" style="max-width:62ch">Pas de promo en cours sur ces modèles, mais leur rapport qualité-prix en fait des achats sans regret.</p>
+        <div class="bp-grid">
+          {best.map((p) => (
+            <a class="tpl-card bp-card" href={`/produit/${p.data.slug}/`}>
+              <div class="bp-imgwrap">{img(p) && <img src={img(p)} alt={p.data.title} loading="lazy" width="240" height="180" />}{p.data.badge && <span class="bp-badge">{p.data.badge}</span>}</div>
+              {p.data.brand && <span class="bp-brand">{p.data.brand}</span>}
+              <strong>{p.data.title}</strong>
+              {score(p) > 0 && <span class="tpl-stars bp-stars">{stars(score(p))} <small>{score(p)}/5</small></span>}
+              <span class="bp-price">{priceTxt(p)}</span>
+              <span class="bp-cta">Voir la fiche →</span>
+            </a>
+          ))}
+        </div>
+      </div></section>
+    )}
+
+    <section class="tpl-band"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Explorer</span>
+      <h2 class="tpl-h2">Chercher par rayon</h2>
+      <ul class="bp-mesh">
+        {cats.map((c) => <li><a href={`/categorie-produit/${c}/`}>{catLabel.get(c)}</a></li>)}
+        <li><a href="/boutique/"><strong>Toute la boutique →</strong></a></li>
+      </ul>
+      <p class="tpl-mini" style="margin-top:1.6rem">Liens partenaires : une commission peut nous être versée, sans surcoût pour vous. Les prix et remises affichés sont indicatifs, observés au moment de la mise à jour : vérifiez le prix final chez le marchand.</p>
+    </div></section>
+  </div>
+</Base>
+
+<style>
+  .bp-reassure { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; font-size: .88rem; color: var(--site-text-muted); }
+  .bp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+  .bp-card { position: relative; display: flex; flex-direction: column; gap: .3rem; text-decoration: none; color: var(--site-text); }
+  .bp-imgwrap { position: relative; }
+  .bp-card img { width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #fff; aspect-ratio: 4/3; }
+  .bp-disc { position: absolute; top: .5rem; right: .5rem; background: #b0654f; color: #fff; font-weight: 800; border-radius: 7px; padding: .15rem .55rem; font-size: .92rem; }
+  .bp-badge { position: absolute; top: .5rem; left: .5rem; background: var(--site-secondary); color: #2a1a00; font-weight: 800; border-radius: 7px; padding: .1rem .5rem; font-size: .72rem; }
+  .bp-brand { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--site-text-muted); margin-top: .4rem; font-weight: 700; }
+  .bp-card strong { font-size: .92rem; line-height: 1.25; }
+  .bp-stars { color: var(--site-secondary); font-size: .82rem; } .bp-stars small { color: var(--site-text-muted); }
+  .bp-price { font-weight: 800; color: var(--site-primary); font-size: 1.05rem; }
+  .bp-price s { font-weight: 500; color: var(--site-text-muted); font-size: .82rem; margin-right: .35rem; }
+  .bp-save { font-size: .78rem; color: #1b6b3e; font-weight: 700; }
+  .bp-cta { margin-top: auto; padding-top: .3rem; font-size: .8rem; color: var(--site-primary); font-weight: 600; }
+  .bp-mesh { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .bp-mesh a { background: var(--site-bg-2); color: var(--site-primary); border-radius: 999px; padding: .4rem 1rem; font-size: .85rem; font-weight: 600; text-decoration: none; }
+  .bp-mesh a:hover { background: var(--site-primary); color: #fff; }
+</style>

@@ -1,0 +1,190 @@
+---
+/**
+ * Sprint 11 — Mega-pillar page : index thématique exhaustif.
+ *
+ * Équivalent darocco /pates-italiennes : extrait tous les noms propres
+ * (lieux, marques, personnes) des titres d'articles + groupe par première
+ * lettre. Page d'autorité avec maillage interne dense (50-200 liens
+ * sortants vers des articles).
+ */
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+import { getCollection } from 'astro:content';
+
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[5] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const articles = await getCollection('articles');
+articles.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+function getArticleUrl(entry: typeof articles[number]): string {
+  const d = entry.data;
+  if (d.dateUrlFormat) {
+    return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
+  }
+  return d.urlPath ? `/${d.urlPath}/${d.slug}/` : `/${d.slug}/`;
+}
+
+function extractProperNouns(title: string): string[] {
+  const phrases = new Set<string>();
+  const composeRe = /\b([A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]+(?:-(?:[a-zà-ÿœæ]+|[A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]+))+)\b/gu;
+  let m;
+  while ((m = composeRe.exec(title)) !== null) {
+    if (m[1].length >= 5) phrases.add(m[1]);
+  }
+  const multiCapRe = /\b([A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]{2,}(?:\s+[A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]{2,}){1,2})\b/gu;
+  while ((m = multiCapRe.exec(title)) !== null) {
+    if (m[1].length >= 5) phrases.add(m[1]);
+  }
+  const acroRe = /\b([A-Z]{3,})\b/g;
+  while ((m = acroRe.exec(title)) !== null) {
+    if (m[1].length >= 5) phrases.add(m[1]);
+  }
+  return [...phrases];
+}
+
+const STOPWORDS = new Set([
+  'Découvrez', 'Decouvrez', 'Visitez', 'Découvrir', 'Découverte', 'Decouverte',
+  'Comment', 'Pourquoi', 'Quand', 'Quels', 'Quelles',
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
+  'Septembre', 'Octobre', 'Novembre', 'Décembre',
+  'Meilleur', 'Meilleure', 'Top',
+]);
+
+const phraseToArticle = new Map<string, typeof articles[number]>();
+for (const a of articles) {
+  const phrases = extractProperNouns(a.data.title);
+  for (const p of phrases) {
+    if (STOPWORDS.has(p.split(/[-\s]/)[0])) continue;
+    if (!phraseToArticle.has(p)) phraseToArticle.set(p, a);
+  }
+}
+
+const byLetter = new Map<string, Array<{ phrase: string; article: typeof articles[number] }>>();
+for (const [phrase, article] of phraseToArticle) {
+  const l = phrase[0].toUpperCase();
+  if (!byLetter.has(l)) byLetter.set(l, []);
+  byLetter.get(l)!.push({ phrase, article });
+}
+for (const arr of byLetter.values()) {
+  arr.sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr'));
+}
+const sortedLetters = [...byLetter.keys()].sort();
+const totalEntries = phraseToArticle.size;
+const archetype = SITE_CONFIG.theme.archetype;
+
+const TITLES: Record<string, string> = {
+  village: 'Index thématique — communes, lieux et personnalités',
+  bricolage: 'Index thématique — produits, marques et techniques',
+  tech: 'Index thématique — produits, jeux et marques',
+  adulte: 'Index thématique — modèles et marques',
+};
+const TAGLINES: Record<string, string> = {
+  village: `Toutes les entrées identifiées dans nos articles : communes voisines, lieux remarquables, personnalités locales.`,
+  bricolage: `Toutes les entrées identifiées : marques d'outillage, techniques, normes, produits.`,
+  tech: `Toutes les entrées identifiées : marques, modèles, jeux, technologies.`,
+  adulte: `Toutes les entrées identifiées : modèles, marques, types de produits.`,
+};
+const HERO_LABELS: Record<string, string> = {
+  village: 'Lieux & noms',
+  bricolage: 'Marques & techniques',
+  tech: 'Modèles & technologies',
+  adulte: 'Modèles & marques',
+};
+const title = TITLES[archetype] ?? TITLES.village;
+const tagline = TAGLINES[archetype] ?? TAGLINES.village;
+const heroLabel = HERO_LABELS[archetype] ?? HERO_LABELS.village;
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Index thématique — ${SITE_CONFIG.siteName}`,
+  description: `Index thématique exhaustif sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/index-thematique/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
+---
+<Base title={title} description={`${tagline} ${totalEntries} entrées indexées.`}
+  jsonLd={[_pageSchema]}
+>
+
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">{heroLabel}</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 72px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          L'<em style="font-style:italic">index</em> complet.
+        </h1>
+        <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:520px;margin-bottom:32px">
+          {tagline}
+        </p>
+        <div style="display:flex;gap:32px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">
+          <div><span style="font-family:'Cormorant Garamond',serif;font-size:32px;font-style:italic;color:var(--color-accent);font-weight:400;letter-spacing:-.5px">{totalEntries}</span> entrées</div>
+          <div><span style="font-family:'Cormorant Garamond',serif;font-size:32px;font-style:italic;color:var(--color-accent);font-weight:400;letter-spacing:-.5px">{sortedLetters.length}</span> lettres</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Letter navigation sticky */}
+  <section style="padding:32px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border);position:sticky;top:0;z-index:30">
+    <div class="site-container">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+        {sortedLetters.map((l) => (
+          <a href={`#${l}`} style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--color-ink);text-decoration:none;border:1px solid var(--color-border);transition:background .2s">{l}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Index par lettre */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container">
+      {sortedLetters.map((letter) => (
+        <section id={letter} style="margin-bottom:80px;display:grid;grid-template-columns:140px 1fr;gap:48px;align-items:start;scroll-margin-top:120px" class="idx-row">
+          <h2 class="serif" style="font-size:120px;line-height:1;font-weight:400;letter-spacing:-4px;color:var(--color-accent);position:sticky;top:130px">{letter}</h2>
+          <div>
+            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:24px;font-weight:600;padding-bottom:18px;border-bottom:1px solid var(--color-border)">{byLetter.get(letter)!.length} entrée{byLetter.get(letter)!.length > 1 ? 's' : ''}</div>
+            <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2, 1fr);gap:0 32px" class="idx-list">
+              {byLetter.get(letter)!.map((entry) => (
+                <li style="border-bottom:1px solid var(--color-border)">
+                  <a href={getArticleUrl(entry.article)} style="display:block;padding:14px 0;text-decoration:none;color:inherit">
+                    <span class="serif" style="font-size:18px;line-height:1.3;font-weight:400;letter-spacing:-.2px">{entry.phrase}</span>
+                    <span style="display:block;font-size:12px;color:var(--color-text-muted);margin-top:2px;line-height:1.4">→ {entry.article.data.title.slice(0, 50)}{entry.article.data.title.length > 50 ? '…' : ''}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))}
+
+      {totalEntries === 0 && (
+        <p style="text-align:center;padding:96px 0;font-size:18px;color:var(--color-text-muted);line-height:1.6">
+          L'index thématique sera disponible quand davantage d'articles auront été publiés.
+        </p>
+      )}
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+  .idx-row { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .idx-row h2 { position: static !important; font-size: 72px !important; }
+  .idx-list { grid-template-columns: 1fr !important; }
+}
+</style>

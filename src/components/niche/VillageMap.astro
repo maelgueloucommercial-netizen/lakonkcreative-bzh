@@ -1,0 +1,144 @@
+---
+/**
+ * VillageMap — carte interactive du village (archetype VILLAGE).
+ * Utilise MapLibre + tuiles OSM gratuites (no API key needed).
+ * Affiche la commune + cercle 5km + 5-10 POI (mairie, école, médecin, etc.)
+ */
+import { SITE_CONFIG } from '../../lib/site-config';
+
+if (SITE_CONFIG.theme.archetype !== 'village') return null;
+
+interface POI {
+  name: string;
+  lat: number;
+  lon: number;
+  category: 'mairie' | 'commerce' | 'service' | 'patrimoine' | 'tourisme';
+}
+
+// POIs par site (à enrichir avec données réelles plus tard, hardcoded pour l'instant)
+const POI_BY_DOMAIN: Record<string, { center: [number, number]; cityLabel: string; pois: POI[] }> = {
+  'sognolles-en-montois.fr': {
+    center: [3.275, 48.5217],
+    cityLabel: 'Sognolles-en-Montois',
+    pois: [
+      { name: 'Mairie de Sognolles-en-Montois', lat: 48.5217, lon: 3.2750, category: 'mairie' },
+      { name: 'Église Saint-Lambert (XIIIe siècle)', lat: 48.5220, lon: 3.2745, category: 'patrimoine' },
+      { name: 'Épicerie du village', lat: 48.5212, lon: 3.2748, category: 'commerce' },
+    ],
+  },
+  'carces.fr': {
+    center: [6.1822, 43.4778],
+    cityLabel: 'Carcès',
+    pois: [
+      { name: 'Mairie de Carcès', lat: 43.4778, lon: 6.1822, category: 'mairie' },
+      { name: 'Lac de Carcès', lat: 43.4708, lon: 6.1689, category: 'tourisme' },
+      { name: 'Église paroissiale', lat: 43.4775, lon: 6.1825, category: 'patrimoine' },
+      { name: 'Office de tourisme', lat: 43.4777, lon: 6.1820, category: 'service' },
+    ],
+  },
+  'gardonne.fr': {
+    center: [0.350, 44.8425],
+    cityLabel: 'Gardonne',
+    pois: [
+      { name: 'Mairie de Gardonne', lat: 44.8425, lon: 0.3500, category: 'mairie' },
+      { name: 'Église romane', lat: 44.8420, lon: 0.3505, category: 'patrimoine' },
+      { name: 'Bord de Dordogne (ponton)', lat: 44.8418, lon: 0.3490, category: 'tourisme' },
+    ],
+  },
+  'merenslesvals.fr': {
+    center: [1.8358, 42.6592],
+    cityLabel: 'Mérens-les-Vals',
+    pois: [
+      { name: 'Mairie de Mérens-les-Vals', lat: 42.6592, lon: 1.8358, category: 'mairie' },
+      { name: 'Sanctuaire Notre-Dame', lat: 42.6597, lon: 1.8345, category: 'patrimoine' },
+      { name: 'Sentier des étangs', lat: 42.6630, lon: 1.8270, category: 'tourisme' },
+    ],
+  },
+  'montredon-labessonnie.fr': {
+    center: [2.3708, 43.7158],
+    cityLabel: 'Montredon-Labessonnié',
+    pois: [
+      { name: 'Mairie de Montredon-Labessonnié', lat: 43.7158, lon: 2.3708, category: 'mairie' },
+      { name: 'Lac du Bonnan', lat: 43.7090, lon: 2.3825, category: 'tourisme' },
+      { name: 'Église Saint-Géraud', lat: 43.7160, lon: 2.3712, category: 'patrimoine' },
+    ],
+  },
+  'ville-bruyereslechatel.fr': {
+    center: [2.2436, 48.5742],
+    cityLabel: 'Bruyères-le-Châtel',
+    pois: [
+      { name: 'Mairie de Bruyères-le-Châtel', lat: 48.5742, lon: 2.2436, category: 'mairie' },
+      { name: 'Église Saint-Didier', lat: 48.5740, lon: 2.2440, category: 'patrimoine' },
+      { name: 'Forêt domaniale', lat: 48.5800, lon: 2.2350, category: 'tourisme' },
+    ],
+  },
+};
+
+const data = POI_BY_DOMAIN[SITE_CONFIG.domain];
+if (!data) return null;
+
+const poiJson = JSON.stringify(data.pois);
+const center = data.center;
+const cityLabel = data.cityLabel;
+---
+<section class="village-map not-prose" style="margin:48px 0" aria-label={`Carte de ${cityLabel}`}>
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+    <div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600;margin-bottom:6px">Cartographie</div>
+      <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.15;font-weight:400;letter-spacing:-.3px;margin:0;color:var(--color-ink)">
+        Carte de <em style="font-style:italic">{cityLabel}</em>
+      </h2>
+    </div>
+    <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);font-weight:500">© OpenStreetMap</span>
+  </div>
+  <div id="village-map" style="height:380px;border:1px solid var(--color-border)"></div>
+  <div style="margin-top:18px;display:grid;grid-template-columns:repeat(5, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="legend-grid">
+    <span style="padding:12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--color-ink);font-weight:500;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc2626"></span>Mairie</span>
+    <span style="padding:12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--color-ink);font-weight:500;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2563eb"></span>Service</span>
+    <span style="padding:12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--color-ink);font-weight:500;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#059669"></span>Commerce</span>
+    <span style="padding:12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--color-ink);font-weight:500;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d97706"></span>Patrimoine</span>
+    <span style="padding:12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--color-ink);font-weight:500;display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9333ea"></span>Tourisme</span>
+  </div>
+</section>
+<style>
+@media (max-width: 700px) { .legend-grid { grid-template-columns: 1fr 1fr !important; } }
+</style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<script is:inline src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script is:inline define:vars={{ poiJson, center, cityLabel }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof maplibregl === 'undefined') return;
+    const pois = JSON.parse(poiJson);
+    const map = new maplibregl.Map({
+      container: 'village-map',
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '© OpenStreetMap',
+          },
+        },
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+      },
+      center,
+      zoom: 14,
+    });
+    const colors = {
+      mairie: '#dc2626',
+      service: '#2563eb',
+      commerce: '#059669',
+      patrimoine: '#d97706',
+      tourisme: '#9333ea',
+    };
+    pois.forEach((p) => {
+      const el = document.createElement('div');
+      el.style.cssText = `width:24px;height:24px;border-radius:50%;background:${colors[p.category]};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;`;
+      const popup = new maplibregl.Popup({ offset: 12 }).setHTML(`<strong>${p.name}</strong><br><small>${p.category}</small>`);
+      new maplibregl.Marker(el).setLngLat([p.lon, p.lat]).setPopup(popup).addTo(map);
+    });
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+  });
+</script>

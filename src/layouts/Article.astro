@@ -1,0 +1,321 @@
+---
+import Base from './Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { classifyIntent } from '../lib/intent-classifier';
+import { buildNicheSchemas } from '../lib/niche-schema';
+import { buildAutoFaq } from '../lib/auto-faq';
+import { getArticleImage } from '../lib/article-wiki-images';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+import { render, type CollectionEntry } from 'astro:content';
+
+import TableOfContents from '../components/TableOfContents.astro';
+import AdUnit from '../components/AdUnit.astro';
+import AuthorBio from '../components/AuthorBio.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import SeeAlso from '../components/SeeAlso.astro';
+import Newsletter from '../components/Newsletter.astro';
+import RecentlyRead from '../components/RecentlyRead.astro';
+import SponsoredBanner from '../components/SponsoredBanner.astro';
+import Position0 from '../components/Position0.astro';
+import AutoFaq from '../components/AutoFaq.astro';
+import LocalMap from '../components/LocalMap.astro';
+import AdaptiveCta from '../components/AdaptiveCta.astro';
+import WeatherWidget from '../components/niche/WeatherWidget.astro';
+import ProductComparator from '../components/niche/ProductComparator.astro';
+import VillageMap from '../components/niche/VillageMap.astro';
+import Calculator from '../components/niche/Calculator.astro';
+import RelatedSearches from '../components/RelatedSearches.astro';
+import FeedbackWidget from '../components/FeedbackWidget.astro';
+import Comments from '../components/Comments.astro';
+
+interface Props {
+  entry: CollectionEntry<'articles'>;
+}
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content, headings } = await render(entry);
+// Astro 5 — entry.body est le markdown source brut
+const body = (entry as any).body ?? '';
+
+const intent = classifyIntent({
+  title: data.title,
+  slug: data.slug,
+  sponsored: data.sponsored,
+  archetype: SITE_CONFIG.theme.archetype,
+});
+
+const wordCount = (body ?? '').split(/\s+/).filter(Boolean).length;
+const readingMinutes = Math.max(1, Math.round(wordCount / 200));
+
+const autoFaq = buildAutoFaq({
+  title: data.title,
+  intent: intent.primary,
+  archetype: SITE_CONFIG.theme.archetype,
+  description: data.description,
+});
+// FAQ réelle (PAA Brave) groundée depuis le frontmatter → prioritaire sur l'auto.
+const faqOverride = ((data as any).faq?.length
+  ? (data as any).faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer }))
+  : undefined) as { q: string; a: string }[] | undefined;
+const finalFaq = faqOverride ?? autoFaq;
+
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+
+// Hero image cascade : 1) frontmatter heroImage, 2) match Wikipedia par slug, 3) fallback site-level Wikipedia (rotation déterministe par slug pour varier d'un article à l'autre)
+function pickSiteHeroFallback(slug: string): string | undefined {
+  const subjects = SITE_CONFIG.profile?.wikiImageSubjects ?? [];
+  if (subjects.length === 0) return undefined;
+  // Hash deterministic du slug pour piocher un index → varie par article mais reste stable
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) & 0xffffff;
+  for (let i = 0; i < subjects.length; i++) {
+    const idx = (hash + i) % subjects.length;
+    const img = WIKI_IMAGES[subjects[idx]];
+    if (img) return img;
+  }
+  return undefined;
+}
+const heroImg = data.heroImage ?? getArticleImage(data.slug) ?? pickSiteHeroFallback(data.slug);
+// Resolve category metadata from profile if frontmatter category matches a slug
+const catSlug = (data as any).category as string | undefined;
+const categoryRef = catSlug && SITE_CONFIG.profile?.categories
+  ? (() => {
+      const cat = SITE_CONFIG.profile!.categories.find((c) => c.slug === catSlug);
+      return cat ? { slug: cat.slug, name: cat.name } : undefined;
+    })()
+  : undefined;
+
+const schemas = buildNicheSchemas({
+  archetype: SITE_CONFIG.theme.archetype,
+  intent: intent.primary,
+  title: data.title,
+  description: data.description,
+  pubDate: data.pubDate,
+  modifiedDate: data.modifiedDate,
+  url: pageUrl,
+  siteName: SITE_CONFIG.siteName,
+  siteUrl: SITE_CONFIG.siteUrl,
+  heroImage: heroImg,
+  bodyText: body ?? '',
+  faq: finalFaq,
+  domain: SITE_CONFIG.domain,
+  author: SITE_CONFIG.profile?.author
+    ? {
+        name: SITE_CONFIG.profile.author.name,
+        role: SITE_CONFIG.profile.author.role,
+        bio: SITE_CONFIG.profile.author.bio,
+        credentials: SITE_CONFIG.profile.author.credentials,
+        sameAs: SITE_CONFIG.profile.authorSameAs,
+      }
+    : undefined,
+  category: categoryRef,
+  sources: (data as any).sources, // optional frontmatter array of {name, url}
+});
+
+// Schema LocalBusiness optionnel — défini dans le frontmatter de l'article pour
+// les pages de commerce local (boulangerie, pharmacie, restaurant, etc.).
+// Boost le ranking sur les requêtes locales (intent local fort).
+if ((data as any).localBusiness) {
+  const lb = (data as any).localBusiness;
+  const profileGeo = SITE_CONFIG.profile?.geo;
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': lb.type ?? 'LocalBusiness',
+    name: lb.name ?? data.title.replace(/\s*[—:].*$/, ''),
+    ...(lb.description && { description: lb.description }),
+    url: pageUrl,
+    ...(lb.telephone && { telephone: lb.telephone }),
+    ...(lb.email && { email: lb.email }),
+    ...(lb.image && { image: lb.image }),
+    ...(lb.priceRange && { priceRange: lb.priceRange }),
+    address: {
+      '@type': 'PostalAddress',
+      ...(lb.street && { streetAddress: lb.street }),
+      postalCode: lb.postalCode ?? (profileGeo?.placename === 'Gardonne' ? '24680' : undefined),
+      addressLocality: lb.locality ?? profileGeo?.placename ?? '',
+      addressRegion: lb.region ?? 'Dordogne',
+      addressCountry: 'FR',
+    },
+    ...(profileGeo && {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: lb.lat ?? profileGeo.lat,
+        longitude: lb.lng ?? profileGeo.lng,
+      },
+    }),
+    ...(lb.openingHours && { openingHours: lb.openingHours }),
+    inLanguage: 'fr-FR',
+  });
+}
+
+const dateFormatted = data.pubDate.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+const updatedFormatted = data.modifiedDate
+  ? data.modifiedDate.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+
+const tocHeadings = (headings ?? [])
+  .filter((h) => h.depth >= 2 && h.depth <= 3)
+  .map((h) => ({ depth: h.depth, slug: h.slug, text: h.text }));
+
+const showWeather = intent.primary === 'local_info' && SITE_CONFIG.theme.archetype === 'village';
+const showComparator = ['comparator', 'buying_guide', 'product_review'].includes(intent.primary)
+  && ['bricolage', 'tech'].includes(SITE_CONFIG.theme.archetype);
+const showVillageMap = ['local_info', 'local_listing'].includes(intent.primary)
+  && SITE_CONFIG.theme.archetype === 'village';
+const showCalculator = intent.primary === 'how_to'
+  && ['bricolage', 'tech', 'village'].includes(SITE_CONFIG.theme.archetype);
+
+const profile = SITE_CONFIG.profile;
+---
+<Base
+  title={data.title}
+  description={data.description}
+  type="article"
+  pubDate={data.pubDate}
+  modifiedDate={data.modifiedDate}
+  ogImage={heroImg ?? `/og/${data.slug}.svg`}
+  jsonLd={schemas}
+  noindex={data.noindex === true}
+>
+  <ReadingProgress />
+
+  {/* HERO full-bleed style Lelo */}
+  <article data-article data-intent={intent.primary} data-pagefind-body>
+    <header style={`position:relative;${heroImg ? `height:80vh;min-height:520px;max-height:780px` : 'padding:120px 0 60px'};overflow:hidden`}>
+      {heroImg && (
+        <>
+          {/* IMG réel pour SEO + accessibilité, masqué visuellement (le visuel utilise background-image en surcouche) */}
+          <img src={heroImg} alt={data.title} loading="eager" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(1.05)" />
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 0%, rgba(20,15,12,.55) 100%)"></div>
+        </>
+      )}
+      <div style={`position:relative;z-index:2;${heroImg ? 'height:100%;color:#fff' : ''};display:flex;flex-direction:column;justify-content:flex-end;${heroImg ? 'padding:0 0 80px' : ''}`}>
+        <div class="site-container site-container--narrow">
+          <nav style={`font-size:11px;letter-spacing:2px;text-transform:uppercase;${heroImg ? 'color:rgba(255,255,255,.85)' : 'color:var(--color-text-muted)'};margin-bottom:24px`} aria-label="Fil d'Ariane" data-pagefind-ignore>
+            <a href="/" style="color:inherit;text-decoration:none">Accueil</a>
+            <span style="margin:0 10px">·</span>
+            <a href="/articles/" style="color:inherit;text-decoration:none">Articles</a>
+            {data.sponsored && (<><span style="margin:0 10px">·</span><span>Sponsorisé</span></>)}
+          </nav>
+          <div class={heroImg ? 'eyebrow-light' : 'eyebrow'} style="margin-bottom:18px">
+            {dateFormatted}
+            {updatedFormatted && updatedFormatted !== dateFormatted && <span> · Mis à jour le {updatedFormatted}</span>}
+            <span> · {readingMinutes} min de lecture</span>
+            {intent.primary !== 'general' && <span> · {intent.primary.replace('_', ' ')}</span>}
+          </div>
+          <h1 class="serif" style={`font-size:clamp(40px, 6.5vw, 88px);line-height:1.05;font-weight:400;letter-spacing:-1.5px;margin-bottom:24px;${heroImg ? 'color:#fff' : 'color:var(--color-ink)'}`}>
+            {data.title}
+          </h1>
+          {data.description && (
+            <p style={`font-size:18px;line-height:1.6;max-width:680px;${heroImg ? 'color:rgba(255,255,255,.92)' : 'color:var(--color-text-muted)'}`}>
+              {data.description.slice(0, 200)}{data.description.length > 200 ? '…' : ''}
+            </p>
+          )}
+        </div>
+      </div>
+    </header>
+
+    {/* CONTENT */}
+    <div class="site-container site-container--narrow" style="padding:80px 32px 0">
+
+      {/* Position 0 — réponse directe */}
+      <Position0 title={data.title} description={data.description} intent={intent.primary} />
+
+      {/* Niche tools intent-aware */}
+      {showWeather && <WeatherWidget />}
+      {showVillageMap && <VillageMap />}
+      {showComparator && <ProductComparator />}
+      {showCalculator && <Calculator />}
+
+      {/* TOC */}
+      {tocHeadings.length >= 3 && <div data-pagefind-ignore><TableOfContents headings={tocHeadings} /></div>}
+
+      {/* Pub in-content haut (display responsive) — ne rend rien sans slot */}
+      <AdUnit slotKey="inArticleTop" />
+
+      {/* Body */}
+      <div class="prose-article">
+        <Content />
+      </div>
+
+      {/* Pub in-content fin d'article (haute performance) — ne rend rien sans slot */}
+      <AdUnit slotKey="inArticleEnd" />
+
+      {/* Adaptive CTA */}
+      <AdaptiveCta intent={intent.primary} />
+
+      {/* 2026-05-20 — LocalMap auto si site geo défini ET intent local
+          (détecté via SITE_CONFIG.profile.geo + heuristique title/slug). */}
+      {SITE_CONFIG.profile?.geo && (() => {
+        const t = `${data.title ?? ''} ${data.slug ?? ''}`.toLowerCase();
+        const placeRaw = (SITE_CONFIG.profile?.geo?.placename ?? '').toLowerCase();
+        const placeKey = placeRaw.replace(/[éèê]/g, 'e').replace(/[àâ]/g, 'a').replace(/[îï]/g, 'i').replace(/[ôö]/g, 'o');
+        const tNorm = t.replace(/[éèê]/g, 'e').replace(/[àâ]/g, 'a');
+        const isLocalArticle = !!placeKey && (tNorm.includes(placeKey) || /horaires?|adresse|local|commerce|mairie|restaurant|ou aller|ou trouver|que voir|que faire|visiter|randonnee|baignade|dechetterie|ecole|service public|mairie/.test(tNorm));
+        return isLocalArticle && (
+          <LocalMap
+            lat={SITE_CONFIG.profile.geo.lat}
+            lng={SITE_CONFIG.profile.geo.lng}
+            placename={SITE_CONFIG.profile.geo.placename}
+            region={SITE_CONFIG.profile.geo.region}
+          />
+        );
+      })()}
+
+      {/* Auto-FAQ */}
+      <AutoFaq
+        title={data.title}
+        intent={intent.primary}
+        archetype={SITE_CONFIG.theme.archetype}
+        description={data.description}
+        faqOverride={faqOverride}
+      />
+
+      {/* Sponsored disclosure */}
+      <SponsoredBanner isArticleSponsored={data.sponsored} />
+
+      {/* Share */}
+      <ShareButtons title={data.title} />
+
+      {/* Author bio */}
+      <AuthorBio />
+
+      {/* Feedback widget — helpful yes/no (item #59) */}
+      <FeedbackWidget />
+
+      {/* Related searches (item #57) */}
+      <RelatedSearches article={entry} />
+
+      {/* Comments minimal (item #28) — modération manuelle */}
+      <Comments />
+
+      {/* SeeAlso */}
+      <div data-pagefind-ignore>
+        <SeeAlso current={entry} count={4} />
+      </div>
+
+      {/* Newsletter */}
+      <div id="newsletter" style="margin-top:80px">
+        <Newsletter />
+      </div>
+    </div>
+
+    {/* Recently read footer area */}
+    <section style="background:var(--color-bg-card);border-top:1px solid var(--color-border);padding:80px 0;margin-top:80px">
+      <div class="site-container">
+        <div class="eyebrow" style="margin-bottom:18px">Récemment publiés</div>
+        <h2 class="serif" style="font-size:clamp(28px, 3vw, 40px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin-bottom:48px">
+          Ailleurs sur le <em style="font-style:italic">magazine</em>.
+        </h2>
+        <RecentlyRead count={4} excludeSlug={data.slug} variant="cards" />
+      </div>
+    </section>
+  </article>
+</Base>
+<style>
+@media (max-width: 768px) {
+  header h1 { font-size: 36px !important; }
+  header p { font-size: 15px !important; }
+}
+</style>

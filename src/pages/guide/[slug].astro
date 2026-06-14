@@ -1,0 +1,236 @@
+---
+/**
+ * Type de page : guideAchat (éditorial commercial "meilleur X") — DESIGN v3.
+ * Design partagé pageLocale (templates.css). Comble les écarts concurrents
+ * (frandroid/lesnumeriques/quechoisir) : hero image, photos produit + étoiles
+ * visuelles, prix multi-marchands + fourchette (AggregateOffer), auteur (Person)
+ * + double date, ItemList, barre collante, newsletter, "à retenir", picks par
+ * usage, "ce qu'il faut éviter", méthodologie, autres guides.
+ * URL : /guide/{slug}/. Schemas @graph Article+Person + ItemList +
+ * Product(AggregateOffer+AggregateRating+Review) + BreadcrumbList + FAQPage.
+ * Contenu validé Haloscan + Thot (≥ cible) en amont.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('guides');
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'guides'> };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const products = [...d.products].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+const byRank = (r: number) => products.find((i) => i.rank === r);
+const fmtNote = (n?: number, max = 5) => (typeof n === 'number' ? `${n}/${max}` : '');
+const starRow = (n?: number, max = 5) => { if (typeof n !== 'number') return ''; const k = Math.round((n / max) * 5); return '★'.repeat(k) + '☆'.repeat(5 - k); };
+const priceText = (p: any) => (typeof p.priceLow === 'number' && typeof p.priceHigh === 'number') ? `${p.priceLow} – ${p.priceHigh} €` : (p.price ?? '');
+const pub = new Date(d.pubDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const maj = new Date(d.modifiedDate ?? d.pubDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const top = products[0];
+
+// --- JSON-LD (@graph) ---
+const graph: Record<string, unknown>[] = [
+  { '@type': 'Article', headline: d.title, description: d.description, mainEntityOfPage: pageUrl,
+    datePublished: d.pubDate.toISOString(), dateModified: (d.modifiedDate ?? d.pubDate).toISOString(),
+    ...(d.author ? { author: { '@type': 'Person', name: d.author, ...(d.authorBio ? { description: d.authorBio } : {}) } } : {}), ...(d.heroImage ? { image: d.heroImage } : {}) },
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: "Guides d'achat", item: new URL('/guide/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] },
+  { '@type': 'ItemList', name: d.title, numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({ '@type': 'ListItem', position: p.rank ?? i + 1, name: p.name })) },
+];
+for (const p of products) {
+  graph.push({ '@type': 'Product', name: p.name, ...(p.image ? { image: p.image } : {}), ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
+    ...(typeof p.priceLow === 'number' ? { offers: { '@type': 'AggregateOffer', lowPrice: p.priceLow, ...(typeof p.priceHigh === 'number' ? { highPrice: p.priceHigh } : {}), priceCurrency: p.currency ?? 'EUR', offerCount: Math.max(p.merchants?.length ?? 1, 1) } } : {}),
+    ...(typeof p.note === 'number' ? { review: { '@type': 'Review', reviewRating: { '@type': 'Rating', ratingValue: p.note, bestRating: p.noteMax ?? 5 }, ...(d.author ? { author: { '@type': 'Person', name: d.author } } : {}) }, aggregateRating: { '@type': 'AggregateRating', ratingValue: p.note, bestRating: p.noteMax ?? 5, ...(p.reviewCount ? { reviewCount: p.reviewCount } : { ratingCount: 1 }) } } : {}) });
+}
+if (d.faq && d.faq.length) graph.push({ '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+const jsonLd = [{ '@context': 'https://schema.org', '@graph': graph }];
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="gd">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/guide/">Guides d'achat</a> › <span>{d.title}</span></nav></div>
+
+    {/* HERO (image de fond) */}
+    <header class="tpl-band tpl-band--dark gd-hero" style={d.heroImage ? `--hero:url('${d.heroImage}')` : ''}><div class="tpl-wrap">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Guide d'achat · {products.length} modèles</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      <p class="tpl-meta">{d.author && <>Par {d.author} · </>}Publié le {pub} · Mis à jour le {maj}</p>
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+      <div class="tpl-ctarow"><a href="#selection" class="tpl-btn tpl-btn-amber">Voir notre sélection</a>{top?.ctaUrl && <a href={top.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-ghost">Notre choix : {top.name}</a>}</div>
+      {d.affiliateDisclosure && <p class="gd-disclo">Certains liens sont affiliés : un achat peut nous rémunérer sans surcoût pour vous. Notre sélection reste indépendante.</p>}
+    </div></header>
+
+    {/* NOTRE SÉLECTION EN BREF */}
+    {(d.verdict || products.length > 0 || d.takeaways.length > 0) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">En bref</span><h2 class="tpl-h2">Notre sélection en bref</h2>
+        {d.verdict && <p class="tpl-lead" style="margin-bottom:1.2rem">{d.verdict}</p>}
+        {products.length > 0 && (
+          <div class="tpl-grid">{products.slice(0, 3).map((p) => (
+            <div class="tpl-card gd-pick">{p.image && <img src={p.image} alt={p.imageAlt ?? p.name} loading="lazy" width="200" height="150" class="gd-pick-img" />}{p.badge && <span class="tpl-badge">{p.badge}</span>}<strong>{p.name}</strong>{typeof p.note === 'number' && <span class="tpl-stars">{starRow(p.note, p.noteMax)} <small>{fmtNote(p.note, p.noteMax)}</small></span>}{priceText(p) && <span class="gd-pick-price">{priceText(p)}</span>}{p.ctaUrl && <a href={p.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm tpl-btn-full">{p.ctaLabel}</a>}</div>
+          ))}</div>
+        )}
+        {d.takeaways.length > 0 && <ul class="gd-takeaways">{d.takeaways.map((t) => <li>{t}</li>)}</ul>}
+      </div></section>
+    )}
+
+    {/* POUR QUEL USAGE */}
+    {d.usagePicks.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Selon vos besoins</span><h2 class="tpl-h2">Quel modèle pour quel usage ?</h2>
+        <div class="tpl-grid">{d.usagePicks.map((u) => { const it = byRank(u.itemRank); return it ? (
+          <div class="tpl-card gd-usage">{it.image && <img src={it.image} alt={it.imageAlt ?? it.name} loading="lazy" width="90" height="68" />}<div><strong>{u.usage}</strong><p>→ {it.name}</p><a href={`#p-${it.rank}`} class="gd-link">Voir pourquoi ↓</a></div></div>
+        ) : null; })}</div>
+      </div></section>
+    )}
+
+    {/* MINI-TESTS */}
+    <section class="tpl-band tpl-band--tint" id="selection"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Le détail</span><h2 class="tpl-h2">Notre top {products.length}</h2>
+      <div class="gd-products">{products.map((p) => (
+        <div class="tpl-card gd-prod" id={`p-${p.rank}`}>
+          <div class="gd-prod-head">
+            {p.badge && <span class="tpl-badge">{p.badge}</span>}
+            <h3>{p.rank ? `${p.rank}. ` : ''}{p.name}</h3>
+            {typeof p.note === 'number' && <span class="gd-stars"><span class="tpl-stars">{starRow(p.note, p.noteMax)}</span> <small>{fmtNote(p.note, p.noteMax)}{p.reviewCount ? ` · ${p.reviewCount} avis` : ''}</small></span>}
+          </div>
+          <div class="gd-prod-body">
+            {p.image && <img src={p.image} alt={p.imageAlt ?? p.name} loading="lazy" width="240" height="180" class="gd-prod-img" />}
+            <div class="gd-prod-main">
+              {p.bestFor && <p class="gd-bestfor">{p.bestFor}</p>}
+              {p.specs.length > 0 && <ul class="gd-specs">{p.specs.map((s) => <li><span>{s.label}</span><strong>{s.value}</strong></li>)}</ul>}
+              {p.verdict && <p class="gd-verdict"><strong>Notre avis :</strong> {p.verdict}</p>}
+              <div class="gd-proscons">
+                {p.pros.length > 0 && <div class="gd-pros"><strong>Les plus</strong><ul>{p.pros.map((x) => <li>{x}</li>)}</ul></div>}
+                {p.cons.length > 0 && <div class="gd-cons"><strong>Les moins</strong><ul>{p.cons.map((x) => <li>{x}</li>)}</ul></div>}
+              </div>
+              <div class="gd-buyrow">
+                {priceText(p) && <span class="gd-price">{priceText(p)}{p.merchants.length > 1 ? ` · ${p.merchants.length} offres` : ''}</span>}
+                {p.merchants.length > 0
+                  ? p.merchants.map((m) => <a href={m.url} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm">{m.name}{m.price ? ` · ${m.price}` : ''}</a>)
+                  : (p.ctaUrl && <a href={p.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber">{p.ctaLabel} →</a>)}
+                {p.reviewUrl && <a href={p.reviewUrl} class="gd-link">Lire le test complet →</a>}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}</div>
+    </div></section>
+
+    {/* CRITÈRES */}
+    {d.criteria.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Bien choisir</span><h2 class="tpl-h2">Comment choisir ?</h2>
+        <div class="tpl-grid">{d.criteria.map((c) => (<div class="tpl-card"><strong>{c.titre}</strong><p style="margin:.3rem 0 0;color:var(--site-text-muted)">{c.desc}</p></div>))}</div>
+      </div></section>
+    )}
+
+    {/* CE QU'IL FAUT ÉVITER */}
+    {d.warnings.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Attention</span><h2 class="tpl-h2">Ce qu'il faut éviter</h2>
+        <ul class="gd-warnings">{d.warnings.map((w) => <li>{w}</li>)}</ul>
+      </div></section>
+    )}
+
+    {/* CONTENU */}
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {/* MÉTHODOLOGIE + auteur */}
+    {(d.methodology || d.authorBio) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Notre méthode</span><h2 class="tpl-h2">Comment nous sélectionnons</h2>
+        {d.methodology && <p class="tpl-lead">{d.methodology}</p>}
+        {d.author && d.authorBio && <p class="tpl-meta">{d.author} — {d.authorBio} · Mis à jour le {maj}.</p>}
+      </div></section>
+    )}
+
+    {/* FAQ */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes</h2>
+        <div class="tpl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {/* NEWSLETTER */}
+    <section class="tpl-band tpl-band--cta"><div class="tpl-wrap tpl-wrap--narrow gd-news">
+      <h2 class="tpl-h2" style="color:#fff">Recevez nos meilleurs guides et bons plans</h2>
+      <form method="POST" action={LEAD} class="gd-news-form">
+        <input type="hidden" name="service" value="Newsletter" /><input type="hidden" name="source" value={pageUrl} />
+        <input name="email" type="email" required placeholder="Votre e-mail" />
+        <button type="submit" class="tpl-btn tpl-btn-amber">Je m'inscris</button>
+      </form>
+      <p class="gd-news-note">Sans spam · désinscription en 1 clic</p>
+    </div></section>
+
+    {/* AUTRES GUIDES */}
+    {d.relatedGuides.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À lire aussi</span><h2 class="tpl-h2">Nos autres guides</h2>
+        <ul class="gd-related">{d.relatedGuides.map((g) => <li><a href={g.url}>{g.title}</a></li>)}</ul>
+      </div></section>
+    )}
+  </div>
+
+  {top && (
+    <div class="gd-sticky">
+      <span class="gd-sticky-pick">Notre choix · {top.name}{typeof top.note === 'number' ? ` ${fmtNote(top.note, top.noteMax)}` : ''}</span>
+      <a href={top.ctaUrl ?? '#selection'} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber">{top.ctaLabel}</a>
+    </div>
+  )}
+</Base>
+
+<style>
+  .gd-hero { background-image: linear-gradient(115deg, rgba(11,38,66,.95), rgba(17,68,119,.72) 60%, rgba(17,68,119,.45)), var(--hero); background-size: cover; background-position: center; }
+  .gd-disclo { font-size: .78rem; margin-top: 1rem; background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); border-radius: 8px; padding: .55rem .85rem; }
+  .gd-pick { text-align: center; display: flex; flex-direction: column; gap: .4rem; align-items: center; }
+  .gd-pick-img { border-radius: 12px; object-fit: cover; width: 100%; max-width: 220px; aspect-ratio: 4/3; }
+  .gd-pick strong { display: block; font-size: 1.05rem; }
+  .gd-pick-price { font-weight: 800; color: var(--site-primary); }
+  .gd-link { font-size: .85rem; color: var(--site-primary); font-weight: 700; text-decoration: none; }
+  .gd-usage { display: flex; gap: .8rem; align-items: center; }
+  .gd-usage img { border-radius: 8px; object-fit: cover; flex: 0 0 auto; }
+  .gd-usage strong { display: block; } .gd-usage p { margin: .2rem 0 .3rem; color: var(--site-text-muted); }
+  .gd-takeaways, .gd-warnings { margin: 1.4rem 0 0; padding-left: 1.2rem; display: grid; gap: .35rem; }
+  .gd-warnings li::marker { content: "⚠ "; }
+  .gd-products { display: grid; gap: 1rem; }
+  .gd-prod { scroll-margin-top: 1rem; }
+  .gd-prod-head { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+  .gd-prod-head h3 { margin: 0; font-size: 1.2rem; }
+  .gd-stars { margin-left: auto; white-space: nowrap; } .gd-stars .tpl-stars { font-size: .9rem; } .gd-stars small { color: var(--site-text-muted); }
+  .gd-prod-body { display: flex; gap: 1.2rem; margin-top: .7rem; flex-wrap: wrap; }
+  .gd-prod-img { border-radius: 14px; object-fit: cover; flex: 0 0 auto; }
+  .gd-prod-main { flex: 1; min-width: 240px; }
+  .gd-bestfor { font-size: .88rem; color: var(--site-text-muted); margin: 0 0 .5rem; }
+  .gd-specs { list-style: none; padding: 0; margin: 0 0 .6rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .2rem .8rem; font-size: .85rem; }
+  .gd-specs li { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--site-border); padding: .12rem 0; }
+  .gd-specs span { color: var(--site-text-muted); }
+  .gd-verdict { font-size: .94rem; line-height: 1.6; margin: 0 0 .6rem; }
+  .gd-proscons { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: .7rem; }
+  .gd-pros, .gd-cons { font-size: .85rem; } .gd-pros ul, .gd-cons ul { margin: .2rem 0 0; padding-left: 1.1rem; }
+  .gd-pros strong { color: #1b6b3e; } .gd-cons strong { color: #9a3528; }
+  .gd-buyrow { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+  .gd-price { font-weight: 800; color: var(--site-primary); }
+  .gd-related { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .gd-related a { display: inline-block; background: var(--site-bg-card); border: 1px solid var(--site-border); color: var(--site-primary); border-radius: 999px; padding: .45rem 1.1rem; font-weight: 700; font-size: .9rem; text-decoration: none; }
+  .gd-related a:hover { background: var(--site-primary); color: #fff; }
+  .gd-news { text-align: center; } .gd-news-form { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0 .5rem; }
+  .gd-news-form input { padding: .8rem 1rem; border: 0; border-radius: 999px; min-width: 260px; font-size: .95rem; }
+  .gd-news-note { font-size: .78rem; color: rgba(255,255,255,.85); }
+  .gd-sticky { display: none; }
+  @media (max-width: 600px) {
+    .gd-proscons { grid-template-columns: 1fr; }
+    .gd-sticky { display: flex; position: fixed; bottom: 0; left: 0; right: 0; gap: .6rem; align-items: center; padding: .55rem .8rem; background: var(--site-bg-card); border-top: 1px solid var(--site-border); box-shadow: 0 -4px 16px rgba(0,0,0,.12); z-index: 50; }
+    .gd-sticky-pick { font-size: .8rem; font-weight: 700; flex: 1; }
+    .gd-sticky .tpl-btn { padding: .65rem 1rem; }
+  }
+</style>

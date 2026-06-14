@@ -1,0 +1,90 @@
+---
+/**
+ * Newsletter — capture email avec endpoint /api/newsletter (Resend).
+ * Si pas d'endpoint, fallback mailto.
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+const messages: Record<string, { title: string; subtitle: string; cta: string }> = {
+  village: {
+    title: 'Restez connecté à la vie locale',
+    subtitle: 'Recevez les actus, événements et bonnes adresses du village directement dans votre boîte mail.',
+    cta: 'Je m\'inscris',
+  },
+  bricolage: {
+    title: 'Les meilleurs deals outils dans votre boîte',
+    subtitle: 'Promos, comparatifs et nouveautés outillage chaque semaine. Pas de spam, désinscription en 1 clic.',
+    cta: 'Recevoir les bons plans',
+  },
+  tech: {
+    title: 'Restez à la pointe',
+    subtitle: 'Tests exclusifs, comparatifs et nouveautés tech, livrés chaque vendredi.',
+    cta: 'S\'abonner',
+  },
+  adulte: {
+    title: 'Avis et bons plans, en discrétion',
+    subtitle: 'Newsletter sobre, contenus exclusifs réservés aux adultes. Désinscription instantanée.',
+    cta: 'Je m\'abonne',
+  },
+};
+const m = messages[archetype] ?? messages.village;
+---
+<section class="newsletter not-prose" id="newsletter" style="margin:64px 0;padding:64px 48px;background:var(--color-bg-card);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+  <div style="max-width:680px;margin:0 auto;text-align:center">
+    <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:18px;font-weight:600">Newsletter</div>
+    <h2 class="serif" style="font-size:clamp(28px, 3.5vw, 44px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin:0 0 18px;color:var(--color-ink)">
+      {m.title.split(' ').slice(0, -2).join(' ')} <em style="font-style:italic">{m.title.split(' ').slice(-2).join(' ')}</em>
+    </h2>
+    <p style="font-size:16px;line-height:1.7;color:var(--color-text-muted);margin:0 0 32px">
+      {m.subtitle}
+    </p>
+    <form style="display:flex;flex-direction:row;gap:0;max-width:520px;margin:0 auto;border-bottom:2px solid var(--color-ink)" data-newsletter-form class="newsletter-form">
+      <input type="email" name="email" required
+             placeholder="votre@email.fr"
+             style="flex:1;padding:14px 0;border:0;background:transparent;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--color-ink);outline:none" />
+      <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;height:0;width:0" aria-hidden="true" />
+      <button type="submit" style="padding:14px 24px;background:transparent;border:0;font-family:Inter,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-accent);cursor:pointer;white-space:nowrap">
+        {m.cta} →
+      </button>
+    </form>
+    <p style="font-size:12px;color:var(--color-text-muted);margin-top:18px">
+      Vos données restent privées. Désinscription en 1 clic à tout moment.
+    </p>
+  </div>
+</section>
+<style>
+@media (max-width: 600px) {
+  .newsletter-form { flex-direction: column !important; gap: 12px !important; border-bottom: 0 !important; }
+  .newsletter-form input { border-bottom: 2px solid var(--color-ink) !important; }
+  .newsletter-form button { border: 1px solid var(--color-ink) !important; padding: 14px !important; }
+}
+</style>
+<script is:inline define:vars={{ siteName: SITE_CONFIG.siteName }}>
+  document.querySelector('[data-newsletter-form]')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value;
+    const honeypot = form.website?.value;
+    const btn = form.querySelector('button[type="submit"]');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Envoi…';
+    try {
+      const r = await fetch('https://felleries-cron.mael-guelou-commercial.workers.dev/legacy-newsletter-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, site: siteName, honeypot }),
+      });
+      if (r.ok) {
+        btn.textContent = '✓ Inscrit ! Vérifiez votre boîte mail';
+        form.email.value = '';
+      } else {
+        btn.textContent = 'Erreur, réessayez';
+      }
+    } catch {
+      btn.textContent = 'Erreur réseau';
+    }
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 4000);
+  });
+</script>

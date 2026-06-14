@@ -1,0 +1,232 @@
+---
+/**
+ * Type de page : avisMarque (review d'une marque / boutique / entité) — DESIGN templates.css.
+ * Le plus gros gisement de trafic du réseau = intention "navigationnel (marque/entité)"
+ * (ex. page n°1 réseau "tiviob"). Reproduit le money-format concurrent (type ionomat
+ * "{Marque} Avis 2026") MAIS en supérieur : schema riche + critères notés + produits affiliés.
+ * URL : /avis/{slug}/.
+ * Schemas : Organization/Brand(+aggregateRating) + Review + ItemList(produits) + BreadcrumbList + FAQPage.
+ * Corps markdown = avis long (≥2000 mots) validé Thot.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('avis');
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry, all: entries } }));
+}
+
+const { entry, all } = Astro.props as { entry: CollectionEntry<'avis'>; all: CollectionEntry<'avis'>[] };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const recoLabel: Record<string, string> = { recommande: '✓ Recommandé', reserves: '~ Recommandé avec réserves', eviter: '✗ À éviter' };
+const recoClass: Record<string, string> = { recommande: 'reco-ok', reserves: 'reco-warn', eviter: 'reco-bad' };
+const related = all.filter((e) => e.data.slug !== d.slug).slice(0, 4);
+const firstCta = d.topProducts[0]?.merchants[0]?.url ?? d.topProducts[0]?.ctaUrl;
+
+// --- Schemas ---
+const org: Record<string, unknown> = {
+  '@type': d.brandType === 'marque' || d.brandType === 'fabricant' ? 'Brand' : 'Organization',
+  name: d.brand,
+  ...(d.logo ? { logo: d.logo } : {}),
+  ...(d.officialUrl ? { url: d.officialUrl, sameAs: [d.officialUrl] } : {}),
+  ...(d.founded ? { foundingDate: d.founded } : {}),
+  ...(typeof d.rating === 'number' && d.reviewCount ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.rating, reviewCount: d.reviewCount, bestRating: 5 } } : {}),
+};
+const review: Record<string, unknown> = {
+  '@context': 'https://schema.org', '@type': 'Review',
+  itemReviewed: { '@type': 'Organization', name: d.brand, ...(d.officialUrl ? { sameAs: [d.officialUrl] } : {}) },
+  ...(typeof d.rating === 'number' ? { reviewRating: { '@type': 'Rating', ratingValue: d.rating, bestRating: 5 } } : {}),
+  author: { '@type': d.author ? 'Person' : 'Organization', name: d.author ?? SITE_CONFIG.siteName },
+  ...(d.verdict ? { reviewBody: d.verdict } : {}),
+  datePublished: d.pubDate.toISOString().slice(0, 10),
+  ...(d.modifiedDate ? { dateModified: d.modifiedDate.toISOString().slice(0, 10) } : {}),
+};
+const itemList = d.topProducts.length ? {
+  '@context': 'https://schema.org', '@type': 'ItemList',
+  itemListElement: d.topProducts.map((p, i) => ({
+    '@type': 'ListItem', position: i + 1,
+    item: {
+      '@type': 'Product', name: p.name,
+      ...(p.image ? { image: p.image } : {}),
+      ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}),
+      ...(typeof p.priceLow === 'number' ? { offers: { '@type': 'AggregateOffer', lowPrice: p.priceLow, ...(typeof p.priceHigh === 'number' ? { highPrice: p.priceHigh } : {}), priceCurrency: p.currency } } : {}),
+      ...(typeof p.note === 'number' && p.reviewCount ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: p.note, reviewCount: p.reviewCount, bestRating: p.noteMax } } : {}),
+    },
+  })),
+} : null;
+const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+  { '@type': 'ListItem', position: 2, name: 'Avis', item: new URL('/avis/', SITE_CONFIG.siteUrl).toString() },
+  { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] };
+const jsonLd: Record<string, unknown>[] = [{ '@context': 'https://schema.org', ...org }, review, breadcrumb];
+if (itemList) jsonLd.push(itemList);
+if (d.faq && d.faq.length) jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage ?? d.logo} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="av">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/avis/">Avis</a> › <span>{d.brand}</span></nav></div>
+
+    {/* ABOVE-FOLD : identité | verdict box */}
+    <section class="tpl-band"><div class="tpl-wrap av-top">
+      <div class="av-id">
+        {d.logo && <img class="av-logo" src={d.logo} alt={d.brand} width="120" height="120" loading="eager" />}
+        <span class="tpl-eyebrow">Avis &amp; test indépendant</span>
+        <h1 class="tpl-h1">{d.title}</h1>
+        {d.description && <p class="tpl-lead">{d.description}</p>}
+        <ul class="av-facts">
+          {d.founded && <li><strong>Création</strong> {d.founded}</li>}
+          {d.origin && <li><strong>Origine</strong> {d.origin}</li>}
+          {d.officialUrl && <li><strong>Site</strong> <a href={d.officialUrl} rel="nofollow">{d.officialUrl.replace(/^https?:\/\//, '')}</a></li>}
+        </ul>
+      </div>
+      <aside class="av-verdict tpl-card">
+        {typeof d.rating === 'number' && (
+          <div class="av-score">
+            <span class="av-score-num">{d.rating.toFixed(1)}<small>/5</small></span>
+            <span class="tpl-stars av-score-stars">{stars(d.rating)}</span>
+            {d.reviewCount && <span class="av-score-count">{d.reviewCount} avis analysés</span>}
+          </div>
+        )}
+        {d.recommendation && <div class={`av-reco ${recoClass[d.recommendation]}`}>{recoLabel[d.recommendation]}</div>}
+        {d.verdict && <p class="av-verdict-txt">{d.verdict}</p>}
+        {firstCta && <a href={firstCta} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-full">{d.topProducts[0].ctaLabel}</a>}
+        {d.affiliateDisclosure && <p class="tpl-mini av-disclo">Liens partenaires : une commission peut nous être versée, sans surcoût pour vous.</p>}
+      </aside>
+    </div></section>
+
+    {/* CRITÈRES NOTÉS */}
+    {d.criteria.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Notre évaluation</span><h2 class="tpl-h2">{d.brand} noté par critère</h2>
+        <div class="av-crits">{d.criteria.map((c) => (
+          <div class="av-crit"><div class="av-crit-head"><span>{c.label}</span><span class="tpl-stars">{stars(c.note)}</span><b>{c.note.toFixed(1)}</b></div>{c.comment && <p>{c.comment}</p>}</div>
+        ))}</div>
+      </div></section>
+    )}
+
+    {/* PROS / CONS */}
+    {(d.pros.length > 0 || d.cons.length > 0) && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow av-procons">
+        {d.pros.length > 0 && <div class="av-pros tpl-card"><h3>✓ Points forts</h3><ul>{d.pros.map((p) => <li>{p}</li>)}</ul></div>}
+        {d.cons.length > 0 && <div class="av-cons tpl-card"><h3>✗ Points faibles</h3><ul>{d.cons.map((c) => <li>{c}</li>)}</ul></div>}
+      </div></section>
+    )}
+
+    {/* ARNAQUE OU FIABLE ? */}
+    {(d.trustVerdict || d.trustSignals.length > 0) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Fiabilité</span><h2 class="tpl-h2">{d.brand}, arnaque ou marque fiable ?</h2>
+        {d.trustVerdict && <p class="tpl-lead">{d.trustVerdict}</p>}
+        {d.trustSignals.length > 0 && <ul class="av-trust">{d.trustSignals.map((s) => <li>✓ {s}</li>)}</ul>}
+      </div></section>
+    )}
+
+    {/* PRODUITS PHARES (money) */}
+    {d.topProducts.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À shopper</span><h2 class="tpl-h2">Les produits {d.brand} les plus populaires</h2>
+        <div class="tpl-grid">{d.topProducts.map((p) => (
+          <div class="tpl-card av-prod">
+            {p.badge && <span class="tpl-badge">{p.badge}</span>}
+            {p.image && <img src={p.image} alt={p.imageAlt ?? p.name} loading="lazy" width="200" height="150" />}
+            <strong>{p.name}</strong>
+            {typeof p.note === 'number' && <div class="av-prod-note"><span class="tpl-stars">{stars(p.note / (p.noteMax / 5))}</span> {p.note}/{p.noteMax}</div>}
+            {p.bestFor && <p class="av-prod-for">{p.bestFor}</p>}
+            {(p.price ?? (typeof p.priceLow === 'number' ? `dès ${p.priceLow} €` : null)) && <div class="av-prod-price">{p.price ?? `dès ${p.priceLow} €`}</div>}
+            {(p.merchants[0]?.url ?? p.ctaUrl) && <a href={p.merchants[0]?.url ?? p.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm tpl-btn-full">{p.ctaLabel}</a>}
+          </div>
+        ))}</div>
+      </div></section>
+    )}
+
+    {/* AVIS CLIENTS */}
+    {(d.reviewSources.length > 0 || d.customerReviews.length > 0) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Avis clients</span><h2 class="tpl-h2">Ce que disent les acheteurs de {d.brand}</h2>
+        {d.reviewSources.length > 0 && (
+          <div class="av-sources">{d.reviewSources.map((s) => (<div class="tpl-card av-source"><b>{s.note}</b><span>{s.name}</span>{s.count && <small>{s.count}</small>}</div>))}</div>
+        )}
+        {d.customerReviews.length > 0 && (
+          <div class="av-reviews">{d.customerReviews.map((a) => (<blockquote class="tpl-card av-review"><div class="tpl-stars">{stars(a.note)}</div><p>« {a.texte} »</p><cite>— {a.auteur}{a.source ? `, ${a.source}` : ''}{a.date ? ` · ${a.date}` : ''}</cite></blockquote>))}</div>
+        )}
+      </div></section>
+    )}
+
+    {/* CORPS (markdown Thot ≥2000) */}
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><span class="tpl-eyebrow">Notre avis détaillé</span><Content /></div></section>
+
+    {/* ALTERNATIVES */}
+    {d.alternatives.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Alternatives</span><h2 class="tpl-h2">Si {d.brand} ne vous convient pas</h2>
+        <div class="av-alts">{d.alternatives.map((a) => (<div class="av-alt"><strong>{a.url ? <a href={a.url} rel="nofollow">{a.name}</a> : a.name}</strong>{a.why && <span> — {a.why}</span>}</div>))}</div>
+      </div></section>
+    )}
+
+    {/* FAQ */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes sur {d.brand}</h2>
+        <div class="tpl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {/* MAILLAGE autres avis */}
+    {related.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À lire aussi</span><h2 class="tpl-h2">Autres avis</h2>
+        <div class="tpl-grid">{related.map((e) => (<a class="tpl-card av-rcard" href={`/avis/${e.data.slug}/`}>{e.data.logo && <img src={e.data.logo} alt={e.data.brand} loading="lazy" width="80" height="80" />}<strong>{e.data.title}</strong>{typeof e.data.rating === 'number' && <span class="av-rcard-note">{e.data.rating.toFixed(1)}/5</span>}</a>))}</div>
+      </div></section>
+    )}
+  </div>
+</Base>
+
+<style>
+  .av-top { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; align-items: start; }
+  .av-logo { border-radius: 14px; border: 1px solid var(--site-border); background: #fff; object-fit: contain; padding: .4rem; margin-bottom: .8rem; }
+  .av-facts { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .35rem; font-size: .9rem; }
+  .av-facts strong { color: var(--site-text-muted); font-weight: 600; margin-right: .4rem; }
+  .av-verdict { position: sticky; top: 1rem; text-align: center; }
+  .av-score { display: grid; gap: .2rem; margin-bottom: .7rem; }
+  .av-score-num { font-size: 2.6rem; font-weight: 800; color: var(--site-primary); line-height: 1; }
+  .av-score-num small { font-size: 1rem; color: var(--site-text-muted); }
+  .av-score-stars { font-size: 1.2rem; }
+  .av-score-count { font-size: .8rem; color: var(--site-text-muted); }
+  .av-reco { font-weight: 800; border-radius: 999px; padding: .35rem .9rem; display: inline-block; margin: 0 auto .7rem; font-size: .9rem; }
+  .reco-ok { background: #e4f3e8; color: #1b6b3e; } .reco-warn { background: #fdf0d8; color: #8a5a00; } .reco-bad { background: #fbe4e4; color: #a12020; }
+  .av-verdict-txt { font-size: .95rem; line-height: 1.6; color: var(--site-text-muted); margin: 0 0 .9rem; text-align: left; }
+  .av-disclo { margin-top: .6rem; }
+  .av-crits { display: grid; gap: .6rem; }
+  .av-crit { background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 12px; padding: .7rem 1rem; }
+  .av-crit-head { display: grid; grid-template-columns: 1fr auto auto; gap: .6rem; align-items: center; font-weight: 600; }
+  .av-crit-head b { color: var(--site-primary); }
+  .av-crit p { margin: .3rem 0 0; font-size: .88rem; color: var(--site-text-muted); }
+  .av-procons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .av-pros h3, .av-cons h3 { margin: 0 0 .5rem; }
+  .av-pros h3 { color: #1b6b3e; } .av-cons h3 { color: #a12020; }
+  .av-procons ul { margin: 0; padding-left: 1.1rem; } .av-procons li { margin: .4rem 0; }
+  .av-trust { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .4rem; }
+  .av-trust li { color: #1b6b3e; font-weight: 600; }
+  .av-prod { text-align: center; display: flex; flex-direction: column; gap: .3rem; }
+  .av-prod img { width: 100%; height: auto; object-fit: contain; background: #fff; border-radius: 10px; }
+  .av-prod strong { font-size: .95rem; }
+  .av-prod-note { font-size: .85rem; } .av-prod-for { font-size: .82rem; color: var(--site-text-muted); flex: 1; }
+  .av-prod-price { font-weight: 800; color: var(--site-primary); }
+  .av-sources { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.2rem; }
+  .av-source { text-align: center; padding: .8rem 1.2rem; }
+  .av-source b { display: block; font-size: 1.3rem; color: var(--site-primary); }
+  .av-source span { font-size: .85rem; } .av-source small { display: block; color: var(--site-text-muted); }
+  .av-reviews { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .av-review { margin: 0; } .av-review p { margin: .3rem 0; font-size: .92rem; }
+  .av-review cite { font-size: .8rem; color: var(--site-text-muted); font-style: normal; }
+  .av-alts { display: grid; gap: .5rem; } .av-alt { padding: .5rem 0; border-bottom: 1px solid var(--site-border); }
+  .av-rcard { text-decoration: none; color: var(--site-text); text-align: center; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+  .av-rcard img { border-radius: 10px; background: #fff; object-fit: contain; }
+  .av-rcard-note { color: var(--site-primary); font-weight: 800; }
+  @media (max-width: 820px) { .av-top { grid-template-columns: 1fr; } .av-verdict { position: static; } .av-procons { grid-template-columns: 1fr; } .av-reviews { grid-template-columns: 1fr; } }
+</style>

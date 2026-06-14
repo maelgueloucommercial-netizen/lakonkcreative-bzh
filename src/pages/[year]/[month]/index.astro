@@ -1,0 +1,87 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../../lib/site-config';
+import { getArticleImage } from '../../../lib/article-wiki-images';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  const byYM = new Map<string, typeof articles>();
+  for (const a of articles) {
+    if (!a.data.urlYear || !a.data.urlMonth) continue;
+    const y = String(a.data.urlYear);
+    const m = String(a.data.urlMonth).padStart(2, '0');
+    const k = `${y}/${m}`;
+    if (!byYM.has(k)) byYM.set(k, [] as typeof articles);
+    byYM.get(k)!.push(a);
+  }
+  return [...byYM.entries()].map(([k, arts]) => {
+    const [year, month] = k.split('/');
+    return {
+      params: { year, month },
+      props: { year, month, articles: arts },
+    };
+  });
+}
+
+const { year, month, articles } = Astro.props as { year: string; month: string; articles: any[] };
+articles.sort((a: any, b: any) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+function getArticleUrl(entry: any): string {
+  const d = entry.data;
+  if (d.dateUrlFormat) {
+    return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
+  }
+  return d.urlPath ? `/${d.urlPath}/${d.slug}/` : `/${d.slug}/`;
+}
+
+const monthLabels: Record<string, string> = {
+  '01': 'janvier', '02': 'février', '03': 'mars', '04': 'avril',
+  '05': 'mai', '06': 'juin', '07': 'juillet', '08': 'août',
+  '09': 'septembre', '10': 'octobre', '11': 'novembre', '12': 'décembre',
+};
+---
+<Base
+  title={`${monthLabels[month]} ${year}`}
+  description={`Articles publiés en ${monthLabels[month]} ${year} sur ${SITE_CONFIG.siteName}.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:96px 0 64px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <nav style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:24px;font-weight:600" aria-label="Fil d'Ariane">
+        <a href="/" style="color:var(--color-text-muted);text-decoration:none">Accueil</a>
+        <span style="margin:0 12px;color:var(--color-border)">/</span>
+        <a href="/articles/" style="color:var(--color-text-muted);text-decoration:none">Articles</a>
+        <span style="margin:0 12px;color:var(--color-border)">/</span>
+        <a href={`/${year}/`} style="color:var(--color-text-muted);text-decoration:none">{year}</a>
+        <span style="margin:0 12px;color:var(--color-border)">/</span>
+        <span style="color:var(--color-accent);text-transform:capitalize">{monthLabels[month]}</span>
+      </nav>
+      <div class="eyebrow" style="margin-bottom:18px">Archives mensuelles</div>
+      <h1 class="serif" style="font-size:clamp(40px, 6vw, 84px);line-height:1.02;font-weight:400;margin-bottom:18px;letter-spacing:-1.5px;text-transform:capitalize">
+        <em style="font-style:italic">{monthLabels[month]}</em> {year}
+      </h1>
+      <p style="font-size:17px;line-height:1.7;color:var(--color-text-muted)">
+        <strong style="color:var(--color-ink);font-weight:500">{articles.length}</strong> article{articles.length > 1 ? 's' : ''} publié{articles.length > 1 ? 's' : ''}.
+      </p>
+    </div>
+  </section>
+
+  {/* Articles grid */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container">
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:48px 32px" class="month-grid">
+        {articles.map((a: any) => (
+          <ArticleCard entry={a} href={getArticleUrl(a)} size="medium" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) { .month-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 600px) { .month-grid { grid-template-columns: 1fr !important; } }
+</style>

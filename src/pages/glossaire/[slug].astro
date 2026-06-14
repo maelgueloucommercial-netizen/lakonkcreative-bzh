@@ -1,0 +1,68 @@
+---
+/**
+ * Type de page : lexique (archétype editorial_magazine) — DESIGN v2 (templates.css).
+ * Entrée de glossaire : définition courte (featured snippet) + développement +
+ * termes liés. Lue depuis `articles` filtrés pageType==='lexique'.
+ * URL : /glossaire/{slug}/. Schemas DefinedTerm + BreadcrumbList (+ FAQPage).
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const arts = await getCollection('articles');
+  const terms = arts.filter((a) => a.data.pageType === 'lexique');
+  return terms.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry, terms } }));
+}
+
+const { entry, terms } = Astro.props as { entry: any; terms: any[] };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const term = d.glossaryTerm ?? d.title;
+const related = (d.relatedTerms?.length ? terms.filter((t) => d.relatedTerms.includes(t.data.slug)) : terms.filter((t) => t.data.slug !== d.slug)).slice(0, 8);
+
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'DefinedTerm', name: term, description: d.description,
+    inDefinedTermSet: { '@type': 'DefinedTermSet', name: `Glossaire ${SITE_CONFIG.siteName}`, url: new URL('/glossaire/', SITE_CONFIG.siteUrl).toString() }, url: pageUrl },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Glossaire', item: new URL('/glossaire/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: term, item: pageUrl } ] },
+];
+if (d.faq && d.faq.length) jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faq.map((f: any) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="lx">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/glossaire/">Glossaire</a> › <span>{term}</span></nav></div>
+
+    <header class="tpl-band tpl-band--dark"><div class="tpl-wrap tpl-wrap--narrow">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Définition</span>
+      <h1 class="tpl-h1">{term}</h1>
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+    </div></header>
+
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes</h2>
+        <div class="tpl-faq">{d.faq.map((f: any) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {related.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À voir aussi</span><h2 class="tpl-h2">Termes liés</h2>
+        <ul class="lx-related">{related.map((t) => <li><a href={`/glossaire/${t.data.slug}/`}>{t.data.glossaryTerm ?? t.data.title}</a></li>)}</ul>
+      </div></section>
+    )}
+  </div>
+</Base>
+
+<style>
+  .lx-related { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .lx-related a { background: var(--site-bg-2); color: var(--site-primary); border-radius: 999px; padding: .45rem 1.1rem; font-size: .9rem; font-weight: 700; text-decoration: none; }
+  .lx-related a:hover { background: var(--site-primary); color: #fff; }
+</style>

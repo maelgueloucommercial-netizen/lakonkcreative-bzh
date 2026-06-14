@@ -1,81 +1,132 @@
 ---
 /**
- * Sprint 3.3 — CTA adapté à l'intent de recherche (item #intent-classifier).
+ * Sprint 10 — Adaptive CTA selon intent + archetype.
  *
- * Lit `intent` + `cta` du frontmatter (auto-injectés par auto-publish.ts) et
- * affiche le bon CTA :
- *   - informational → newsletter (gain audience)
- *   - commercial → comparateur / demande devis
- *   - transactional → bouton achat / réservation
- *   - local → contact / itinéraire
- *   - navigational → lien vers site officiel
- *
- * Si pas d'intent fourni (pages legacy), fallback sur newsletter.
+ *   - info / general / definition / news → Newsletter capture
+ *   - commercial (comparator / buying_guide) → Lien vers comparateur + Annoncer chez nous
+ *   - transactionnel (product_review) → "Voir le test" + lien externe affilié
+ *   - local_info / local_listing → Annuaire + Carte
+ *   - how_to / recipe → Outils interactifs (Calculator / Quiz)
  */
-import NewsletterCapture from './NewsletterCapture.astro';
+import type { SearchIntent } from '../lib/intent-classifier';
+import { SITE_CONFIG } from '../lib/site-config';
 
 interface Props {
-  intent?: 'informational' | 'commercial' | 'transactional' | 'navigational' | 'local';
-  cta?: { component?: string; props?: Record<string, string> };
-  /** Lien transac/commerce/local optionnel (si fourni, on l'utilise) */
-  href?: string;
-  /** Label override */
-  label?: string;
+  intent: SearchIntent;
+}
+const { intent } = Astro.props as Props;
+const archetype = SITE_CONFIG.theme.archetype;
+
+interface Cta { title: string; desc: string; primaryHref: string; primaryLabel: string; secondaryHref?: string; secondaryLabel?: string; emoji: string; }
+
+function buildCta(): Cta {
+  switch (intent) {
+    case 'comparator':
+    case 'buying_guide':
+      return {
+        emoji: '⚖️',
+        title: 'Comparez plusieurs produits côte à côte',
+        desc: 'Notre comparateur interactif vous permet de sélectionner jusqu\'à 4 produits et d\'identifier en un clin d\'œil le meilleur sur chaque critère.',
+        primaryHref: '/outils/comparateur/',
+        primaryLabel: 'Ouvrir le comparateur',
+        secondaryHref: '/comparatifs/',
+        secondaryLabel: 'Tous les comparatifs',
+      };
+
+    case 'product_review':
+      return {
+        emoji: '⭐',
+        title: 'Vous voulez voir d\'autres avis ?',
+        desc: 'Consultez nos autres tests indépendants pour faire le tri entre les produits et choisir en connaissance de cause.',
+        primaryHref: '/avis/',
+        primaryLabel: 'Tous les avis',
+        secondaryHref: '/outils/comparateur/',
+        secondaryLabel: 'Comparer plusieurs produits',
+      };
+
+    case 'how_to':
+    case 'recipe':
+      return {
+        emoji: '🛠️',
+        title: 'Calculez ce qu\'il vous faut',
+        desc: 'Utilisez notre calculateur interactif pour estimer rapidement les quantités, dimensions ou volumes nécessaires à votre projet.',
+        primaryHref: '/outils/calculateur/',
+        primaryLabel: 'Ouvrir le calculateur',
+        secondaryHref: '/articles/',
+        secondaryLabel: 'Voir d\'autres guides',
+      };
+
+    case 'local_info':
+    case 'local_listing':
+      return {
+        emoji: '🗺️',
+        title: 'Explorez la région autrement',
+        desc: archetype === 'village'
+          ? 'Consultez la météo locale en direct, retrouvez tous les commerces sur la carte et l\'annuaire complet de la commune.'
+          : 'Notre annuaire et notre carte recensent les principaux points d\'intérêt à explorer.',
+        primaryHref: '/annuaire/',
+        primaryLabel: 'Voir l\'annuaire',
+        secondaryHref: '/outils/carte/',
+        secondaryLabel: 'Ouvrir la carte',
+      };
+
+    case 'definition':
+      return {
+        emoji: '📖',
+        title: 'Approfondir le sujet',
+        desc: 'Consultez notre glossaire pour les définitions des termes liés, ou parcourez tous nos articles sur cette thématique.',
+        primaryHref: '/glossaire/',
+        primaryLabel: 'Ouvrir le glossaire',
+        secondaryHref: '/articles/',
+        secondaryLabel: 'Tous les articles',
+      };
+
+    case 'news':
+      return {
+        emoji: '📰',
+        title: 'Restez informé',
+        desc: 'Inscrivez-vous à notre newsletter pour recevoir nos derniers articles directement par email.',
+        primaryHref: '#newsletter',
+        primaryLabel: 'M\'inscrire à la newsletter',
+        secondaryHref: '/articles/',
+        secondaryLabel: 'Tous les articles',
+      };
+
+    default:
+      return {
+        emoji: '✉️',
+        title: 'Recevez nos prochains articles',
+        desc: 'Inscrivez-vous à notre newsletter pour recevoir une sélection de nos contenus, sans spam, désinscription en 1 clic.',
+        primaryHref: '#newsletter',
+        primaryLabel: 'M\'inscrire',
+        secondaryHref: '/articles/',
+        secondaryLabel: 'Voir tous les articles',
+      };
+  }
 }
 
-const { intent = 'informational', cta, href, label } = Astro.props;
-const ctaLabel = label || cta?.props?.label;
+const cta = buildCta();
 ---
-{intent === 'informational' && (
-  <NewsletterCapture variant="large" />
-)}
-
-{intent === 'commercial' && (
-  <aside class="not-prose mt-12 rounded-lg border border-olive-300 bg-olive-50 p-6 sm:p-8" data-pagefind-ignore>
-    <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Besoin d'aide pour choisir ?</p>
-    <h2 class="font-serif text-2xl text-ink-900 mb-2">{ctaLabel || 'Comparer les options'}</h2>
-    <p class="text-sm text-ink-700 mb-4">Demandez un devis sur-mesure ou consultez notre guide comparatif.</p>
-    <a
-      href={href || '/contact'}
-      class="inline-block rounded-md bg-olive-700 hover:bg-olive-800 text-cream-50 text-sm px-5 py-2"
-    >
-      {ctaLabel || 'Demander un devis'}
-    </a>
-  </aside>
-)}
-
-{intent === 'transactional' && (
-  <aside class="not-prose mt-12 rounded-lg border border-terra-400 bg-terra-50 p-6 sm:p-8" data-pagefind-ignore>
-    <p class="text-xs uppercase tracking-widest text-terra-700 mb-2">Passer à l'action</p>
-    <h2 class="font-serif text-2xl text-ink-900 mb-2">{ctaLabel || 'Acheter / Réserver'}</h2>
-    <p class="text-sm text-ink-700 mb-4">Tarifs transparents, paiement sécurisé.</p>
-    <a
-      href={href || '/boutique'}
-      class="inline-block rounded-md bg-terra-700 hover:bg-terra-800 text-cream-50 text-sm px-5 py-2"
-    >
-      {ctaLabel || 'Voir les offres'}
-    </a>
-  </aside>
-)}
-
-{intent === 'local' && (
-  <aside class="not-prose mt-12 rounded-lg border border-cream-300 bg-cream-100 p-6 sm:p-8" data-pagefind-ignore>
-    <p class="text-xs uppercase tracking-widest text-ink-700/70 mb-2">À proximité</p>
-    <h2 class="font-serif text-2xl text-ink-900 mb-2">{ctaLabel || 'Trouver près de chez vous'}</h2>
-    <p class="text-sm text-ink-700 mb-4">Annuaire local, horaires, itinéraire.</p>
-    <a
-      href={href || '/epiciers'}
-      class="inline-block rounded-md bg-ink-700 hover:bg-ink-800 text-cream-50 text-sm px-5 py-2"
-    >
-      {ctaLabel || 'Voir l\'annuaire'}
-    </a>
-  </aside>
-)}
-
-{intent === 'navigational' && href && (
-  <p class="not-prose mt-12 text-center">
-    <a href={href} class="inline-block rounded-md border border-ink-700 px-5 py-2 text-sm text-ink-700 hover:bg-ink-700 hover:text-cream-50">
-      {ctaLabel || 'Voir le site officiel'} →
-    </a>
-  </p>
-)}
+<aside class="adaptive-cta not-prose" style="margin:48px 0;padding:40px;background:var(--color-bg-card);border-left:3px solid var(--color-accent)">
+  <div style="display:flex;align-items:flex-start;gap:24px">
+    <div style="font-size:36px;line-height:1;flex-shrink:0">{cta.emoji}</div>
+    <div style="flex:1">
+      <h3 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.2;font-weight:400;letter-spacing:-.3px;margin:0 0 12px;color:var(--color-ink)">
+        {cta.title}
+      </h3>
+      <p style="font-size:15px;line-height:1.7;color:var(--color-text-muted);margin:0 0 24px">
+        {cta.desc}
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px">
+        <a href={cta.primaryHref} class="btn-fill">
+          {cta.primaryLabel} →
+        </a>
+        {cta.secondaryHref && (
+          <a href={cta.secondaryHref} style="padding:14px 28px;background:transparent;border:1px solid var(--color-ink);color:var(--color-ink);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;text-decoration:none">
+            {cta.secondaryLabel}
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>requindusexe.com — Maquette homepage</title>
+<style>
+:root{
+  --burgundy:#7a1f3d;
+  --burgundy-soft:#a02a52;
+  --gold:#d4a045;
+  --gold-soft:#e8c074;
+  --black:#0d0a0c;
+  --black-soft:#1c1518;
+  --cream:#f4ede0;
+  --cream-soft:#e8dec7;
+  --text:#2a1820;
+  --muted:#857075;
+  --border:#3a2a30;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--black);
+  color:var(--cream);
+  font-family:Georgia, 'Cormorant Garamond', serif;
+  line-height:1.6;
+}
+.container{max-width:1280px;margin:0 auto;padding:0 24px}
+.narrow{max-width:760px;margin:0 auto;padding:0 24px}
+
+/* TOP BANNER promo discret */
+.top-banner{
+  background:var(--burgundy);
+  color:var(--cream);
+  text-align:center;
+  font-size:13px;
+  padding:8px 0;
+  letter-spacing:.5px;
+}
+
+/* HEADER */
+.site-header{
+  background:var(--black-soft);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+  padding:18px 0;
+}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.logo{font-size:24px;font-weight:800;letter-spacing:.5px;color:var(--gold);font-family:Georgia,serif}
+.logo small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:1px;margin-top:2px}
+nav.main-nav{display:flex;gap:28px;font-size:14px;font-family:'Helvetica',sans-serif;letter-spacing:.5px}
+nav.main-nav a{color:var(--cream);text-decoration:none;transition:color .2s}
+nav.main-nav a:hover{color:var(--gold)}
+.cta-header{
+  background:var(--gold);color:var(--black);
+  padding:9px 18px;border-radius:4px;
+  font-size:13px;font-weight:700;text-decoration:none;letter-spacing:.3px;
+  transition:transform .2s;
+}
+.cta-header:hover{transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  position:relative;
+  background:radial-gradient(ellipse at 80% 30%, rgba(208,160,69,.15) 0%, transparent 50%),
+             linear-gradient(135deg, var(--black) 0%, var(--burgundy) 100%);
+  padding:80px 0 100px;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Red_silk.JPG/1280px-Red_silk.JPG');
+  background-size:cover;background-position:center;
+  opacity:.08;mix-blend-mode:screen;
+}
+.hero-content{position:relative;text-align:center}
+.hero h1{
+  font-size:58px;line-height:1.05;letter-spacing:-1.5px;
+  font-weight:400;font-family:Georgia,'Cormorant Garamond',serif;
+  color:var(--cream);
+  max-width:780px;margin:0 auto 16px;
+}
+.hero h1 em{color:var(--gold);font-style:italic;font-weight:600}
+.hero p.subtitle{font-size:20px;color:var(--cream-soft);max-width:600px;margin:0 auto 12px;font-style:italic}
+.hero p.intro{font-size:15px;color:var(--muted);max-width:640px;margin:0 auto 32px}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.btn{
+  padding:14px 32px;border-radius:4px;font-size:15px;font-weight:600;
+  text-decoration:none;letter-spacing:.3px;transition:all .25s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary{background:var(--gold);color:var(--black);border:2px solid var(--gold)}
+.btn-primary:hover{background:transparent;color:var(--gold)}
+.btn-outline{background:transparent;color:var(--cream);border:2px solid var(--cream)}
+.btn-outline:hover{background:var(--cream);color:var(--black)}
+.trust-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--cream-soft);letter-spacing:.5px;text-transform:uppercase}
+
+/* SECTION HEADERS */
+section{padding:80px 0}
+section h2{
+  font-size:42px;line-height:1.1;font-family:Georgia,serif;font-weight:400;
+  margin-bottom:16px;color:var(--cream);
+}
+section h2 em{color:var(--gold);font-style:italic}
+section .lead{color:var(--cream-soft);max-width:640px;margin-bottom:48px;font-size:16px}
+
+/* TROUVEZ VOTRE PLAISIR EN 3 CLICS */
+.section-discover{background:var(--black-soft)}
+.discover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.discover-card{
+  background:linear-gradient(180deg, transparent 0%, rgba(122,31,61,.2) 100%);
+  border:1px solid var(--border);
+  padding:32px 24px;border-radius:8px;text-align:center;
+  transition:all .3s;
+  text-decoration:none;color:inherit;display:block;
+  position:relative;overflow:hidden;
+}
+.discover-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, transparent 50%, rgba(212,160,69,.1) 100%);
+  opacity:0;transition:opacity .3s;
+}
+.discover-card:hover{transform:translateY(-4px);border-color:var(--gold)}
+.discover-card:hover::after{opacity:1}
+.discover-icon{font-size:42px;margin-bottom:18px;display:block}
+.discover-title{font-size:22px;color:var(--gold);font-family:Georgia,serif;margin-bottom:8px;font-weight:400}
+.discover-desc{font-size:14px;color:var(--cream-soft);font-family:'Helvetica',sans-serif;line-height:1.5}
+.discover-cta{display:inline-block;margin-top:16px;font-size:13px;color:var(--gold);letter-spacing:.5px;text-transform:uppercase}
+
+/* SHOP BY MOOD */
+.section-mood{background:var(--burgundy);color:var(--cream)}
+.mood-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.mood-card{
+  position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;
+  text-decoration:none;color:var(--cream);
+  background:var(--black);
+}
+.mood-card img{width:100%;height:100%;object-fit:cover;opacity:.7;transition:all .4s}
+.mood-card:hover img{opacity:1;transform:scale(1.05)}
+.mood-card .label{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-family:Georgia,serif;letter-spacing:1px;
+  background:linear-gradient(180deg, transparent 50%, rgba(13,10,12,.85) 100%);
+  padding-bottom:24px;align-items:flex-end;justify-content:center;
+}
+
+/* DUEL hero card */
+.section-duel{background:var(--black)}
+.duel-card{
+  background:linear-gradient(135deg, var(--black-soft) 0%, var(--burgundy-soft) 100%);
+  border-radius:12px;padding:48px;border:1px solid var(--gold);
+  position:relative;overflow:hidden;
+}
+.duel-row{display:grid;grid-template-columns:1fr auto 1fr;gap:32px;align-items:center;margin-bottom:24px}
+.duel-product{text-align:center}
+.duel-product .pname{font-size:24px;font-family:Georgia,serif;color:var(--gold);margin-bottom:4px}
+.duel-product .ppos{font-size:13px;color:var(--cream-soft);font-style:italic}
+.duel-vs{font-size:48px;color:var(--gold);font-family:Georgia,serif;font-style:italic}
+.duel-conclusion{font-size:15px;color:var(--cream);text-align:center;max-width:640px;margin:0 auto 24px;font-style:italic;line-height:1.7}
+.duel-cta{text-align:center}
+
+/* CATEGORIES illustrées */
+.section-cats{background:var(--cream);color:var(--text)}
+.section-cats h2{color:var(--text)}
+.section-cats h2 em{color:var(--burgundy)}
+.section-cats .lead{color:var(--muted)}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.cat-card{
+  background:white;border-radius:8px;overflow:hidden;text-decoration:none;color:inherit;
+  border:1px solid #e8d8c0;transition:all .25s;
+  display:flex;flex-direction:column;
+}
+.cat-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(122,31,61,.15)}
+.cat-img{aspect-ratio:16/10;background:linear-gradient(135deg, var(--burgundy) 0%, var(--gold) 100%);position:relative;overflow:hidden}
+.cat-img-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;color:white;opacity:.85}
+.cat-body{padding:18px}
+.cat-name{font-size:18px;font-family:Georgia,serif;margin-bottom:6px;color:var(--text)}
+.cat-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.cat-count{font-size:12px;color:var(--burgundy);margin-top:8px;font-weight:600}
+
+/* TESTIMONIALS */
+.section-reviews{background:var(--black-soft)}
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.review-card{
+  background:rgba(212,160,69,.05);
+  border:1px solid var(--border);border-radius:8px;padding:24px;
+}
+.review-stars{color:var(--gold);font-size:18px;margin-bottom:12px}
+.review-quote{font-size:15px;font-style:italic;color:var(--cream);line-height:1.6;margin-bottom:12px}
+.review-author{font-size:13px;color:var(--muted);font-family:'Helvetica',sans-serif}
+
+/* AUTHOR */
+.section-author{background:var(--cream);color:var(--text)}
+.author-row{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;max-width:760px;margin:0 auto}
+.author-photo{
+  width:120px;height:120px;border-radius:50%;
+  background:linear-gradient(135deg, var(--burgundy) 0%, var(--gold) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;color:white;font-family:Georgia,serif;font-weight:600;
+}
+.author-content h3{font-size:28px;font-family:Georgia,serif;margin-bottom:4px;color:var(--text);font-weight:400}
+.author-role{font-size:13px;color:var(--burgundy);font-style:italic;margin-bottom:14px}
+.author-bio{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:14px}
+
+/* NEWSLETTER avec lead magnet */
+.section-news{
+  background:linear-gradient(135deg, var(--burgundy) 0%, var(--black) 100%);
+  text-align:center;
+}
+.lead-magnet{
+  display:inline-flex;align-items:center;gap:12px;
+  background:rgba(212,160,69,.1);
+  border:1px solid var(--gold);
+  border-radius:30px;padding:8px 20px 8px 12px;
+  font-size:13px;color:var(--gold);margin-bottom:24px;letter-spacing:.5px;
+}
+.lead-magnet-icon{font-size:22px}
+.news-form{display:flex;gap:8px;max-width:480px;margin:0 auto;flex-wrap:wrap}
+.news-input{
+  flex:1;min-width:220px;
+  padding:14px 18px;background:var(--cream);color:var(--text);
+  border:0;border-radius:4px;font-size:15px;font-family:Georgia,serif;
+}
+.news-btn{
+  padding:14px 28px;background:var(--gold);color:var(--black);
+  border:0;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;
+  letter-spacing:.3px;
+}
+
+/* FOOTER */
+.site-footer{background:var(--black-soft);padding:60px 0 30px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-bottom:40px}
+.footer-col h4{font-size:13px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;font-family:Helvetica,sans-serif}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:8px}
+.footer-col a{color:var(--cream-soft);text-decoration:none;font-size:14px;transition:color .2s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;color:var(--muted);font-size:12px;flex-wrap:wrap;gap:8px}
+
+/* RESPONSIVE */
+@media(max-width:760px){
+  .hero h1{font-size:38px}
+  .hero p.subtitle{font-size:16px}
+  section h2{font-size:30px}
+  section{padding:60px 0}
+  nav.main-nav,.cta-header{display:none}
+  .duel-row{grid-template-columns:1fr;gap:16px}
+  .author-row{grid-template-columns:1fr;text-align:center}
+  .author-photo{margin:0 auto}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BANNER -->
+<div class="top-banner">
+  📦 Livraison neutre & discrète · 🔒 Site cookie-less · 🇫🇷 Tests indépendants
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="container header-row">
+    <a href="/" class="logo">
+      requindusexe<small>magazine du plaisir adulte</small>
+    </a>
+    <nav class="main-nav">
+      <a href="/categorie/vibros-stimulateurs/">Vibros</a>
+      <a href="/categorie/plaisir-en-couple/">Couple</a>
+      <a href="/categorie/kink-bdsm/">Kink</a>
+      <a href="/categorie/lubrifiants-soins/">Lubes</a>
+      <a href="/comparatifs/">Comparatifs</a>
+      <a href="/outils/">Outils</a>
+    </nav>
+    <a href="/outils/quiz-sextoy/" class="cta-header">🧠 Quiz 3 min</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="padding:0">
+  <div style="padding:80px 24px 100px" class="hero-content">
+    <div class="container">
+      <h1>Le plaisir, sans tabou ni <em>mode d'emploi mystère</em>.</h1>
+      <p class="subtitle">Tests indépendants. Compatibilité lubrifiant. Quiz personnalisé.</p>
+      <p class="intro">
+        Pas de jugement, pas de vulgarité, juste de l'information honnête sur les matières corps-safe, le niveau sonore réel, et les retours utilisateur·trices. Notre quiz vous oriente en 7 questions, notre calculateur de compatibilité vous évite de ruiner votre jouet.
+      </p>
+      <div class="hero-ctas">
+        <a href="/outils/quiz-sextoy/" class="btn btn-primary">🧠 Faire le quiz (3 min)</a>
+        <a href="/outils/compatibilite-lubrifiant/" class="btn btn-outline">🧪 Compatibilité lubrifiant</a>
+      </div>
+      <div class="trust-row">
+        <span>📦 Livraison neutre</span>
+        <span>🔒 0 cookie tiers</span>
+        <span>🇫🇷 Site indépendant</span>
+        <span>✅ Tests sans biais</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TROUVEZ VOTRE PLAISIR EN 3 CLICS -->
+<section class="section-discover">
+  <div class="container">
+    <h2>Trouvez <em>votre</em> plaisir en 3 clics.</h2>
+    <p class="lead">Trois outils pour vous orienter sans perdre 2 heures dans des catalogues à 3000 références.</p>
+    <div class="discover-grid">
+      <a href="/outils/quiz-sextoy/" class="discover-card">
+        <span class="discover-icon">🧠</span>
+        <div class="discover-title">Quiz : quel sextoy pour vous ?</div>
+        <p class="discover-desc">7 questions discrètes — débutant ou expert, solo ou duo, externe ou interne, doux ou intense — on vous propose le profil et 3 produits adaptés.</p>
+        <span class="discover-cta">Démarrer le quiz →</span>
+      </a>
+      <a href="/outils/compatibilite-lubrifiant/" class="discover-card">
+        <span class="discover-icon">🧪</span>
+        <div class="discover-title">Compatibilité lubrifiant ↔ matière</div>
+        <p class="discover-desc">Le tableau exhaustif silicone × TPE × verre × métal × latex × eau × silicone × hybride × huile. Ne ruinez plus jamais votre jouet en silicone.</p>
+        <span class="discover-cta">Voir le tableau →</span>
+      </a>
+      <a href="/outils/kit-debutant/" class="discover-card">
+        <span class="discover-icon">🎁</span>
+        <div class="discover-title">Configurateur kit débutant</div>
+        <p class="discover-desc">3 questions (profil, expérience, budget) → on génère votre panier complet : jouet + lubrifiant compatible + nettoyant + rangement discret.</p>
+        <span class="discover-cta">Configurer mon kit →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- DUEL HERO CARD -->
+<section class="section-duel">
+  <div class="container">
+    <h2>Le duel du moment : <em>Womanizer vs Satisfyer</em>.</h2>
+    <p class="lead">Notre comparatif détaillé qui aide 1500+ visiteur·euses chaque mois à trancher.</p>
+    <div class="duel-card">
+      <div class="duel-row">
+        <div class="duel-product">
+          <div class="pname">Womanizer Premium 2</div>
+          <div class="ppos">Le pionnier Pleasure Air, 149 €</div>
+        </div>
+        <div class="duel-vs">vs</div>
+        <div class="duel-product">
+          <div class="pname">Satisfyer Pro 2 Gen 2</div>
+          <div class="ppos">Le best-seller accessible, 49 €</div>
+        </div>
+      </div>
+      <p class="duel-conclusion">"Le Satisfyer Pro 2 Gen 2 est notre best-buy : à 1/3 du prix, il offre 90% de la sensation Womanizer. Le Womanizer Premium reste supérieur en silence absolu et en construction premium pour qui veut le top du top."</p>
+      <div class="duel-cta">
+        <a href="/comparatif/womanizer-vs-satisfyer/" class="btn btn-primary">Lire le comparatif détaillé →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOP BY MOOD (équivalent Lovehoney "Shop by Brand/Mood") -->
+<section class="section-mood">
+  <div class="container">
+    <h2 style="color:var(--cream)">Pour quelle <em>envie</em> ?</h2>
+    <p class="lead" style="color:var(--cream-soft)">Le bon jouet dépend du contexte. Voici nos 6 univers principaux.</p>
+    <div class="mood-grid">
+      <a href="/categorie/vibros-stimulateurs/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Velvet_-_red.jpg" alt="Vibros stimulateurs">
+        <div class="label">Vibros · Stim</div>
+      </a>
+      <a href="/categorie/plaisir-en-couple/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5d/Pink_rose_petals.jpg" alt="Couple">
+        <div class="label">À deux</div>
+      </a>
+      <a href="/categorie/kink-bdsm/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/14/Black_silk_-_close-up.jpg" alt="Kink BDSM">
+        <div class="label">Kink · BDSM</div>
+      </a>
+      <a href="/categorie/lubrifiants-soins/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c6/Red_silk.JPG" alt="Lubrifiants">
+        <div class="label">Lubrifiants</div>
+      </a>
+      <a href="/categorie/guides-pedagogie/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2b/Soft_pink_petals.jpg" alt="Guides">
+        <div class="label">Guides</div>
+      </a>
+      <a href="/categorie/avis-tests/" class="mood-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Bougie_-_candle_dim.jpg" alt="Avis">
+        <div class="label">Avis · Tests</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES illustrées détaillées -->
+<section class="section-cats">
+  <div class="container">
+    <h2>Nos <em>rubriques</em> éditoriales.</h2>
+    <p class="lead">6 thématiques principales pour ne pas vous noyer dans le contenu.</p>
+    <div class="cat-grid">
+      <a href="/categorie/vibros-stimulateurs/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">✨</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">Vibros et stimulateurs</h3>
+          <p class="cat-desc">Vibromasseurs internes, externes, à pression d'air et hybrides. Notre rayon le plus complet.</p>
+          <div class="cat-count">42 articles →</div>
+        </div>
+      </a>
+      <a href="/categorie/plaisir-en-couple/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">💑</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">Plaisir en couple</h3>
+          <p class="cat-desc">Anneaux, jouets duo, télécommandes, jeux pour pimenter le quotidien à deux.</p>
+          <div class="cat-count">23 articles →</div>
+        </div>
+      </a>
+      <a href="/categorie/kink-bdsm/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">🎭</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">BDSM, kink & fétichisme</h3>
+          <p class="cat-desc">Initiation au BDSM en sécurité, accessoires d'attache, jeux de pouvoir respectueux.</p>
+          <div class="cat-count">15 articles →</div>
+        </div>
+      </a>
+      <a href="/categorie/lubrifiants-soins/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">🧴</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">Lubrifiants et soins</h3>
+          <p class="cat-desc">Choisir le bon lubrifiant selon la matière du jouet. Conseils hygiène et nettoyage.</p>
+          <div class="cat-count">18 articles →</div>
+        </div>
+      </a>
+      <a href="/categorie/guides-pedagogie/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">📖</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">Guides et pédagogie</h3>
+          <p class="cat-desc">Articles de fond sur l'anatomie, le consentement, les matières corps-safe, le pH intime.</p>
+          <div class="cat-count">31 articles →</div>
+        </div>
+      </a>
+      <a href="/categorie/avis-tests/" class="cat-card">
+        <div class="cat-img"><span class="cat-img-emoji">⭐</span></div>
+        <div class="cat-body">
+          <h3 class="cat-name">Avis et tests</h3>
+          <p class="cat-desc">Tests indépendants de produits achetés en magasin, sans biais commercial.</p>
+          <div class="cat-count">28 articles →</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section-reviews">
+  <div class="container">
+    <h2>Ce qu'en disent les <em>lecteur·trices</em>.</h2>
+    <p class="lead">Avis vérifiés filtrables par profil (genre, expérience, usage).</p>
+    <div class="review-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">« Le calculateur de compatibilité lube m'a sauvé d'un achat à 80 €. J'allais mettre du silicone sur mon nouveau jouet… en silicone ! »</p>
+        <div class="review-author">— Léa, 29 ans · Solo · Intermédiaire</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">« Le quiz est super bien conçu. Les questions sont précises sans être intrusives. J'ai trouvé exactement ce que je cherchais. »</p>
+        <div class="review-author">— Marie & Tom, couple · 5+ ans ensemble</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★☆</div>
+        <p class="review-quote">« Comparatif Womanizer vs Satisfyer factuel et sans bullshit marketing. Rare. »</p>
+        <div class="review-author">— Sarah, 35 ans · Confirmée</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHOR -->
+<section class="section-author">
+  <div class="container">
+    <div class="author-row">
+      <div class="author-photo">CV</div>
+      <div class="author-content">
+        <div style="font-size:11px;letter-spacing:1px;color:var(--burgundy);text-transform:uppercase;margin-bottom:4px">La signature de la rédaction</div>
+        <h3>Camille Vermeer</h3>
+        <div class="author-role">Sexologue · Diplôme DIU Sexologie clinique (Bordeaux 2020)</div>
+        <p class="author-bio">Après 5 ans d'exercice en cabinet, j'ai fondé ce magazine pour démystifier le plaisir avec un ton sans tabou ni vulgarité. Je teste, compare et recommande dans le respect du consentement et avec une approche pédagogique.</p>
+        <a href="/equipe-editoriale/" style="color:var(--burgundy);font-size:14px;text-decoration:none">→ Voir toute l'équipe</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER + LEAD MAGNET -->
+<section class="section-news">
+  <div class="container narrow" style="text-align:center">
+    <div class="lead-magnet">
+      <span class="lead-magnet-icon">📥</span>
+      <span>Recevez gratuitement notre <strong>Guide débutant complet</strong> (PDF, 32 p.)</span>
+    </div>
+    <h2 style="color:var(--cream)">Restez <em>informé·e</em>, sans spam.</h2>
+    <p class="lead" style="color:var(--cream-soft);margin-bottom:32px">
+      Une newsletter mensuelle : nouvelles matières corps-safe, comparatifs récents, FAQ utilisateur·trices, tests à paraître. Désinscription en 1 clic.
+    </p>
+    <form class="news-form">
+      <input type="email" placeholder="votre@email.fr" class="news-input" required>
+      <button type="submit" class="news-btn">📥 Recevoir le guide</button>
+    </form>
+    <p style="font-size:12px;color:var(--cream-soft);margin-top:14px;letter-spacing:.3px">🔒 RGPD-friendly · Cookie-less · Pas de revente</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>requindusexe</h4>
+        <ul>
+          <li><a href="/a-propos/">À propos</a></li>
+          <li><a href="/equipe-editoriale/">Équipe</a></li>
+          <li><a href="/charte-editoriale/">Charte éditoriale</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/annoncer-chez-nous/">Annonceurs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Rubriques</h4>
+        <ul>
+          <li><a href="/categorie/vibros-stimulateurs/">Vibros & stimulateurs</a></li>
+          <li><a href="/categorie/plaisir-en-couple/">Plaisir en couple</a></li>
+          <li><a href="/categorie/kink-bdsm/">BDSM & kink</a></li>
+          <li><a href="/categorie/lubrifiants-soins/">Lubrifiants & soins</a></li>
+          <li><a href="/categorie/guides-pedagogie/">Guides</a></li>
+          <li><a href="/categorie/avis-tests/">Avis & tests</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Outils</h4>
+        <ul>
+          <li><a href="/outils/quiz-sextoy/">🧠 Quiz</a></li>
+          <li><a href="/outils/compatibilite-lubrifiant/">🧪 Compatibilité lube</a></li>
+          <li><a href="/outils/kit-debutant/">🎁 Kit débutant</a></li>
+          <li><a href="/outils/comparateur/">⚖️ Comparateur</a></li>
+          <li><a href="/glossaire/">📖 Glossaire</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Mentions</h4>
+        <ul>
+          <li><a href="/mentions-legales/">Mentions légales</a></li>
+          <li><a href="/politique-de-confidentialite/">Confidentialité (RGPD)</a></li>
+          <li><a href="/cgv/">CGV / CGU</a></li>
+          <li><a href="/sitemap-index.xml">Plan du site</a></li>
+          <li><a href="/rss.xml">Flux RSS</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 requindusexe · Tous droits réservés.</span>
+      <span>📦 Livraison neutre · 🔒 Cookie-less · ☁️ CDN global</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

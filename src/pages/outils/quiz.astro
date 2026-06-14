@@ -1,0 +1,136 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+
+interface QuizQ { q: string; choices: string[]; correct: number; explain: string; }
+
+const QUIZ_BY_ARCHETYPE: Record<string, QuizQ[]> = {
+  village: [
+    { q: 'Une mairie de petite commune est appelée…', choices: ['Hôtel de ville', 'Préfecture', 'Communauté de communes', 'Maison commune'], correct: 0, explain: 'Toutes les mairies sont officiellement des "hôtels de ville" en français administratif, indépendamment de la taille de la commune.' },
+    { q: 'Pour faire renouveler une carte d\'identité, on s\'adresse à…', choices: ['La mairie de sa commune si elle a un dispositif biométrique', 'Une mairie quelconque dotée d\'un dispositif biométrique', 'Uniquement la sous-préfecture', 'Le tribunal'], correct: 1, explain: 'Depuis 2017, la demande peut être faite dans n\'importe quelle mairie équipée d\'un dispositif biométrique, pas uniquement celle de votre domicile.' },
+    { q: 'Le maire est élu pour combien d\'années ?', choices: ['4 ans', '5 ans', '6 ans', '7 ans'], correct: 2, explain: 'Le mandat municipal en France est de 6 ans depuis la loi du 11 décembre 1990.' },
+    { q: 'Le numéro vert pour signaler un dépôt sauvage est…', choices: ['17', '18', '15', 'Le service propreté de la mairie'], correct: 3, explain: 'En cas de dépôt sauvage, c\'est la commune (service propreté) qui intervient. Les numéros 15/17/18 sont réservés aux urgences sanitaires, sécuritaires et incendie.' },
+    { q: 'Une "intercommunalité" sert à…', choices: ['Recouvrer les impôts', 'Mutualiser des services entre communes voisines', 'Remplacer le département', 'Élire le préfet'], correct: 1, explain: 'Une intercommunalité (communauté de communes, métropole...) regroupe plusieurs communes pour mutualiser certaines compétences (déchets, eau, etc.).' },
+  ],
+  bricolage: [
+    { q: 'Pour percer un mur en parpaing, j\'utilise…', choices: ['Un foret bois', 'Un foret béton avec un perforateur', 'Un foret métal', 'Un foret céramique'], correct: 1, explain: 'Le parpaing nécessite un foret béton (extrémité carbure) et un perforateur capable de frapper, sinon le foret ne progresse pas.' },
+    { q: 'L\'unité de couple d\'une visseuse est…', choices: ['Le watt (W)', 'Le newton-mètre (Nm)', 'Le joule (J)', 'Le ampère (A)'], correct: 1, explain: 'Le couple est exprimé en Newton-mètre (Nm). Plus la valeur est élevée, plus la visseuse est puissante en termes de force de serrage.' },
+    { q: 'Un tournevis "PH2" correspond à…', choices: ['Une lame plate de 2 mm', 'Un Phillips taille 2', 'Un Pozidriv 2', 'Un Torx 2'], correct: 1, explain: 'PH2 désigne un tournevis Phillips (cruciforme) de taille 2 — la taille la plus courante pour le bricolage domestique.' },
+    { q: 'Pour couper un parquet flottant, j\'utilise…', choices: ['Une scie circulaire avec lame fine', 'Une scie sauteuse avec lame bois ou parquet', 'Une scie radiale uniquement', 'Une disqueuse'], correct: 1, explain: 'La scie sauteuse (avec lame appropriée) est l\'outil le plus polyvalent pour les coupes droites et incurvées du parquet flottant.' },
+    { q: 'Le terme "DPE" désigne…', choices: ['Diagnostic de Performance Énergétique', 'Déclaration Préalable de Travaux', 'Déclaration Provisoire de Permis', 'Diagnostic Plomberie Électricité'], correct: 0, explain: 'Le DPE (Diagnostic de Performance Énergétique) est obligatoire à la vente ou location d\'un logement. Il classe le bien de A à G.' },
+  ],
+  tech: [
+    { q: 'Le terme "lumens" mesure…', choices: ['La luminosité totale émise', 'L\'intensité dans une direction', 'Le contraste', 'La résolution'], correct: 0, explain: 'Les lumens (lm) mesurent le flux lumineux total émis par une source. Pour le pouvoir éclairant dans une direction, on parle de candelas (cd).' },
+    { q: 'La résolution 4K désigne…', choices: ['1920×1080 pixels', '2560×1440 pixels', '3840×2160 pixels', '7680×4320 pixels'], correct: 2, explain: '4K UHD = 3840×2160 pixels (le double du Full HD en horizontal et vertical, soit 4 fois plus de pixels).' },
+    { q: 'Un câble HDMI 2.1 supporte au minimum…', choices: ['1080p à 60 Hz', '4K à 120 Hz', '8K à 60 Hz', 'Les deux dernières réponses'], correct: 3, explain: 'HDMI 2.1 supporte 4K@120Hz et 8K@60Hz, avec une bande passante de 48 Gb/s. Important pour le gaming next-gen et le home cinéma haut de gamme.' },
+    { q: 'L\'unité de bruit acoustique est…', choices: ['Le watt', 'Le décibel (dB)', 'Le hertz', 'Le lumen'], correct: 1, explain: 'Le décibel (dB) mesure la pression acoustique. Échelle logarithmique : +10 dB = perception subjective ×2 du volume.' },
+    { q: 'Un téléviseur OLED se distingue d\'un LCD par…', choices: ['Une plus grande luminosité maximale', 'Un noir parfait pixel par pixel', 'Une consommation supérieure', 'Un meilleur prix'], correct: 1, explain: 'OLED = chaque pixel s\'allume individuellement, donc noirs absolus quand le pixel est éteint. Avantage majeur pour le contraste, mais luminosité max plus faible que les meilleurs LCD/QLED.' },
+  ],
+  adulte: [
+    { q: 'Une tolérance latex de la peau est généralement…', choices: ['Innée', 'Dépendante de l\'exposition répétée', 'Garantie chez tous', 'Universelle'], correct: 1, explain: 'L\'allergie latex apparaît souvent suite à une exposition répétée. Si une réaction se développe, il faut basculer sur du polyuréthane ou du polyisoprène.' },
+    { q: 'Le matériau "silicone medical grade" se distingue par…', choices: ['Sa capacité à attirer la poussière', 'Sa porosité élevée', 'Son absence de phtalates et son inertie', 'Sa fragilité au lavage'], correct: 2, explain: 'Le silicone medical grade ne contient pas de phtalates, est non-poreux donc facile à désinfecter, et chimiquement inerte.' },
+    { q: 'Le pH naturel d\'une muqueuse intime féminine est…', choices: ['Très acide (3.5-4.5)', 'Légèrement acide (4.5-5)', 'Neutre (7)', 'Basique (8-9)'], correct: 0, explain: 'Le pH vaginal naturel est autour de 3.8-4.5, très acide pour préserver la flore. Les produits intimes doivent respecter ce pH.' },
+  ],
+};
+
+const quiz = QUIZ_BY_ARCHETYPE[archetype] ?? QUIZ_BY_ARCHETYPE.village;
+---
+<Base
+  title="Quiz interactif"
+  description={`Testez vos connaissances avec notre quiz ${archetype === 'village' ? 'sur la commune' : archetype === 'bricolage' ? 'bricolage' : archetype === 'tech' ? 'tech' : 'thématique'}, gratuit et sans inscription.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Quiz</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        Testez vos <em style="font-style:italic">connaissances</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:620px">
+        {quiz.length} questions, aucun compte, aucune donnée envoyée. Le score reste sur votre appareil.
+      </p>
+    </div>
+  </section>
+
+  {/* Quiz interactif */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div id="quiz-app" data-quiz={JSON.stringify(quiz)}>
+        <div id="quiz-progress" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:32px;font-weight:600;padding-bottom:16px;border-bottom:1px solid var(--color-border)"></div>
+        <div id="quiz-question" style="padding:0"></div>
+        <div id="quiz-score" class="hidden" style="text-align:center;padding:64px 0"></div>
+      </div>
+
+      <article style="margin-top:96px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <div class="eyebrow" style="margin-bottom:14px">Pourquoi un quiz ?</div>
+        <h2 class="serif" style="font-size:clamp(24px, 2.5vw, 32px);line-height:1.15;font-weight:400;letter-spacing:-.3px;margin-bottom:18px">
+          Une <em style="font-style:italic">révision</em> ludique.
+        </h2>
+        <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px;max-width:680px">
+          Les quiz sont une façon ludique de réviser ce qu'on croit savoir. Notre quiz s'appuie sur des informations vérifiables, avec une explication courte après chaque réponse.
+        </p>
+        <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);max-width:680px">
+          Pas de compte, pas d'email demandé, pas de cookies tiers. Le score reste sur votre appareil.
+        </p>
+      </article>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const root = document.getElementById('quiz-app');
+  if (root) {
+    const quiz = JSON.parse(root.dataset.quiz || '[]');
+    let idx = 0, score = 0;
+
+    function render() {
+      const prog = document.getElementById('quiz-progress');
+      const qBox = document.getElementById('quiz-question');
+      const final = document.getElementById('quiz-score');
+      if (idx >= quiz.length) {
+        qBox.classList.add('hidden');
+        prog.classList.add('hidden');
+        final.classList.remove('hidden');
+        const pct = Math.round((score / quiz.length) * 100);
+        final.innerHTML = `
+          <div style="font-size:64px;line-height:1;margin-bottom:24px">${pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💡'}</div>
+          <div class="serif" style="font-size:96px;line-height:1;font-weight:400;letter-spacing:-3px;font-style:italic;color:var(--color-accent);margin-bottom:8px">${score}<span style="color:var(--color-text-muted);font-style:normal">/${quiz.length}</span></div>
+          <p style="font-size:18px;line-height:1.6;color:var(--color-text-muted);margin-bottom:40px">Vous avez répondu juste à <strong style="color:var(--color-ink)">${pct}%</strong> des questions.</p>
+          <button id="quiz-restart" class="btn-fill">Recommencer</button>
+        `;
+        document.getElementById('quiz-restart').onclick = () => { idx = 0; score = 0; final.classList.add('hidden'); qBox.classList.remove('hidden'); prog.classList.remove('hidden'); render(); };
+        return;
+      }
+      const q = quiz[idx];
+      prog.textContent = `Question ${idx + 1} / ${quiz.length} — Score ${score}`;
+      qBox.innerHTML = `
+        <h2 class="serif" style="font-size:clamp(28px, 3vw, 40px);line-height:1.15;font-weight:400;letter-spacing:-.3px;margin-bottom:32px">${q.q}</h2>
+        <div style="display:grid;gap:0;border-top:1px solid var(--color-border)">
+          ${q.choices.map((c, i) => `<button data-i="${i}" style="text-align:left;padding:18px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--color-ink);cursor:pointer;transition:color .2s;display:flex;align-items:baseline;gap:18px"><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600;font-family:'Inter',sans-serif">${String.fromCharCode(65+i)}</span>${c}</button>`).join('')}
+        </div>
+        <div id="quiz-explain" class="hidden" style="margin-top:32px;padding:24px;background:var(--color-bg-card);border-left:3px solid var(--color-accent);font-size:15px;line-height:1.7;color:var(--color-ink)"></div>
+      `;
+      qBox.querySelectorAll('button[data-i]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const chosen = parseInt(btn.dataset.i, 10);
+          const isCorrect = chosen === q.correct;
+          if (isCorrect) score++;
+          qBox.querySelectorAll('button[data-i]').forEach((b, i) => {
+            b.disabled = true;
+            if (i === q.correct) b.style.background = 'rgba(34,197,94,0.15)';
+            if (i === chosen && !isCorrect) b.style.background = 'rgba(239,68,68,0.15)';
+          });
+          const exp = document.getElementById('quiz-explain');
+          exp.classList.remove('hidden');
+          exp.innerHTML = `<strong>${isCorrect ? '✅ Bravo' : '❌ Réponse correcte : ' + q.choices[q.correct]}</strong> — ${q.explain}<br><br>
+            <button id="quiz-next" class="text-sm underline">Question suivante →</button>`;
+          document.getElementById('quiz-next').onclick = () => { idx++; render(); };
+        });
+      });
+    }
+    render();
+  }
+</script>

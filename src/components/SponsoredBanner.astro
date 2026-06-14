@@ -1,15 +1,48 @@
 ---
 /**
- * Banner discret "Disponibilité sponsorisée" en bas d'article (item #84).
- *
- * Renvoie vers /annoncer-chez-nous pour une demande commerciale. Discret —
- * juste une ligne avec un lien — pour ne pas saturer le UX éditorial.
+ * SponsoredBanner — banner discret en fin d'article pour signaler le sponsoring.
+ * Adapté au ton de chaque archétype.
  */
+import { SITE_CONFIG } from '../lib/site-config';
+
+interface Props {
+  /** Si l'article a été marqué sponsored: true dans son frontmatter */
+  isArticleSponsored: boolean;
+}
+
+const { isArticleSponsored } = Astro.props;
+
+const messages: Record<string, { title: string; body: string }> = {
+  village: {
+    title: 'Soutenez les commerces et artisans locaux',
+    body: 'Cet article peut contenir des liens vers des partenaires locaux. Notre rédaction reste indépendante dans ses choix éditoriaux.',
+  },
+  bricolage: {
+    title: 'Transparence sur les liens affiliés',
+    body: 'Cet article peut contenir des liens affiliés. Si vous achetez via ces liens, nous percevons une commission sans frais supplémentaire pour vous. Nos avis restent honnêtes — nous ne recommandons que ce que nous testons réellement.',
+  },
+  tech: {
+    title: 'Disclosure',
+    body: 'Cet article peut inclure des liens affiliés. Si vous achetez après avoir cliqué, nous touchons une commission. Cela ne change pas notre opinion : aucune marque n\'achète notre avis.',
+  },
+  adulte: {
+    title: 'À propos de nos partenariats',
+    body: 'Certains liens dans cet article sont commerciaux. Nous testons et sélectionnons rigoureusement avant d\'inclure un partenaire.',
+  },
+};
+
+const m = messages[SITE_CONFIG.theme.archetype] ?? messages.village;
 ---
-<aside class="not-prose mt-8 rounded-md border border-olive-200 bg-olive-50 p-4 text-sm text-ink-700" data-pagefind-ignore>
-  <p>
-    🎯 <strong>Producteurs italiens, importateurs, marques AOP/DOP/IGP</strong> — un partenariat éditorial avec DaRocco
-    expose votre savoir-faire à un lectorat qualifié de restaurateurs et d'épiciers.
-    <a href="/annoncer-chez-nous" class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">En savoir plus →</a>
-  </p>
-</aside>
+{isArticleSponsored && (
+  <aside class="sponsored-banner not-prose" style="margin:48px 0 24px;padding:24px 28px;background:var(--color-sponsored);border-left:2px solid var(--color-accent)">
+    <div style="display:flex;gap:18px;align-items:flex-start">
+      <div style="font-size:24px;line-height:1;color:var(--color-accent)">ⓘ</div>
+      <div style="flex:1">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px;font-weight:600">{m.title}</div>
+        <p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);margin:0;font-style:italic;font-family:'Cormorant Garamond',serif;font-size:15px">
+          {m.body}
+        </p>
+      </div>
+    </div>
+  </aside>
+)}

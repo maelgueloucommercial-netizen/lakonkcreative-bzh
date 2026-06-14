@@ -1,0 +1,120 @@
+/**
+ * HOME SKINS — 6 systèmes visuels pour différencier les homepages du réseau
+ * (demande Mael 2026-06-10 : « 40 fois la même home, pas moderne »).
+ * Le skin est choisi par hash du domaine (index.astro) → stable par site.
+ * Combiné aux 8 ordres de sections + 4 heros + thèmes couleurs par site
+ * → plus aucune paire de homepages identiques. AUCUN contenu retiré :
+ * uniquement géométrie, bordures, ombres, fonds, typographie, hovers.
+ *
+ * Skins : paper (édito chaleureux) · sharp (brutaliste net) · soft (rond, ombres)
+ *         noir (sections sombres contrastées) · outline (fil de fer, marqueur)
+ *         glossy (dégradés, verre)
+ */
+
+/* ============ PAPER — magazine papier : fonds crème, filets fins, serif assumé ============ */
+.hs--paper .hp-benefit, .hs--paper .hp-prod, .hs--paper .hp-deals {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  border: 1px solid var(--color-border) !important;
+}
+.hs--paper .hp-art img, .hs--paper .hp-art-ph { border-radius: 4px !important; }
+.hs--paper .hp-prod-img { border-radius: 2px !important; }
+.hs--paper .hp-pill {
+  background: transparent !important; border: none !important; border-radius: 0 !important;
+  border-bottom: 2px solid var(--color-accent) !important; padding: 4px 2px !important;
+  letter-spacing: 3px !important;
+}
+.hs--paper .hp-benefits-wrap { background: var(--color-bg-2) !important; }
+.hs--paper .hp-rub-head { border-bottom: 3px double var(--color-border) !important; }
+.hs--paper .hp-benefit-ico { background: transparent !important; border: 1px solid var(--color-border); border-radius: 50% !important; }
+.hs--paper .hp-shop-reassure { border-radius: 0 !important; border-left: 4px solid var(--color-accent) !important; }
+.hs--paper .hp-art:hover img { transform: none !important; box-shadow: 0 1px 0 var(--color-accent) !important; }
+
+/* ============ SHARP — brutaliste : zéro radius, bordures 2px, ombres dures ============ */
+.hs--sharp .hp-benefit, .hs--sharp .hp-prod, .hs--sharp .hp-deals,
+.hs--sharp .hp-art img, .hs--sharp .hp-art-ph, .hs--sharp .hp-prod-img,
+.hs--sharp .hp-shop-reassure, .hs--sharp .hp-pill {
+  border-radius: 0 !important;
+}
+.hs--sharp .hp-benefit, .hs--sharp .hp-prod, .hs--sharp .hp-deals {
+  border: 2px solid var(--color-ink) !important;
+  box-shadow: 5px 5px 0 var(--color-ink) !important;
+}
+.hs--sharp .hp-prod:hover, .hs--sharp .hp-benefit:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 8px 8px 0 var(--color-accent) !important;
+}
+.hs--sharp .hp-pill { border: 2px solid var(--color-ink) !important; background: var(--color-secondary) !important; color: var(--color-ink) !important; font-weight: 800 !important; }
+.hs--sharp .hp-deal-pct { border-radius: 0 !important; }
+.hs--sharp .hp-stars { color: var(--color-ink) !important; }
+.hs--sharp .btn-fill { border-radius: 0 !important; box-shadow: 4px 4px 0 var(--color-ink); }
+.hs--sharp .hp-rub-head h3 { text-transform: uppercase; letter-spacing: 1px; font-size: clamp(18px, 2vw, 24px) !important; }
+
+/* ============ SOFT — moderne arrondi : gros radius, grandes ombres diffuses, sans bordures ============ */
+.hs--soft .hp-benefit, .hs--soft .hp-prod, .hs--soft .hp-deals, .hs--soft .hp-shop-reassure {
+  border-radius: 26px !important;
+  border: none !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .07) !important;
+}
+.hs--soft .hp-art img, .hs--soft .hp-art-ph { border-radius: 22px !important; }
+.hs--soft .hp-prod-img { border-radius: 18px !important; }
+.hs--soft .hp-prod:hover { transform: translateY(-6px) !important; box-shadow: 0 24px 60px rgba(0, 0, 0, .13) !important; }
+.hs--soft .hp-pill { background: var(--color-ink) !important; color: var(--color-bg-base) !important; border: none !important; }
+.hs--soft .hp-benefit-ico { border-radius: 50% !important; }
+.hs--soft .btn-fill, .hs--soft .btn-line { border-radius: 999px !important; }
+.hs--soft .hp-deal-pct { border-radius: 999px !important; }
+
+/* ============ NOIR — contraste éditorial : blog & rayons sur fond encre, accents dorés ============ */
+.hs--noir .hp-benefits-wrap { background: var(--color-ink) !important; border-bottom: none !important; }
+.hs--noir .hp-benefit { background: color-mix(in srgb, var(--color-ink) 86%, #fff) !important; border-color: color-mix(in srgb, var(--color-ink) 70%, #fff) !important; }
+.hs--noir .hp-benefit-title { color: var(--color-bg-base) !important; }
+.hs--noir .hp-benefit-desc { color: rgba(255, 255, 255, .65) !important; }
+.hs--noir .hp-benefit-ico { background: rgba(255, 255, 255, .1) !important; }
+.hs--noir .hp-deals { background: var(--color-ink) !important; border: none !important; }
+.hs--noir .hp-deals-head strong { color: var(--color-bg-base) !important; }
+.hs--noir .hp-deals .hp-prod { background: color-mix(in srgb, var(--color-ink) 88%, #fff) !important; border: none !important; }
+.hs--noir .hp-deals .hp-prod-title { color: var(--color-bg-base) !important; }
+.hs--noir .hp-deals .hp-prod-price { color: var(--color-secondary) !important; }
+.hs--noir .hp-pill { background: var(--color-ink) !important; color: var(--color-secondary) !important; border-color: var(--color-ink) !important; }
+.hs--noir .hp-prod, .hs--noir .hp-benefit { border-radius: 14px !important; }
+.hs--noir .hp-stars { color: var(--color-secondary) !important; }
+
+/* ============ OUTLINE — fil de fer : cartes transparentes, contours épais, titres surlignés ============ */
+.hs--outline .hp-benefit, .hs--outline .hp-prod, .hs--outline .hp-deals {
+  background: transparent !important;
+  border: 3px solid var(--color-ink) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.hs--outline .hp-prod:hover { border-color: var(--color-accent) !important; transform: none !important; box-shadow: none !important; }
+.hs--outline .hp-rub-head h3 {
+  display: inline-block;
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--color-secondary) 45%, transparent) 55%);
+  padding: 0 6px;
+}
+.hs--outline .hp-pill { background: transparent !important; border: 2px solid var(--color-ink) !important; color: var(--color-ink) !important; }
+.hs--outline .hp-art img, .hs--outline .hp-art-ph { border: 3px solid var(--color-ink) !important; border-radius: 10px !important; }
+.hs--outline .hp-shop-reassure { background: transparent !important; border: 2px dashed var(--color-border) !important; }
+.hs--outline .hp-benefit-ico { background: var(--color-secondary) !important; border-radius: 10px !important; }
+
+/* ============ GLOSSY — vitrine premium : dégradés, verre dépoli, lumière ============ */
+.hs--glossy .hp-benefit, .hs--glossy .hp-deals {
+  background: linear-gradient(160deg, var(--color-bg-card) 0%, var(--color-bg-2) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .65) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(31, 38, 60, .12), inset 0 1px 0 rgba(255, 255, 255, .7) !important;
+}
+.hs--glossy .hp-prod {
+  border-radius: 18px !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 6px 22px rgba(31, 38, 60, .08) !important;
+}
+.hs--glossy .hp-prod:hover { box-shadow: 0 18px 44px rgba(31, 38, 60, .16) !important; }
+.hs--glossy .hp-pill {
+  background: linear-gradient(120deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 55%, #fff)) !important;
+  color: #fff !important; border: none !important;
+}
+.hs--glossy .btn-fill { background: linear-gradient(120deg, var(--color-ink), color-mix(in srgb, var(--color-ink) 70%, var(--color-accent))) !important; border: none !important; }
+.hs--glossy .hp-deal-pct { background: linear-gradient(120deg, #b0654f, #d98a6f) !important; }
+.hs--glossy .hp-art img { border-radius: 16px !important; }
+.hs--glossy .hp-benefit-ico { background: rgba(255, 255, 255, .8) !important; box-shadow: 0 4px 14px rgba(31, 38, 60, .12); }

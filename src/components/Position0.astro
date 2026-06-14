@@ -1,0 +1,73 @@
+---
+/**
+ * Sprint 10 — Position 0 / Voice / Featured Snippet.
+ *
+ * Affiche en tête d'article un encadré "Réponse directe" 40-60 mots
+ * structuré pour capture de featured snippet Google.
+ *
+ * Le texte vient de la description (frontmatter) ou est généré à partir
+ * du title + intent. Pas de Llama runtime (statique). Format question/réponse.
+ */
+import type { SearchIntent } from '../lib/intent-classifier';
+
+interface Props {
+  title: string;
+  description?: string;
+  intent: SearchIntent;
+}
+const { title, description, intent } = Astro.props as Props;
+
+// Génère une question canonique selon l'intent
+function buildQuestion(): string {
+  const t = title.replace(/[«»"']/g, '').trim();
+  switch (intent) {
+    case 'how_to': return `Comment ${t.toLowerCase().replace(/^comment\s+/i, '')} ?`;
+    case 'comparator': return `Quel est le meilleur ${t.toLowerCase().replace(/^(meilleur|comparatif)\s+/i, '')} ?`;
+    case 'definition': return `Qu'est-ce que ${t.toLowerCase().replace(/^qu'est[\s-]ce\s+que\s+/i, '')} ?`;
+    case 'recipe': return `Comment réussir ${t.toLowerCase().replace(/^recette\s+(de|du|des)\s+/i, '')} ?`;
+    case 'product_review': return `${t} en vaut-il la peine ?`;
+    case 'buying_guide': return `Où acheter ${t.toLowerCase()} ?`;
+    case 'local_info':
+    case 'local_listing': return `Que savoir sur ${t.toLowerCase()} ?`;
+    case 'news': return `Quelle actualité concernant ${t.toLowerCase()} ?`;
+    default: return `${t} : l'essentiel à retenir`;
+  }
+}
+
+// Texte de réponse direct : description si présente, sinon fallback générique
+function buildAnswer(): string {
+  if (description && description.length >= 60) {
+    // Tronque à ~250 caractères au mot près
+    if (description.length <= 250) return description;
+    const cut = description.slice(0, 240);
+    const lastSpace = cut.lastIndexOf(' ');
+    return cut.slice(0, lastSpace) + '…';
+  }
+  // Fallback générique selon intent
+  switch (intent) {
+    case 'how_to': return `Cet article détaille pas à pas les étapes pour réussir ${title.toLowerCase()}, avec le matériel nécessaire, les précautions à prendre et les erreurs à éviter.`;
+    case 'comparator': return `Notre comparatif analyse les principaux modèles selon les critères qui comptent : performance, durabilité, prix et adéquation à votre usage.`;
+    case 'definition': return `${title} est expliqué en détail dans cet article, avec son origine, son contexte et ses caractéristiques principales.`;
+    case 'recipe': return `Cette recette détaille les ingrédients nécessaires, les étapes de préparation et les variantes possibles pour réussir ${title.toLowerCase()}.`;
+    case 'product_review': return `Notre test détaille les points forts et les points faibles de ${title.toLowerCase()}, avec un verdict argumenté sur les usages les plus adaptés.`;
+    case 'buying_guide': return `Ce guide d'achat compare les options disponibles pour ${title.toLowerCase()} et indique où acheter au meilleur rapport qualité-prix.`;
+    case 'local_info': return `Cet article rassemble les informations essentielles concernant ${title.toLowerCase()} : horaires, accès, services et points d'intérêt.`;
+    case 'local_listing': return `Cet article recense les principaux acteurs locaux concernés par ${title.toLowerCase()}, avec leurs coordonnées et spécificités.`;
+    default: return `Cet article présente ${title.toLowerCase()} en détail, avec les éléments clés à connaître pour bien comprendre le sujet.`;
+  }
+}
+
+const question = buildQuestion();
+const answer = buildAnswer();
+---
+<aside class="position-zero not-prose" style="margin:32px 0;padding:32px 36px;background:var(--color-bg-card);border-left:3px solid var(--color-accent)">
+  <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:14px;font-weight:600">
+    En bref
+  </div>
+  <h2 class="serif" style="font-size:clamp(20px, 2.2vw, 26px);line-height:1.25;font-weight:400;letter-spacing:-.3px;margin:0 0 14px;color:var(--color-ink)">
+    {question}
+  </h2>
+  <p style="font-size:16px;line-height:1.7;color:var(--color-ink);margin:0">
+    {answer}
+  </p>
+</aside>

@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+
+const dateMaj = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: `Conditions générales — ${SITE_CONFIG.siteName}`,
+  description: `Conditions générales d'utilisation et d'achat sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/cgv/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
+---
+<Base
+  title="Conditions générales d'utilisation"
+  description={`Conditions générales d'utilisation et d'achat des prestations publicitaires sur ${SITE_CONFIG.siteName}.`}
+  jsonLd={[_pageSchema]}
+>
+
+  {/* Hero éditorial sobre */}
+  <section style="padding:96px 0 64px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">CGU & CGV</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        Conditions <em style="font-style:italic">générales</em>.
+      </h1>
+      <p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">
+        Dernière mise à jour — {dateMaj}
+      </p>
+    </div>
+  </section>
+
+  {/* Sections numérotées */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;margin-bottom:48px" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">01</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">Objet</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+            Les présentes conditions régissent (i) l'utilisation du site {SITE_CONFIG.siteName} par tout visiteur (CGU) et (ii) la fourniture de prestations publicitaires (article sponsorisé, mention payante, partenariat) à tout client professionnel (CGV).
+          </p>
+        </div>
+      </article>
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;padding:48px 0;border-top:1px solid var(--color-border)" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">02</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">CGU — Conditions d'utilisation du site</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px">
+            L'accès au site est libre et gratuit. L'utilisateur s'engage à utiliser le site dans le respect de la loi et des règles habituelles de l'Internet. Sont notamment interdits : la reproduction non autorisée des contenus, l'utilisation de robots automatisés, le scraping massif, et toute tentative de compromettre la sécurité du site.
+          </p>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+            L'éditeur se réserve le droit de modifier, suspendre ou interrompre tout ou partie du site sans préavis.
+          </p>
+        </div>
+      </article>
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;padding:48px 0;border-top:1px solid var(--color-border)" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">03</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">CGV — Prestations publicitaires</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:32px">
+            Les prestations proposées sont décrites sur la page <a href="/annoncer-chez-nous/" class="link-underline">annoncer chez nous</a>. Toute commande est formalisée par échange écrit (email) avec acceptation explicite du client professionnel.
+          </p>
+
+          <h3 class="serif" style="font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.2px;margin-bottom:10px;margin-top:24px">3.1 Tarifs</h3>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:24px">
+            Les tarifs sont communiqués sur devis et acceptés par écrit avant exécution de la prestation. Ils sont exprimés hors taxes et la TVA est applicable selon le régime en vigueur. Le règlement intervient à la commande, par virement bancaire (coordonnées sur devis).
+          </p>
+
+          <h3 class="serif" style="font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.2px;margin-bottom:10px">3.2 Délais</h3>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:24px">
+            Sauf accord contraire, la prestation (publication d'un article sponsorisé, ajout d'une mention) est exécutée dans un délai de 5 jours ouvrés à compter de la réception du règlement et du brief client validé. Le délai n'est pas un engagement ferme et peut être ajusté en cas de réécriture éditoriale nécessaire pour respecter notre charte.
+          </p>
+
+          <h3 class="serif" style="font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.2px;margin-bottom:10px">3.3 Refus éditorial</h3>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:24px">
+            L'éditeur conserve la liberté éditoriale. Il se réserve le droit de refuser toute commande dont le contenu, la cible ou la marque ne correspond pas à sa ligne éditoriale. Dans ce cas, le client est intégralement remboursé.
+          </p>
+
+          <h3 class="serif" style="font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.2px;margin-bottom:10px">3.4 Engagement publication</h3>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:24px">
+            Sauf clause contraire, les articles sponsorisés publiés restent en ligne au minimum 24 mois. Au-delà, l'éditeur peut décider de leur dépublication, sans obligation d'information préalable.
+          </p>
+
+          <h3 class="serif" style="font-size:20px;line-height:1.25;font-weight:500;letter-spacing:-.2px;margin-bottom:10px">3.5 Mention « sponsorisé »</h3>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted)">
+            Conformément aux règles de transparence et au RGPD, tout contenu sponsorisé est explicitement signalé comme tel. Cette mention ne peut faire l'objet de négociation.
+          </p>
+        </div>
+      </article>
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;padding:48px 0;border-top:1px solid var(--color-border)" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">04</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">Responsabilité</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+            L'éditeur s'engage à exécuter la prestation conformément au brief validé. Il ne saurait être tenu responsable des conséquences indirectes pour le client (impact business, ranking SEO, conversions). Sa responsabilité est en tout état de cause limitée au montant facturé pour la prestation concernée.
+          </p>
+        </div>
+      </article>
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;padding:48px 0;border-top:1px solid var(--color-border)" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">05</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">Droit applicable et litiges</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+            Les présentes conditions sont soumises au droit français. En cas de litige, les parties s'efforceront de trouver une solution amiable. À défaut, le litige sera porté devant les juridictions compétentes du ressort du siège de l'éditeur.
+          </p>
+        </div>
+      </article>
+
+      <article style="display:grid;grid-template-columns:80px 1fr;gap:36px;align-items:start;padding:48px 0 0;border-top:1px solid var(--color-border)" class="cgv-row">
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;color:var(--color-accent)">06</div>
+        <div>
+          <h2 class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">Contact</h2>
+          <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+            Toute question relative aux présentes conditions peut être adressée à <a href={`mailto:mael.guelou.commercial@gmail.com`} class="link-underline">mael.guelou.commercial@gmail.com</a>.
+          </p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) {
+  .cgv-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .cgv-row > div:first-child { font-size: 36px !important; }
+}
+</style>

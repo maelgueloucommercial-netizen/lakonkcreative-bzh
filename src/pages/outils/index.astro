@@ -1,65 +1,102 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { WIKI_IMAGES } from '../../lib/site-wiki-images';
 
-const tools = [
-  {
-    href: '/outils/selecteur-huile',
-    title: 'Sélecteur d\'huile d\'olive',
-    description: 'Identifie l\'huile italienne adaptée à votre usage et intensité préférée.',
-    icon: '🫒',
-  },
-  {
-    href: '/outils/timer-mantecatura',
-    title: 'Timer mantecatura',
-    description: 'Chronomètre interactif pour l\'étape finale du risotto, hors du feu.',
-    icon: '⏱',
-  },
-  {
-    href: '/outils/quiz-regions',
-    title: 'Quiz régions italiennes',
-    description: '10 questions pour tester votre connaissance de la cuisine régionale d\'Italie.',
-    icon: '🇮🇹',
-  },
-  {
-    href: '/outils/carte-epiciers',
-    title: 'Carte des épiciers italiens',
-    description: 'Annuaire géolocalisé des épiceries italiennes authentiques en France.',
-    icon: '📍',
-  },
-  {
-    href: '/recherche',
-    title: 'Recherche dans l\'encyclopédie',
-    description: 'Pagefind sur les régions, pâtes, lexique, articles, produits et épiciers.',
-    icon: '🔍',
-  },
-];
+const profile = SITE_CONFIG.profile;
+const tools = profile?.tools ?? [];
+const heroSubject = profile?.wikiImageSubjects?.[2] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Outils gratuits — ${SITE_CONFIG.siteName}`,
+  description: `Outils interactifs gratuits sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/outils/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
 ---
 <Base
-  title="Outils interactifs"
-  description="Outils interactifs DaRocco pour choisir, calculer et comprendre la cuisine italienne authentique."
+  title="Outils gratuits"
+  description={`${tools.length} outils interactifs gratuits sur ${SITE_CONFIG.siteName}. ${tools.slice(0, 3).map(t => t.label).join(', ')}…`}
+  jsonLd={[_pageSchema]}
 >
-  <section class="mx-auto max-w-3xl px-6 py-12">
-    <Breadcrumb items={[{ label: 'Outils' }]} />
 
-    <header class="mb-10">
-      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Outils</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
-        Outils interactifs
-      </h1>
-      <p class="text-lg text-ink-700 leading-relaxed">
-        Quelques outils web simples qui complètent l'encyclopédie : sélecteurs, calculateurs, recherche.
-      </p>
-    </header>
-
-    <div class="grid sm:grid-cols-2 gap-4">
-      {tools.map((t) => (
-        <a href={t.href} class="block rounded-lg border border-cream-200 bg-white p-6 hover:border-terra-300 hover:bg-cream-50 transition">
-          <p class="text-3xl mb-3">{t.icon}</p>
-          <p class="font-serif text-xl text-ink-900 mb-1">{t.title}</p>
-          <p class="text-sm text-ink-700/70">{t.description}</p>
-        </a>
-      ))}
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">Outils gratuits</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 76px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          {tools.length} outils <em style="font-style:italic">interactifs</em>.
+        </h1>
+        {profile && (
+          <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:520px;margin-bottom:14px">
+            {profile.uniqueValue}
+          </p>
+        )}
+        <p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600">
+          Aucune inscription — tout dans votre navigateur
+        </p>
+      </div>
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
     </div>
   </section>
+
+  {/* Grille outils */}
+  <section style="padding:96px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      {tools.length > 0 ? (
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="tools-grid">
+          {tools.map((t) => (
+            <a href={t.href ?? `/outils/${t.slug}/`} style="display:block;padding:48px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);text-decoration:none;color:inherit;background:var(--color-bg-base);transition:background .2s">
+              <div style="font-size:36px;margin-bottom:24px;line-height:1">{t.emoji}</div>
+              <h2 class="serif" style="font-size:28px;line-height:1.15;font-weight:400;letter-spacing:-.3px;margin-bottom:14px">{t.label}</h2>
+              <p style="font-size:15px;line-height:1.7;color:var(--color-text-muted);margin-bottom:24px">{t.description}</p>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600">Ouvrir l'outil →</div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p style="font-size:18px;color:var(--color-text-muted);line-height:1.6">Aucun outil configuré pour ce site.</p>
+      )}
+    </div>
+  </section>
+
+  {/* CTA suggestion */}
+  <section style="padding:80px 0;background:var(--color-bg-card);border-top:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center" class="cta-grid">
+        <div>
+          <div class="eyebrow" style="margin-bottom:14px">Suggestion</div>
+          <h2 class="serif" style="font-size:clamp(28px, 3vw, 38px);line-height:1.1;font-weight:400;letter-spacing:-.4px;margin-bottom:14px">
+            Une idée d'<em style="font-style:italic">outil</em> ?
+          </h2>
+        </div>
+        <div>
+          <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;margin-bottom:24px">
+            Vous avez une idée d'outil que nous devrions ajouter ? Notre roadmap est ouverte — écrivez-nous, nous lisons toutes les suggestions.
+          </p>
+          <a href="/contact/" class="btn-fill">Proposer un outil</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:first-child { padding: 48px 32px !important; }
+  .tools-grid { grid-template-columns: 1fr !important; }
+  .cta-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
+</style>

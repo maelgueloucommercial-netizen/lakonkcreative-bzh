@@ -1,312 +1,539 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import RegionsMap from '../components/RegionsMap.astro';
-import OptimizedPicture from '../components/OptimizedPicture.astro';
-import { SITE, PERSONA, PILLARS } from '../consts';
+import { articleUrl } from '../lib/article-url';
+import { getCollection } from 'astro:content';
+import { SITE_CONFIG } from '../lib/site-config';
+import { classifyIntent } from '../lib/intent-classifier';
 
-// Sprint 5.14 — Entity disambiguation (auto-généré par cron worker dans
-// src/data/disambiguation.json si confusion knowledge graph détectée).
-// Si le fichier existe : override title/desc/JSON-LD pour clarifier que ce
-// site est éditorial et non l'entité concurrente (ex: restaurant Da Rocco).
-let disambig: {
-  metaTitle?: string;
-  metaDescription?: string;
-  heroBlockHtml?: string;
-  jsonLd?: Record<string, unknown>;
-  competingEntity?: string;
-} | null = null;
-try {
-  // @ts-ignore — fichier optionnel généré par admin
-  disambig = (await import('../data/disambiguation.json')).default;
-} catch { /* pas de disambig détectée, normal */ }
+import Newsletter from '../components/Newsletter.astro';
+import HeroVariant from '../components/HeroVariant.astro';
+import '../styles/home-skins.css';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+import { getArticleImage } from '../lib/article-wiki-images';
+import { buildBlogCategories } from '../lib/blog-categories';
 
-const recentArticles = (await getCollection('blog'))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
-  .slice(0, 3);
+const archetype = SITE_CONFIG.theme.archetype;
+const profile = SITE_CONFIG.profile;
+const articles = await getCollection('articles');
+articles.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
-const featuredArticle = recentArticles[0];
+function getArticleUrl(entry: typeof articles[number]): string {
+  const d = entry.data;
+    return articleUrl(d);
+}
 
-const allPates = await getCollection('pates');
-const allRegions = await getCollection('regions');
+const featured = articles.slice(0, 6);
+const recent = articles.slice(6, 18);
 
-const counts: Record<string, number> = {
-  regions: allRegions.length,
-  pates: allPates.length,
-  lexique: (await getCollection('lexique')).length,
-  annuaire: (await getCollection('epiciers')).length,
-  boutique: (await getCollection('produits')).length,
+// Classify articles into profile categories
+function classifyArticleByCategory(title: string): string | null {
+  if (!profile) return null;
+  const t = title.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+  for (const cat of profile.categories) {
+    for (const kw of cat.keywords) {
+      if (t.includes(kw.toLowerCase().normalize('NFD').replace(/\p{M}/gu, ''))) {
+        return cat.slug;
+      }
+    }
+  }
+  return null;
+}
+const articlesByCategory = new Map<string, typeof articles>();
+if (profile) {
+  for (const a of articles) {
+    const cat = classifyArticleByCategory(a.data.title);
+    if (cat) {
+      if (!articlesByCategory.has(cat)) articlesByCategory.set(cat, [] as typeof articles);
+      articlesByCategory.get(cat)!.push(a);
+    }
+  }
+}
+
+const hero = profile?.hero ?? {
+  title: SITE_CONFIG.siteName,
+  subtitle: SITE_CONFIG.tagline,
+  intro: SITE_CONFIG.tagline,
+  primaryCta: { label: 'Articles', href: '/articles/' },
+  secondaryCta: { label: 'Outils', href: '/outils/' },
+  badges: [],
+  imageHint: '',
 };
 
-// "Pâte du jour" + "Région à l'honneur" — sélection déterministe
-// basée sur le jour de l'année (jour 1-366 mod n). Build statique :
-// ce qui est compilé reste stable jusqu'au prochain build (les fiches changent
-// néanmoins quand auto-pub déclenche un nouveau build).
-const today = new Date();
-const dayOfYear = Math.floor(
-  (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400_000,
-);
-const pasteOfDay = allPates[dayOfYear % allPates.length];
-const regionOfDay = allRegions[dayOfYear % allRegions.length];
+// Hero image principale (Wikipedia)
+const primarySubject = profile?.wikiImageSubjects?.[0];
+const heroImageUrl = primarySubject ? WIKI_IMAGES[primarySubject] : null;
+const wikiImageEntries = Object.entries(WIKI_IMAGES);
+
+// Editorial feature : 1er article featuré OR le 1er matchup
+const editorialArticle = featured[0];
+const editorialImg = editorialArticle ? (editorialArticle.data.heroImage ?? getArticleImage(editorialArticle.data.slug)) : null;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_CONFIG.siteName,
+  url: SITE_CONFIG.siteUrl,
+  description: profile?.mission ?? SITE_CONFIG.tagline,
+  ...(profile?.author ? {
+    employee: [{
+      '@type': 'Person',
+      name: profile.author.name,
+      jobTitle: profile.author.role,
+      description: profile.author.bio,
+    }],
+  } : {}),
+};
+const webSiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_CONFIG.siteName,
+  url: SITE_CONFIG.siteUrl,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE_CONFIG.siteUrl.replace(/\/$/, '')}/recherche/?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+// Stats
+const totalArticles = articles.length;
+const totalCats = profile?.categories.length ?? 0;
+const totalTools = profile?.tools.length ?? 0;
+const totalMatchups = profile?.matchups?.length ?? 0;
+
+// ===== DIFFÉRENCIATION HOMEPAGE (demande Mael 2026-06-10 : « 40 fois la même home ») =====
+// 3 axes indépendants, déterministes par domaine → plus aucune paire de sites identique,
+// AUCUN élément retiré (toutes les sections SEO restent, seuls ordre + habillage changent).
+//   1. ORDRE des sections (8 séquences, réellement appliquées au rendu — avant, calculé mais ignoré)
+//   2. SKIN visuel (6 systèmes : geometry/bordures/ombres/fonds/typo) — home-skins.css
+//   3. HeroVariant (4 layouts existants) + fallback image réelle (produits/article si pas de Wiki)
+const variant = profile?.layoutVariant ?? 'magazine';
+const HOME_ORDERS: Record<string, string[]> = {
+  luxe:      ['editorial', 'shop', 'blog', 'discover', 'author', 'duel', 'newsletter'],
+  magazine:  ['blog', 'shop', 'editorial', 'discover', 'duel', 'author', 'newsletter'],
+  tech:      ['shop', 'discover', 'blog', 'duel', 'editorial', 'newsletter', 'author'],
+  lifestyle: ['shop', 'editorial', 'blog', 'author', 'discover', 'duel', 'newsletter'],
+  atelier:   ['shop', 'blog', 'duel', 'discover', 'editorial', 'author', 'newsletter'],
+  vitrine:   ['shop', 'editorial', 'discover', 'blog', 'duel', 'newsletter', 'author'],
+  journal:   ['editorial', 'blog', 'shop', 'duel', 'author', 'discover', 'newsletter'],
+  catalogue: ['shop', 'blog', 'editorial', 'duel', 'discover', 'author', 'newsletter'],
+};
+const ORDER_NAMES = Object.keys(HOME_ORDERS);
+const _hh = [...SITE_CONFIG.siteUrl].reduce((a, c) => ((a * 31 + c.charCodeAt(0)) >>> 0), 7);
+// ordre ET skin pilotés par le hash du domaine (indépendants du variant) → 8 ordres × 6 skins,
+// décorrélés (multiplicateurs distincts) = répartition large sur les ~36 sites.
+const orderKey = ORDER_NAMES[_hh % ORDER_NAMES.length];
+const sectionOrder = [...(HOME_ORDERS[orderKey] ?? HOME_ORDERS.magazine)];
+const SKINS = ['paper', 'sharp', 'soft', 'noir', 'outline', 'glossy'];
+const homeSkin = SKINS[((_hh * 7 + 3) >>> 0) % SKINS.length];
+
+// Blog par rubrique (homepage) — chaque rubrique + ses derniers articles.
+// Classification canonique partagée → mêmes compteurs que /categorie/, sidebar et méga-menu.
+const blogCats = buildBlogCategories(articles, profile?.categories as any)
+  .sort((a, b) => b.articles.length - a.articles.length)
+  .slice(0, 8);
+
+// Boutique par rayon (homepage) — chaque catégorie produit + ses meilleurs produits.
+const bProduits = await getCollection('produits').catch(() => []);
+const bScore = (p: any) => (p.data.scoreGlobal ?? p.data.rating ?? 0) as number;
+const bImg = (p: any) => (p.data.images?.[0] ?? p.data.image ?? null) as string | null;
+const bStars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const bPrice = (p: any) => (typeof p.data.price === 'number' ? `${p.data.price} €` : (p.data.priceText ?? ''));
+const _bByCat = new Map<string, any[]>();
+for (const p of bProduits as any[]) {
+  if (!_bByCat.has(p.data.category)) _bByCat.set(p.data.category, []);
+  _bByCat.get(p.data.category)!.push(p);
+}
+const bCats = [...(_bByCat.entries())].map(([slug, items]) => ({
+  slug,
+  label: items[0].data.categoryLabel ?? slug,
+  count: items.length,
+  top: [...items].sort((a, b) => bScore(b) - bScore(a)).slice(0, 4),
+})).sort((a, b) => b.count - a.count);
+
+// Bons plans (benchmark objetrama 2026-06-10) : remises réelles mises en avant sur la home.
+const bDisc = (p: any) => (typeof p.data.oldPrice === 'number' && typeof p.data.price === 'number' && p.data.oldPrice > p.data.price)
+  ? Math.round((1 - p.data.price / p.data.oldPrice) * 100) : null;
+const bDeals = (bProduits as any[]).filter((p) => bDisc(p) !== null).sort((a, b) => (bDisc(b) ?? 0) - (bDisc(a) ?? 0)).slice(0, 4);
+
+// Home commerce-first sur les sites boutique : le CTA principal du hero mène à la boutique
+// (objetrama : la home est un magasin, l'éditorial vient après). Copie locale : ne pas
+// muter profile.hero (objet partagé entre pages au build).
+const commerceFirst = bCats.length > 0;
+const heroEff = commerceFirst
+  ? { ...hero, primaryCta: { label: '🛒 Découvrir la boutique', href: '/boutique/' }, secondaryCta: hero.primaryCta?.href === '/boutique/' ? hero.secondaryCta : (hero.primaryCta ?? hero.secondaryCta) }
+  : hero;
+// Commerce-first : sur les sites boutique, la section shop reste dans les 2 premières positions.
+if (commerceFirst) {
+  const si = sectionOrder.indexOf('shop');
+  if (si > 1) { sectionOrder.splice(si, 1); sectionOrder.unshift('shop'); }
+}
+// Image hero garantie : Wiki sinon meilleur produit sinon image d'article (sites « sans image »).
+const heroImageEff = heroImageUrl ?? (bProduits as any[]).map((p) => p.data.images?.[0]).find(Boolean) ?? editorialImg ?? null;
 ---
-<Base
-  title={disambig?.metaTitle ?? "L'encyclopédie de la cuisine italienne authentique"}
-  description={disambig?.metaDescription ?? SITE.description}
-  schema={disambig?.jsonLd}
->
-  <!-- HERO with background image -->
-  <section class="relative overflow-hidden border-b border-cream-200">
-    <!-- Background image, faded with cream gradient overlay for text legibility -->
-    <div class="absolute inset-0 z-0">
-      <OptimizedPicture
-        src="/images/home/hero-tuscany.jpg"
-        alt="Paysage de Toscane — collines, oliviers et cyprès"
-        class="w-full h-full object-cover"
-        lazy={false}
-        sizes="100vw"
-      />
-      <div class="absolute inset-0 bg-gradient-to-r from-cream-50/95 via-cream-50/90 to-cream-50/40 lg:from-cream-50/95 lg:via-cream-50/85 lg:to-cream-50/30"></div>
-    </div>
+<Base title={SITE_CONFIG.tagline} description={hero.subtitle} jsonLd={[orgJsonLd, webSiteJsonLd]}>
+<div class={`hs hs--${homeSkin}`} data-skin={homeSkin} data-order={orderKey}>
 
-    <div class="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-32 grid lg:grid-cols-12 gap-12 items-center">
-      {/* Sprint 5.14 — bloc disambiguation auto-injecté si entity confusion détectée */}
-      {disambig?.heroBlockHtml && (
-        <div class="lg:col-span-12 mb-4 rounded-md bg-cream-100/90 backdrop-blur-sm p-4 text-sm text-ink-900 border border-olive-200" set:html={disambig.heroBlockHtml} />
-      )}
-      <div class="lg:col-span-7">
-        <p class="font-sans uppercase tracking-widest text-xs text-olive-700 mb-4">L'encyclopédie francophone</p>
-        <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-ink-900 mb-6">
-          La cuisine italienne authentique<br/>
-          <span class="italic text-terra-600">comme on la fait là-bas.</span>
-        </h1>
-        <p class="text-lg text-ink-700 leading-relaxed max-w-2xl mb-8">
-          Vingt régions, plus de trois cents formats de pâtes, des produits AOP et DOP que vous chercheriez en vain en grande surface. Et l'opinion d'un calabrais formé en cuisine, qui a passé trente ans à séparer le vrai italien de l'<em>italian sounding</em>.
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <a href="/regions" class="btn-primary">Découvrir les régions</a>
-          <a href="/devis" class="btn-secondary">Sourcing pro — Devis</a>
-        </div>
-      </div>
-      <div class="lg:col-span-5 hidden lg:block">
-        <blockquote class="border-l-4 border-terra-500 pl-6 italic text-ink-900 text-lg leading-relaxed bg-cream-50/80 rounded-r p-6 backdrop-blur-sm shadow-sm">
-          « Pour cuisiner italien, il ne faut pas plus d'ingrédients qu'ailleurs. Il en faut moins. Mais ils doivent être les bons. »
-          <footer class="mt-4 not-italic font-medium text-sm text-ink-900">— {PERSONA.fullName}</footer>
-        </blockquote>
-      </div>
-    </div>
-  </section>
+  {/* TOP NOTICE */}
+  <div style="background:var(--color-ink);color:var(--color-bg-base);text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:11px 20px;font-weight:500">
+    {profile?.trustBadges?.slice(0, 3).map((b, i) => (
+      <span style={`margin:0 14px;display:inline-block;${i === 0 ? '' : ''}`}>
+        {b.label}
+      </span>
+    ))}
+  </div>
 
-  <!-- STATS — encyclopédie en chiffres -->
-  <section class="bg-ink-900 text-cream-50">
-    <div class="mx-auto max-w-7xl px-6 py-12">
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-        <a href="/regions" class="group">
-          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.regions}</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">régions</div>
-        </a>
-        <a href="/pates" class="group">
-          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.pates}</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">pâtes</div>
-        </a>
-        <a href="/lexique" class="group">
-          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.lexique}</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">termes lexique</div>
-        </a>
-        <a href="/boutique" class="group">
-          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.boutique}</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">produits AOP/DOP</div>
-        </a>
-        <a href="/annuaire" class="group">
-          <div class="font-serif text-3xl sm:text-4xl text-cream-50 group-hover:text-terra-300 transition">{counts.annuaire}</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">épiciers</div>
-        </a>
-      </div>
-    </div>
-  </section>
+  {/* HERO — variant adapté au profile (luxe/magazine/tech/lifestyle) */}
+  <HeroVariant
+    title={heroEff.title}
+    subtitle={profile?.author?.credentials ?? 'Magazine indépendant'}
+    intro={heroEff.intro}
+    primaryCta={heroEff.primaryCta}
+    secondaryCta={heroEff.secondaryCta}
+    badges={[`${totalArticles} Articles publiés`, `${totalTools} Outils gratuits`, `${totalCats} Rubriques`, `${totalMatchups} Duels`]}
+    heroImage={heroImageEff}
+  />
 
-  <!-- ARTICLE À LA UNE -->
-  {featuredArticle && (
-    <section class="mx-auto max-w-7xl px-6 py-16">
-      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">À la une</p>
-      <a href={`/blog/${featuredArticle.id}`} class="group grid lg:grid-cols-2 gap-8 items-center rounded-2xl overflow-hidden bg-cream-100 border border-cream-200 hover:border-terra-300 transition">
-        {featuredArticle.data.image && (
-          <div class="aspect-[4/3] lg:aspect-auto lg:h-full overflow-hidden">
-            <OptimizedPicture
-              src={featuredArticle.data.image}
-              alt={featuredArticle.data.imageAlt ?? featuredArticle.data.title}
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              sizes="(min-width: 1024px) 50vw, 100vw"
-            />
-          </div>
-        )}
-        <div class="p-8 lg:p-12">
-          <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">{featuredArticle.data.category}</p>
-          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-4 leading-tight group-hover:text-terra-700 transition">
-            {featuredArticle.data.title}
-          </h2>
-          <p class="text-ink-700 leading-relaxed mb-6">{featuredArticle.data.description}</p>
-          <span class="text-sm font-medium text-terra-700">Lire l'article →</span>
-        </div>
-      </a>
-    </section>
-  )}
-
-  <!-- CARTE INTERACTIVE DES RÉGIONS -->
-  <section class="bg-cream-100 border-y border-cream-200">
-    <div class="mx-auto max-w-7xl px-6 py-16">
-      <div class="grid lg:grid-cols-12 gap-10">
-        <div class="lg:col-span-4">
-          <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Carte interactive</p>
-          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-4 leading-tight">Vingt régions, vingt cuisines</h2>
-          <p class="text-ink-700 leading-relaxed">L'Italie n'a pas <em>une</em> cuisine, mais vingt — une par région administrative. Cliquez sur une région pour découvrir ses spécialités, ses AOP, et les marques artisanales qu'on y produit encore aujourd'hui.</p>
-        </div>
-        <div class="lg:col-span-8">
-          <RegionsMap />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- À L'HONNEUR AUJOURD'HUI : Pâte du jour + Région à l'honneur -->
-  <section class="mx-auto max-w-7xl px-6 py-16">
-    <div class="flex items-end justify-between mb-8">
-      <div>
-        <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">À l'honneur aujourd'hui</p>
-        <h2 class="font-serif text-3xl sm:text-4xl text-ink-900">Sélection du {today.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</h2>
-      </div>
-    </div>
-
-    <div class="grid lg:grid-cols-2 gap-6">
-      {pasteOfDay && (
-        <a href={`/pates/${pasteOfDay.id}`} class="group rounded-2xl border border-cream-200 bg-white overflow-hidden hover:border-terra-300 hover:shadow-md transition flex flex-col sm:flex-row">
-          {pasteOfDay.data.image && (
-            <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto overflow-hidden bg-cream-200">
-              <OptimizedPicture
-                src={pasteOfDay.data.image}
-                alt={pasteOfDay.data.name}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+  {/* BENEFITS — cartes « pourquoi nous » (signature ionomat : 4 cartes + chip icône) */}
+  {profile?.trustBadges && profile.trustBadges.length >= 3 && (
+    <section class="hp-benefits-wrap">
+      <div class="site-container">
+        <div class="hp-benefits">
+          {profile.trustBadges.slice(0, 4).map((b) => (
+            <div class="hp-benefit">
+              <span class="hp-benefit-ico">{b.emoji}</span>
+              <strong class="hp-benefit-title">{b.label}</strong>
+              <p class="hp-benefit-desc">{b.tooltip}</p>
             </div>
-          )}
-          <div class="p-6 flex-1 flex flex-col">
-            <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Pâte du jour</p>
-            <h3 class="font-serif text-2xl text-ink-900 mb-1 group-hover:text-terra-700 transition">{pasteOfDay.data.name}</h3>
-            <p class="text-xs text-olive-700 italic mb-3">
-              {pasteOfDay.data.fresh ? 'Pâte fraîche' : 'Pâte sèche'}
-              {pasteOfDay.data.region && ` · ${pasteOfDay.data.region}`}
-            </p>
-            <p class="text-sm text-ink-700/80 line-clamp-3 flex-1">{pasteOfDay.data.description}</p>
-            <span class="mt-3 text-xs font-medium text-terra-700">Découvrir →</span>
-          </div>
-        </a>
-      )}
-
-      {regionOfDay && (
-        <a href={`/regions/${regionOfDay.id}`} class="group rounded-2xl border border-cream-200 bg-white overflow-hidden hover:border-terra-300 hover:shadow-md transition flex flex-col sm:flex-row">
-          {regionOfDay.data.image && (
-            <div class="sm:w-2/5 aspect-[4/3] sm:aspect-auto overflow-hidden bg-cream-200">
-              <OptimizedPicture
-                src={regionOfDay.data.image}
-                alt={regionOfDay.data.name}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-          )}
-          <div class="p-6 flex-1 flex flex-col">
-            <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">Région à l'honneur</p>
-            <h3 class="font-serif text-2xl text-ink-900 mb-1 group-hover:text-terra-700 transition">{regionOfDay.data.name}</h3>
-            <p class="text-xs text-olive-700 italic mb-3">{regionOfDay.data.nameItalian} — {regionOfDay.data.capital}</p>
-            <p class="text-sm text-ink-700/80 line-clamp-3 flex-1">{regionOfDay.data.description}</p>
-            <span class="mt-3 text-xs font-medium text-terra-700">Explorer →</span>
-          </div>
-        </a>
-      )}
-    </div>
-  </section>
-
-  <!-- LES 5 PILIERS -->
-  <section class="mx-auto max-w-7xl px-6 py-20">
-    <div class="text-center mb-14">
-      <h2 class="font-serif text-3xl sm:text-4xl text-ink-900 mb-3">Les cinq piliers</h2>
-      <p class="text-ink-700 max-w-2xl mx-auto">Cinq portes d'entrée, une seule logique : montrer ce qu'est la cuisine italienne authentique, et permettre de la cuisiner ou de la sourcer en France.</p>
-    </div>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {PILLARS.map((pillar) => (
-        <a href={pillar.href} class="group rounded-lg border border-cream-200 bg-white p-6 hover:border-terra-300 hover:shadow-sm transition flex flex-col">
-          <div class="text-3xl mb-3" aria-hidden="true">{pillar.icon}</div>
-          <h3 class="font-serif text-xl text-ink-900 mb-2 group-hover:text-terra-700 transition">{pillar.title}</h3>
-          <p class="text-sm text-ink-700/80 leading-relaxed flex-1">{pillar.description}</p>
-          <p class="mt-4 text-xs uppercase tracking-widest text-olive-700">
-            {counts[pillar.slug] ?? 0} entrées <span class="ml-1">→</span>
-          </p>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <!-- ARTICLES RÉCENTS -->
-  {recentArticles.length > 0 && (
-    <section class="bg-cream-100 border-y border-cream-200">
-      <div class="mx-auto max-w-7xl px-6 py-20">
-        <div class="flex items-end justify-between mb-10">
-          <h2 class="font-serif text-3xl sm:text-4xl text-ink-900">Lectures récentes</h2>
-          <a href="/blog" class="text-sm text-terra-700 hover:text-terra-600 underline-offset-2">Tous les articles →</a>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-8">
-          {recentArticles.map((article) => (
-            <a href={`/blog/${article.id}`} class="group flex flex-col">
-              <div class="aspect-[16/10] rounded-lg mb-4 overflow-hidden bg-cream-200">
-                {article.data.image ? (
-                  <OptimizedPicture
-                    src={article.data.image}
-                    alt={article.data.imageAlt ?? article.data.title}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div class="w-full h-full flex items-center justify-center text-cream-100/70 italic font-serif text-2xl bg-cream-200">
-                    {article.data.category}
-                  </div>
-                )}
-              </div>
-              <p class="text-xs uppercase tracking-widest text-olive-700 mb-2">{article.data.category}</p>
-              <h3 class="font-serif text-xl text-ink-900 group-hover:text-terra-700 transition leading-snug mb-2">
-                {article.data.title}
-              </h3>
-              <p class="text-sm text-ink-700/80 leading-relaxed line-clamp-3">{article.data.description}</p>
-              <p class="mt-3 text-xs text-ink-700/60">
-                {article.data.publishedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            </a>
           ))}
         </div>
       </div>
     </section>
   )}
 
-  <!-- CTA B2B -->
-  <section class="mx-auto max-w-7xl px-6 py-20">
-    <div class="bg-ink-900 text-cream-50 rounded-2xl p-10 lg:p-14 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <p class="font-sans uppercase tracking-widest text-xs text-terra-300 mb-3">Vous êtes pro ?</p>
-        <h2 class="font-serif text-3xl sm:text-4xl text-cream-50 mb-4">Sourcing direct produits AOP / DOP / IGP</h2>
-        <p class="text-cream-200/80 leading-relaxed">
-          Pour les restaurants, traiteurs, épiciers fines : un catalogue serré de produits italiens authentiques, avec contrôle d'origine. Demande de devis en ligne, livraison France métropolitaine, échantillons sur demande.
-        </p>
+  {/* ===== SECTIONS ORDONNÉES — l'ordre varie par site (sectionOrder), aucun élément retiré ===== */}
+  {sectionOrder.map((sec) => (
+  <Fragment>
+
+  {/* BOUTIQUE PAR RAYON — commerce-first (benchmark objetrama) : réassurance + bons plans + rayons. */}
+  {sec === 'shop' && commerceFirst && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:28px;flex-wrap:wrap">
+          <div>
+            <span class="hp-pill">La boutique</span>
+            <h2 class="serif" style="font-size:clamp(34px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-top:14px">
+              Nos <em style="font-style:italic">rayons</em>, les meilleurs choix.
+            </h2>
+          </div>
+          <a href="/boutique/" class="link-underline">Toute la boutique</a>
+        </div>
+
+        {/* Réassurance commerce (pattern objetrama, version affiliation honnête) */}
+        <ul class="hp-shop-reassure">
+          <li>🔍 Sélection testée &amp; comparée</li>
+          <li>💶 Prix suivis régulièrement</li>
+          <li>📦 Livraison via Amazon</li>
+          <li>⭐ Notes &amp; avis vérifiés</li>
+        </ul>
+
+        {/* Bandeau BONS PLANS — remises réelles, tri par % */}
+        {bDeals.length >= 2 && (
+          <div class="hp-deals">
+            <div class="hp-deals-head">
+              <strong>🔥 Bons plans du moment</strong>
+              <a href="/bons-plans/" class="link-underline">Toutes les promos</a>
+            </div>
+            <div class="hp-rub-row">
+              {bDeals.map((e) => (
+                <a href={`/produit/${e.data.slug}/`} class="hp-prod hp-prod--deal">
+                  <div class="hp-prod-img">
+                    {bImg(e) ? <img src={bImg(e)} alt={e.data.title} loading="lazy" /> : <span class="hp-prod-ph"></span>}
+                    <span class="hp-deal-pct">-{bDisc(e)}%</span>
+                  </div>
+                  {e.data.brand && <span class="hp-prod-brand">{e.data.brand}</span>}
+                  <strong class="hp-prod-title">{e.data.title}</strong>
+                  <span class="hp-prod-price"><s class="hp-old">{e.data.oldPrice} €</s> {bPrice(e)}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div class="hp-rayons">
+          {bCats.map((c) => (
+            <div class="hp-ray">
+              <div class="hp-rub-head">
+                <h3 class="serif">{c.label}</h3>
+                <a href={`/categorie-produit/${c.slug}/`} class="link-underline">Voir les {c.count} produits</a>
+              </div>
+              <div class="hp-rub-row">
+                {c.top.map((e) => (
+                  <a href={`/produit/${e.data.slug}/`} class="hp-prod">
+                    <div class="hp-prod-img">{bImg(e) ? <img src={bImg(e)} alt={e.data.title} loading="lazy" /> : <span class="hp-prod-ph"></span>}</div>
+                    {e.data.brand && <span class="hp-prod-brand">{e.data.brand}</span>}
+                    <strong class="hp-prod-title">{e.data.title}</strong>
+                    {bScore(e) > 0 && <span class="hp-prod-rating"><span class="hp-stars">{bStars(bScore(e))}</span> {bScore(e)}</span>}
+                    {bPrice(e) && <span class="hp-prod-price">{bPrice(e)}</span>}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p style="text-align:center;margin-top:44px;font-size:12px;color:var(--color-text-muted)">Liens partenaires : une commission peut nous être versée, sans surcoût pour vous. Sélection 100&nbsp;% indépendante.</p>
       </div>
-      <div class="flex flex-col gap-3 lg:items-end">
-        <a href="/boutique" class="inline-block rounded-md bg-cream-50 text-ink-900 px-6 py-3 font-medium text-sm hover:bg-cream-100 transition">Voir le catalogue</a>
-        <a href="/devis" class="inline-block rounded-md bg-terra-600 text-cream-50 px-6 py-3 font-medium text-sm hover:bg-terra-700 transition">Demander un devis</a>
+    </section>
+  )}
+
+  {/* LE BLOG PAR RUBRIQUE — chaque rubrique mise en avant avec ses derniers articles */}
+  {sec === 'blog' && blogCats.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div style="text-align:center;margin-bottom:56px;max-width:680px;margin-left:auto;margin-right:auto">
+          <span class="hp-pill">Le blog</span>
+          <h2 class="serif" style="font-size:clamp(34px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-top:16px">
+            Nos rubriques, <em style="font-style:italic">article par article</em>.
+          </h2>
+        </div>
+        <div class="hp-rubriques">
+          {blogCats.map((c) => (
+            <div class="hp-rub">
+              <div class="hp-rub-head">
+                <h3 class="serif">{c.emoji && <span class="hp-rub-emoji">{c.emoji}</span>}{c.name}</h3>
+                <a href={`/categorie/${c.slug}/`} class="link-underline">Voir les {c.articles.length} articles</a>
+              </div>
+              <div class="hp-rub-row">
+                {c.articles.slice(0, 4).map((entry) => {
+                  const img = entry.data.heroImage ?? getArticleImage(entry.data.slug);
+                  return (
+                    <a href={getArticleUrl(entry)} class="hp-art">
+                      {img ? (
+                        <img src={img} alt={entry.data.title} loading="lazy" />
+                      ) : (
+                        <div class="hp-art-ph"></div>
+                      )}
+                      <div class="hp-art-date">{entry.data.pubDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                      <h4 class="serif">{entry.data.title}</h4>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style="text-align:center;margin-top:52px"><a href="/articles/" class="btn-fill">Tous les articles</a></div>
       </div>
+    </section>
+  )}
+
+  {/* DISCOVER 3 large tiles avec numérotation italique */}
+  {sec === 'discover' && profile && profile.tools.length >= 3 && (
+    <section style="padding:0">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--color-border)">
+        {profile.tools.slice(0, 3).map((tool, idx) => {
+          const subject = profile.wikiImageSubjects?.[idx + 1] ?? profile.wikiImageSubjects?.[0];
+          const bgImg = subject ? WIKI_IMAGES[subject] : null;
+          return (
+            <a href={tool.href ?? `/outils/${tool.slug}/`} class="lelo-card" style="position:relative;padding:64px 48px 56px;min-height:480px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+              <div>
+                <div class="serif italic" style={`font-size:18px;color:var(--color-accent);letter-spacing:1px;margin-bottom:8px`}>
+                  N°{idx + 1} — {idx === 0 ? 'Outil principal' : idx === 1 ? 'Aide à l\'achat' : 'Configurateur'}
+                </div>
+                <h3 class="serif" style="font-size:34px;line-height:1.1;margin:24px 0 16px;font-weight:400;letter-spacing:-.5px">
+                  {tool.label.split(' ')[0]} <em style="font-style:italic">{tool.label.split(' ').slice(1).join(' ')}</em>
+                </h3>
+                <p style="font-size:14px;color:var(--color-text-muted);max-width:300px;line-height:1.65;margin-bottom:28px;position:relative;z-index:2">
+                  {tool.description}
+                </p>
+              </div>
+              <span class="link-underline">Découvrir l'outil</span>
+              {bgImg && (
+                <div style={`position:absolute;right:-30%;bottom:-15%;width:380px;height:380px;border-radius:50%;background-image:url('${bgImg}');background-size:cover;background-position:center;opacity:.18;pointer-events:none`}></div>
+              )}
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  {/* EDITORIAL FEATURE — 5/4 split image + content */}
+  {sec === 'editorial' && editorialArticle && (
+    <section style="padding:0;background:var(--color-bg-card)">
+      <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch">
+        <div style="position:relative;min-height:560px;overflow:hidden">
+          {editorialImg ? (
+            <img src={editorialImg} alt={editorialArticle.data.title} loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+          ) : (
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+          )}
+        </div>
+        <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+          <div class="eyebrow" style="margin-bottom:18px">À la une</div>
+          <h2 class="serif" style="font-size:clamp(36px, 4vw, 52px);line-height:1.1;font-weight:400;margin-bottom:24px;letter-spacing:-.5px">
+            {editorialArticle.data.title}
+          </h2>
+          {editorialArticle.data.description && (
+            <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;margin-bottom:32px">
+              {editorialArticle.data.description.slice(0, 280)}{editorialArticle.data.description.length > 280 ? '…' : ''}
+            </p>
+          )}
+          <div style="display:flex;gap:32px;margin-bottom:32px;font-size:13px;color:var(--color-text-muted)">
+            <div><strong style="display:block;font-weight:600;color:var(--color-ink);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Publié</strong>{editorialArticle.data.pubDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            <div><strong style="display:block;font-weight:600;color:var(--color-ink);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Lecture</strong>~ {Math.max(3, Math.round((editorialArticle.data.description?.length ?? 1000) / 200))} min</div>
+          </div>
+          <a href={getArticleUrl(editorialArticle)} class="link-underline">Lire l'article</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* DUEL editorial centré */}
+  {sec === 'duel' && profile?.matchups && profile.matchups.length > 0 && (
+    <section style="background:var(--color-bg-card);padding:140px 0">
+      <div style="max-width:1080px;margin:0 auto;text-align:center;padding:0 32px">
+        <div class="eyebrow" style="margin-bottom:18px">Duel approfondi</div>
+        <h2 class="serif" style="font-size:clamp(40px, 5vw, 72px);line-height:1.05;letter-spacing:-1px;font-weight:400;margin-bottom:48px">
+          {profile.matchups[0].productA.name} <em style="font-style:italic;color:var(--color-accent)">vs.</em> {profile.matchups[0].productB.name}
+        </h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-bottom:56px;text-align:left" class="duel-products-grid">
+          {[profile.matchups[0].productA, profile.matchups[0].productB].map((p, idx) => {
+            const subject = profile.wikiImageSubjects?.[idx] ?? profile.wikiImageSubjects?.[0];
+            const bgImg = subject ? WIKI_IMAGES[subject] : null;
+            return (
+              <div>
+                <div style="position:relative;width:100%;aspect-ratio:1;margin-bottom:24px;overflow:hidden">
+                  {bgImg ? (
+                    <img src={bgImg} alt={p.name} loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+                  ) : (
+                    <div style="position:absolute;inset:0;background:var(--color-bg-2)"></div>
+                  )}
+                  <span style="position:absolute;left:32px;bottom:32px;font-size:10px;letter-spacing:3px;text-transform:uppercase;background:#fff;padding:6px 12px;color:var(--color-ink);font-weight:600;z-index:1">{idx === 0 ? 'Premium' : 'Best-buy'} · {p.price}</span>
+                </div>
+                <h3 class="serif" style="font-size:30px;line-height:1.1;margin-bottom:8px;letter-spacing:-.3px;font-weight:400">{p.name}</h3>
+                <p class="serif italic" style="font-size:15px;color:var(--color-text-muted);margin-bottom:14px">{p.positioning}</p>
+                <div class="serif" style="font-size:24px;color:var(--color-ink);font-weight:500">{p.price}</div>
+              </div>
+            );
+          })}
+        </div>
+        <p class="serif italic" style="font-size:22px;line-height:1.5;color:var(--color-ink);max-width:760px;margin:0 auto 40px;padding:32px 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">« {profile.matchups[0].conclusion} »</p>
+        <a href={`/comparatif/${profile.matchups[0].slug}/`} class="btn-dark">Lire le duel détaillé</a>
+      </div>
+    </section>
+  )}
+
+  {/* AUTHOR section 1.2/1 split */}
+  {sec === 'author' && profile?.author && (
+    <section style="background:var(--color-bg-card);padding:140px 0">
+      <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:96px;align-items:center;max-width:1280px;margin:0 auto;padding:0 32px" class="author-grid">
+        <div style="aspect-ratio:3/4;background:var(--color-primary);position:relative">
+          {heroImageUrl && (
+            <img src={heroImageUrl} alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;opacity:.6" />
+          )}
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:400;font-size:140px;color:rgba(255,255,255,.3);letter-spacing:-4px;font-style:italic">
+            {profile.author.name.split(/\s+/).map(n => n[0]).join('').slice(0, 2)}
+          </div>
+        </div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:16px">La signature</div>
+          <h3 class="serif" style="font-size:64px;line-height:1.05;letter-spacing:-1.5px;margin-bottom:12px;font-weight:400">
+            {profile.author.name.split(' ')[0]} <em style="font-style:italic">{profile.author.name.split(' ').slice(1).join(' ')}</em>
+          </h3>
+          <p class="serif italic" style="font-size:18px;color:var(--color-text-muted);margin-bottom:32px">{profile.author.role} · {profile.author.credentials}</p>
+          <p style="font-size:16px;color:var(--color-text);line-height:1.7;margin-bottom:32px;max-width:480px">{profile.author.bio}</p>
+          <a href="/equipe-editoriale/" class="link-underline">Voir toute l'équipe</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* NEWSLETTER on dark ink — contraste */}
+  {sec === 'newsletter' && (
+  <section style="background:var(--color-ink);color:var(--color-bg-base);padding:160px 0">
+    <div style="max-width:680px;margin:0 auto;text-align:center;padding:0 32px">
+      <div class="eyebrow" style="color:var(--color-secondary);margin-bottom:18px">Newsletter — Édition mensuelle</div>
+      <h2 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;letter-spacing:-1px;margin-bottom:24px;color:var(--color-bg-base);font-weight:400">
+        Recevez notre <em style="font-style:italic;color:var(--color-secondary)">guide complet</em> en 32 pages.
+      </h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.8);line-height:1.6;margin-bottom:48px">
+        PDF gratuit en échange de votre inscription. Plus une newsletter mensuelle : nouveautés, comparatifs, tests à paraître.
+      </p>
+      <Newsletter />
     </div>
   </section>
+  )}
 
-  <!-- ABOUT TEASER -->
-  <section class="mx-auto max-w-3xl px-6 py-16 text-center">
-    <h2 class="font-serif text-2xl sm:text-3xl text-ink-900 mb-4">Qui tient ce site</h2>
-    <p class="text-ink-700 leading-relaxed mb-4">{PERSONA.bio}</p>
-    <a href="/a-propos" class="text-sm text-terra-700 hover:text-terra-600 underline-offset-2">En savoir plus sur Lorenzo →</a>
-  </section>
+  </Fragment>
+  ))}
+</div>
 </Base>
+
+<style>
+/* Blog par rubrique + Boutique par rayon (homepage) */
+.hp-rubriques, .hp-rayons { display: flex; flex-direction: column; gap: 56px; }
+.hp-rub-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 16px; margin-bottom: 26px; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.hp-rub-head h3 { font-size: clamp(22px, 2.4vw, 30px); font-weight: 400; letter-spacing: -.3px; margin: 0; display: flex; align-items: center; gap: 12px; line-height: 1.1; }
+.hp-rub-emoji { font-size: .9em; }
+.hp-rub-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+
+/* Carte article */
+.hp-art { text-decoration: none; color: inherit; display: block; }
+.hp-art img, .hp-art-ph { width: 100%; aspect-ratio: 5/4; object-fit: cover; margin-bottom: 14px; display: block; border-radius: 16px; transition: box-shadow .2s, transform .2s; }
+.hp-art:hover img { box-shadow: 0 16px 36px rgba(0,0,0,.10); transform: translateY(-2px); }
+.hp-art-ph { background: linear-gradient(135deg, var(--color-bg-2), var(--color-border)); }
+.hp-art-date { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px; }
+.hp-art h4 { font-size: 17px; line-height: 1.25; font-weight: 400; letter-spacing: -.2px; margin: 0; transition: color .2s; }
+.hp-art:hover h4 { color: var(--color-accent); }
+
+/* Carte produit */
+.hp-prod { display: flex; flex-direction: column; gap: 5px; text-decoration: none; color: inherit; background: var(--color-bg-card, #fff); border: 1px solid var(--color-border); border-radius: 16px; padding: 14px; transition: transform .15s, box-shadow .15s; }
+.hp-prod:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,.08); }
+.hp-prod-img { aspect-ratio: 4/3; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 8px; }
+.hp-prod-img img { width: 100%; height: 100%; object-fit: contain; padding: 12px; transition: transform .3s; }
+.hp-prod:hover .hp-prod-img img { transform: scale(1.05); }
+.hp-prod-ph { width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-bg-2), var(--color-border)); }
+.hp-prod-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text-muted); font-weight: 600; }
+.hp-prod-title { font-size: 15px; font-weight: 500; line-height: 1.25; }
+.hp-prod-rating { font-size: 12px; color: var(--color-text-muted); }
+.hp-stars { color: #e0a800; letter-spacing: -1px; }
+.hp-prod-price { font-size: 16px; font-weight: 700; color: var(--color-ink); margin-top: 2px; }
+
+/* Commerce-first : réassurance + bons plans (benchmark objetrama) */
+.hp-shop-reassure { list-style: none; margin: 0 0 36px; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 13px; color: var(--color-text-muted); background: var(--color-bg-2, #f6f3ee); border: 1px solid var(--color-border); border-radius: 14px; }
+.hp-deals { margin-bottom: 52px; padding: 22px; border: 1px solid var(--color-border); border-radius: 18px; background: var(--color-bg-card, #fff); }
+.hp-deals-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.hp-deals-head strong { font-size: 18px; letter-spacing: -.2px; }
+.hp-prod--deal .hp-prod-img { position: relative; }
+.hp-deal-pct { position: absolute; top: 6px; right: 6px; background: #b0654f; color: #fff; font-weight: 800; border-radius: 7px; padding: 2px 8px; font-size: 13px; }
+.hp-old { font-weight: 500; color: var(--color-text-muted); font-size: 12.5px; margin-right: 6px; }
+
+/* Pill badge (signature ionomat) — remplace les eyebrows */
+.hp-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--color-bg-2, #f1ece4); color: var(--color-accent); border: 1px solid var(--color-border); border-radius: 999px; padding: 6px 16px; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+
+/* Benefit cards sous le hero (signature ionomat) */
+.hp-benefits-wrap { padding: 56px 0; background: var(--color-bg-base); border-bottom: 1px solid var(--color-border); }
+.hp-benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.hp-benefit { background: var(--color-bg-card, #fff); border: 1px solid var(--color-border); border-radius: 18px; padding: 30px 24px; text-align: center; transition: transform .15s, box-shadow .15s; }
+.hp-benefit:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(0,0,0,.07); }
+.hp-benefit-ico { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 15px; background: var(--color-bg-2, #f1ece4); font-size: 25px; margin-bottom: 16px; }
+.hp-benefit-title { display: block; font-size: 16px; font-weight: 600; color: var(--color-ink); margin-bottom: 8px; letter-spacing: -.2px; }
+.hp-benefit-desc { font-size: 13px; color: var(--color-text-muted); line-height: 1.55; margin: 0; }
+@media (max-width: 900px) { .hp-benefits { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .hp-benefits { grid-template-columns: 1fr; } }
+
+@media (max-width: 1000px) { .hp-rub-row { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+@media (max-width: 540px) { .hp-rub-row { grid-template-columns: 1fr 1fr; gap: 14px; } .hp-art h4 { font-size: 14px; } .hp-prod-title { font-size: 13.5px; } }
+
+@media(max-width:900px) {
+  section[style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+  section[style*="grid-template-columns:repeat(2,1fr)"] { grid-template-columns: 1fr !important; }
+  section[style*="grid-template-columns:5fr 4fr"] { grid-template-columns: 1fr !important; }
+  section[style*="grid-template-columns:1fr 1.2fr"] { grid-template-columns: 1fr !important; gap: 48px !important; }
+  .duel-products-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .author-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+  h1 { font-size: 44px !important; }
+  h2 { font-size: 32px !important; }
+}
+</style>

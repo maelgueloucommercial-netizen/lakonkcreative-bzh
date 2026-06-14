@@ -1,0 +1,207 @@
+---
+import Base from '../../layouts/Base.astro';
+import { articleUrl } from '../../lib/article-url';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { getCollection } from 'astro:content';
+import { getArticleImage } from '../../lib/article-wiki-images';
+import { WIKI_IMAGES } from '../../lib/site-wiki-images';
+import { buildBlogCategories } from '../../lib/blog-categories';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  const profile = SITE_CONFIG.profile;
+  // Classification CANONIQUE partagée (lib/blog-categories) : mêmes rubriques et
+  // mêmes compteurs que la sidebar /articles/, la homepage et le méga-menu Rubriques.
+  const cats = buildBlogCategories(articles, profile?.categories as any);
+  // Garantir une page pour CHAQUE rubrique du profil, même VIDE → aucun lien de
+  // rubrique (méga-menu / home / footer) en 404. Le contenu la remplit ensuite ;
+  // noindex tant que < 3 articles (voir prop noindex ci-dessous) → SEO-safe.
+  const bySlug = new Set(cats.map((c) => c.slug));
+  const allCats = [...cats];
+  for (const pc of (profile?.categories ?? [])) {
+    if (!bySlug.has(pc.slug)) {
+      allCats.push({ slug: pc.slug, name: pc.name, description: pc.description, emoji: pc.emoji, articles: [] });
+    }
+  }
+  return allCats.map((e) => ({
+    params: { cat: e.slug },
+    props: { catSlug: e.slug, catLabel: e.name, catDescription: e.description, catEmoji: e.emoji, articles: e.articles },
+  }));
+}
+
+const { catSlug, catLabel, catDescription, catEmoji, articles } = Astro.props as { catSlug: string; catLabel: string; catDescription: string; catEmoji?: string; articles: any[] };
+articles.sort((a: any, b: any) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+function getArticleUrl(entry: any): string {
+  const d = entry.data;
+    return articleUrl(d);
+}
+
+const profile = SITE_CONFIG.profile;
+const subject = profile?.wikiImageSubjects?.[0];
+const heroImg = subject ? WIKI_IMAGES[subject] : null;
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Articles', item: `${SITE_CONFIG.siteUrl}/articles/` },
+    { '@type': 'ListItem', position: 3, name: catLabel },
+  ],
+};
+
+// CollectionPage + ItemList — boost reconnaissance Google de la cat comme hub thématique
+const collectionPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: catLabel,
+  description: catDescription || `Tous les articles de la catégorie ${catLabel} sur ${SITE_CONFIG.siteName} (${articles.length} contenus).`,
+  url: `${SITE_CONFIG.siteUrl}/categorie/${catSlug}/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: articles.length,
+    itemListElement: articles.slice(0, 20).map((a: any, i: number) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_CONFIG.siteUrl}${getArticleUrl(a)}`,
+      name: a.data.title,
+    })),
+  },
+};
+
+const featuredArticle = articles[0];
+const restArticles = articles.slice(1);
+---
+<Base
+  title={catLabel}
+  description={catDescription || `Tous les articles de la catégorie ${catLabel} sur ${SITE_CONFIG.siteName} (${articles.length} contenus).`}
+  jsonLd={[breadcrumbJsonLd, collectionPageJsonLd]}
+  noindex={articles.length < 3}
+>
+
+  {/* HERO de catégorie : éditorial avec image full-width */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="cat-hero">
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={`${catLabel} — ${SITE_CONFIG.siteName}`} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <nav style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:24px">
+          <a href="/" style="color:var(--color-text-muted);text-decoration:none">Accueil</a>
+          <span style="margin:0 10px">·</span>
+          <a href="/articles/" style="color:var(--color-text-muted);text-decoration:none">Articles</a>
+          <span style="margin:0 10px">·</span>
+          <span style="color:var(--color-ink)">{catLabel}</span>
+        </nav>
+        <div class="eyebrow" style="margin-bottom:18px">{articles.length} article{articles.length > 1 ? 's' : ''}</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 72px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          {catEmoji && <span style="font-size:.7em;margin-right:12px">{catEmoji}</span>}
+          {catLabel}
+        </h1>
+        {catDescription && (
+          <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;margin-bottom:32px;max-width:520px">{catDescription}</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {/* FEATURED — premier article en grand */}
+  {featuredArticle && (() => {
+    const wikiImg = getArticleImage(featuredArticle.data.slug);
+    const img = featuredArticle.data.heroImage ?? wikiImg;
+    return (
+      <section style="background:var(--color-bg-base);padding:120px 0">
+        <div class="site-container">
+          <div class="eyebrow" style="margin-bottom:14px;text-align:center">À la une de la rubrique</div>
+          <a href={getArticleUrl(featuredArticle)} style="display:block;text-decoration:none;color:inherit">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center" class="featured-grid">
+              {img ? (
+                <img src={img} alt={featuredArticle.data.title} style="width:100%;aspect-ratio:5/4;object-fit:cover" loading="eager" fetchpriority="high" />
+              ) : (
+                <div style="width:100%;aspect-ratio:5/4;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+              )}
+              <div>
+                <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:14px">
+                  {featuredArticle.data.pubDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+                <h2 class="serif" style="font-size:clamp(34px, 3.5vw, 48px);line-height:1.1;font-weight:400;margin-bottom:24px;letter-spacing:-.5px">
+                  {featuredArticle.data.title}
+                </h2>
+                {featuredArticle.data.description && (
+                  <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;margin-bottom:24px">
+                    {featuredArticle.data.description.slice(0, 220)}{featuredArticle.data.description.length > 220 ? '…' : ''}
+                  </p>
+                )}
+                <span class="link-underline">Lire l'article</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+    );
+  })()}
+
+  {/* GRID articles avec photos full-bleed */}
+  {restArticles.length > 0 && (
+    <section style="padding:120px 0;border-top:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="eyebrow" style="margin-bottom:48px">Tous les articles · {articles.length}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:48px">
+          {restArticles.map((a: any) => {
+            const wikiImg = getArticleImage(a.data.slug);
+            const img = a.data.heroImage ?? wikiImg;
+            return (
+              <a href={getArticleUrl(a)} style="text-decoration:none;color:inherit;display:block">
+                {img ? (
+                  <img src={img} alt={a.data.heroImageAlt ?? a.data.title} style="width:100%;aspect-ratio:5/4;object-fit:cover;margin-bottom:18px" loading="lazy" />
+                ) : (
+                  <div style="width:100%;aspect-ratio:5/4;background:linear-gradient(135deg, var(--color-bg-2), var(--color-border));margin-bottom:18px"></div>
+                )}
+                <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:8px">
+                  {a.data.pubDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+                <h3 class="serif" style="font-size:23px;line-height:1.2;font-weight:400;margin-bottom:8px;letter-spacing:-.3px">{a.data.title}</h3>
+                {a.data.description && (
+                  <p style="font-size:14px;color:var(--color-text-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{a.data.description}</p>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* CTA continuer */}
+  <section style="background:var(--color-bg-card);padding:80px 0;border-top:1px solid var(--color-border)">
+    <div class="site-container" style="text-align:center">
+      <div class="eyebrow" style="margin-bottom:14px">Continuer</div>
+      <h2 class="serif" style="font-size:clamp(28px, 3vw, 40px);line-height:1.1;font-weight:400;margin-bottom:32px;letter-spacing:-.5px">
+        Explorer d'autres <em style="font-style:italic">rubriques</em>.
+      </h2>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        <a href="/articles/" class="btn-line">Tous les articles</a>
+        <a href="/index-thematique/" class="btn-line">Index thématique</a>
+        <a href="/recherche/" class="btn-line">Recherche</a>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+@media (max-width: 900px) {
+  .cat-hero { grid-template-columns: 1fr !important; }
+  .cat-hero > div:nth-child(2) { padding: 48px 32px !important; }
+  .featured-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  h1 { font-size: 36px !important; }
+  h2 { font-size: 28px !important; }
+}
+</style>

@@ -1,44 +1,106 @@
 ---
 import Base from '../layouts/Base.astro';
-import Breadcrumb from '../components/Breadcrumb.astro';
-import { SITE } from '../consts';
+import { SITE_CONFIG } from '../lib/site-config';
+
+const dateMaj = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: `Mentions légales — ${SITE_CONFIG.siteName}`,
+  description: `Mentions légales : éditeur, hébergeur, propriété intellectuelle sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/mentions-legales/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
 ---
-<Base title="Mentions légales" description="Mentions légales de DaRocco." noindex>
-  <section class="mx-auto max-w-3xl px-6 py-12">
-    <Breadcrumb items={[{ label: 'Mentions légales' }]} />
+<Base
+  title="Mentions légales"
+  description={`Mentions légales du site ${SITE_CONFIG.siteName} : éditeur, hébergeur, propriété intellectuelle.`}
+  jsonLd={[_pageSchema]}
+>
 
-    <header class="mb-8">
-      <h1 class="font-serif text-4xl text-ink-900">Mentions légales</h1>
-    </header>
-
-    <div class="prose prose-lg max-w-none">
-      <h2>Éditeur du site</h2>
-      <p>
-        DaRocco Media — éditeur indépendant.<br/>
-        Contact éditorial : <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-      </p>
-
-      <h2>Hébergement</h2>
-      <p>
-        Cloudflare, Inc.<br/>
-        101 Townsend Street<br/>
-        San Francisco, CA 94107, USA
-      </p>
-
-      <h2>Propriété intellectuelle</h2>
-      <p>
-        L'ensemble des contenus rédactionnels, photographies originales, schémas et bases de données présents sur {SITE.url} sont la propriété de l'éditeur, sauf mention contraire. Toute reproduction sans autorisation expresse est interdite.
-      </p>
-
-      <h2>Données personnelles</h2>
-      <p>
-        Les données collectées via les formulaires (contact, devis) sont utilisées exclusivement pour répondre à la demande. Aucune transmission à des tiers, aucune communication commerciale non sollicitée. Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression sur simple demande à <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
-      </p>
-
-      <h2>Cookies</h2>
-      <p>
-        Le site n'utilise aucun cookie tiers de tracking publicitaire. Seuls des cookies techniques nécessaires au fonctionnement (préférences de navigation) peuvent être utilisés.
+  {/* Hero éditorial sobre */}
+  <section style="padding:96px 0 64px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Mentions légales</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        Les <em style="font-style:italic">obligations</em> légales.
+      </h1>
+      <p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">
+        Dernière mise à jour — {dateMaj}
       </p>
     </div>
   </section>
+
+  {/* Sections numérotées */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+
+      <article style="margin-bottom:56px">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Éditeur du site</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px">
+          Le site <strong style="color:var(--color-ink);font-weight:500">{SITE_CONFIG.siteName}</strong> ({SITE_CONFIG.siteUrl}) est édité par un éditeur indépendant. Pour toute demande de coordonnées de l'éditeur, contactez-nous via la <a href="/contact/" class="link-underline">page contact</a>.
+        </p>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Directeur de la publication : la rédaction de {SITE_CONFIG.siteName}.<br />
+          Email : <a href={`mailto:mael.guelou.commercial@gmail.com`} class="link-underline">mael.guelou.commercial@gmail.com</a>
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Hébergement</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Le site est hébergé par <strong style="color:var(--color-ink);font-weight:500">Cloudflare, Inc.</strong>, 101 Townsend St, San Francisco, CA 94107, États-Unis. Cloudflare opère un réseau de diffusion de contenu (CDN) global et l'infrastructure Cloudflare Pages utilisée pour ce site.
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Propriété intellectuelle</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px">
+          L'ensemble des contenus présents sur le site (textes, images, logos, vidéos, infographies, mises en page) est protégé par le droit d'auteur. Toute reproduction, représentation, modification ou exploitation, partielle ou totale, sans autorisation écrite préalable de l'éditeur est interdite, à l'exception des courtes citations encadrées par la loi (article L.122-5 du Code de la propriété intellectuelle).
+        </p>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Les marques citées sont la propriété de leurs détenteurs respectifs. Leur citation à des fins éditoriales ou comparatives ne crée aucun lien commercial implicite avec ces marques.
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Responsabilité éditoriale</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Les informations publiées sont vérifiées au moment de la publication. Elles sont fournies à titre informatif. L'éditeur ne saurait être tenu responsable des conséquences d'une utilisation des contenus, notamment lorsque l'utilisateur entreprend des actions sur la base d'un guide pratique. En cas de doute (travaux, démarche administrative, achat important), nous recommandons de consulter un professionnel ou la source officielle compétente.
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Liens externes</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Le site contient des liens vers d'autres sites internet. L'éditeur n'a aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu, leurs pratiques ou leur disponibilité.
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Liens sponsorisés</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Certains liens présents sur le site relèvent de partenariats commerciaux ou de programmes d'affiliation. Lorsqu'un article entier est issu d'un partenariat sponsorisé, il est explicitement signalé par la mention « Article sponsorisé ». Les modalités de partenariat sont décrites sur notre <a href="/annoncer-chez-nous/" class="link-underline">page annonceurs</a>.
+        </p>
+      </article>
+
+      <article style="margin-bottom:56px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Données personnelles</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Le traitement des données personnelles est encadré par notre <a href="/politique-de-confidentialite/" class="link-underline">politique de confidentialité</a>.
+        </p>
+      </article>
+
+      <article style="padding-top:48px;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">Droit applicable</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Les présentes mentions sont soumises au droit français. Tout litige sera porté devant les juridictions compétentes.
+        </p>
+      </article>
+
+    </div>
+  </section>
+
 </Base>

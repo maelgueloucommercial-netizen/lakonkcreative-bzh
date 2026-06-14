@@ -1,0 +1,35 @@
+---
+/**
+ * Item #59 master plan — Feedback widget article helpfulness.
+ * "Cet article vous a-t-il aidé ?" → POST cron.felleries.fr/feedback/track
+ * Signal positif / négatif loggé en D1 feedback_log.
+ *
+ * Affichage en bas d'article. Cookie-less. Désinscription en 1 clic.
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+const domain = SITE_CONFIG.domain;
+---
+<section class="feedback-widget" data-feedback-widget style="margin:48px 0;padding:32px;background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:8px;text-align:center">
+  <h3 style="font-size:18px;font-weight:600;margin:0 0 16px;color:var(--color-ink)">Cet article vous a-t-il aidé ?</h3>
+  <div class="fb-actions" style="display:flex;gap:12px;justify-content:center">
+    <button type="button" data-fb-yes style="background:transparent;border:1px solid var(--color-border);color:var(--color-ink);padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px">👍 Oui</button>
+    <button type="button" data-fb-no style="background:transparent;border:1px solid var(--color-border);color:var(--color-ink);padding:10px 24px;border-radius:6px;cursor:pointer;font-size:14px">👎 Non</button>
+  </div>
+  <div data-fb-thanks style="display:none;margin-top:16px;font-size:14px;color:var(--color-accent)">Merci pour votre retour !</div>
+</section>
+<script set:html={`
+(function(){
+  var w=document.querySelector('[data-feedback-widget]');if(!w)return;
+  var domain=${JSON.stringify(domain)};
+  var ep='https://cron.felleries.fr/feedback/track';
+  function send(helpful){
+    try{
+      fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:domain,url:location.pathname,helpful:helpful}),keepalive:true}).catch(function(){});
+    }catch(e){}
+    w.querySelector('.fb-actions').style.display='none';
+    w.querySelector('[data-fb-thanks]').style.display='block';
+  }
+  w.querySelector('[data-fb-yes]').addEventListener('click',function(){send(1);});
+  w.querySelector('[data-fb-no]').addEventListener('click',function(){send(0);});
+})();
+`} />

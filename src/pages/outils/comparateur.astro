@@ -1,0 +1,163 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { getCollection } from 'astro:content';
+
+const archetype = SITE_CONFIG.theme.archetype;
+
+const PRODUCTS_BY_ARCHETYPE: Record<string, Array<Record<string, string | number>>> = {
+  bricolage: [
+    { id: 'p1', nom: 'Visseuse 18V (entrée gamme)', puissance: 30, autonomie: 1.5, couple: 35, poids: 1.2, prix: 79 },
+    { id: 'p2', nom: 'Visseuse 18V (milieu gamme)', puissance: 60, autonomie: 4, couple: 60, poids: 1.5, prix: 159 },
+    { id: 'p3', nom: 'Visseuse 18V (haut gamme)', puissance: 110, autonomie: 6, couple: 90, poids: 1.7, prix: 279 },
+    { id: 'p4', nom: 'Perforateur SDS Plus (compact)', puissance: 800, autonomie: 4, couple: 1.7, poids: 2.4, prix: 199 },
+    { id: 'p5', nom: 'Perforateur SDS Plus (pro)', puissance: 1100, autonomie: 5, couple: 3.5, poids: 3.5, prix: 399 },
+    { id: 'p6', nom: 'Scie circulaire 1400W', puissance: 1400, autonomie: 0, couple: 0, poids: 4.2, prix: 149 },
+    { id: 'p7', nom: 'Scie sauteuse 750W', puissance: 750, autonomie: 0, couple: 0, poids: 2.4, prix: 109 },
+    { id: 'p8', nom: 'Disqueuse 125 mm', puissance: 1000, autonomie: 0, couple: 0, poids: 2.5, prix: 79 },
+  ],
+  tech: [
+    { id: 't1', nom: 'TV LCD 55" entrée gamme', resolution: 4, pouces: 55, hz: 60, hdmi: 3, prix: 449 },
+    { id: 't2', nom: 'TV QLED 55" milieu', resolution: 4, pouces: 55, hz: 100, hdmi: 4, prix: 799 },
+    { id: 't3', nom: 'TV OLED 55" haut gamme', resolution: 4, pouces: 55, hz: 120, hdmi: 4, prix: 1499 },
+    { id: 't4', nom: 'Vidéoproj LCD 1080p (3500 lm)', resolution: 2, pouces: 100, hz: 60, hdmi: 2, prix: 599 },
+    { id: 't5', nom: 'Vidéoproj 4K (2700 lm laser)', resolution: 4, pouces: 120, hz: 60, hdmi: 3, prix: 1899 },
+    { id: 't6', nom: 'Casque audio Bluetooth (entrée)', resolution: 0, pouces: 0, hz: 0, hdmi: 0, prix: 79 },
+    { id: 't7', nom: 'Casque audio Hi-Res (haut gamme)', resolution: 0, pouces: 0, hz: 0, hdmi: 0, prix: 399 },
+  ],
+  village: [
+    { id: 'v1', nom: 'Maison T3 60 m² centre', surface: 60, pieces: 3, jardin: 0, prix: 145000 },
+    { id: 'v2', nom: 'Maison T4 90 m² avec jardin', surface: 90, pieces: 4, jardin: 200, prix: 215000 },
+    { id: 'v3', nom: 'Maison T5 120 m² avec terrain', surface: 120, pieces: 5, jardin: 800, prix: 295000 },
+    { id: 'v4', nom: 'Appartement T2 45 m²', surface: 45, pieces: 2, jardin: 0, prix: 95000 },
+  ],
+  adulte: [
+    { id: 'a1', nom: 'Modèle A (entrée gamme)', taille: 12, materiau: 1, vibration: 0, prix: 29 },
+    { id: 'a2', nom: 'Modèle B (milieu)', taille: 14, materiau: 2, vibration: 1, prix: 59 },
+    { id: 'a3', nom: 'Modèle C (haut gamme)', taille: 16, materiau: 3, vibration: 2, prix: 119 },
+    { id: 'a4', nom: 'Modèle D (premium)', taille: 18, materiau: 3, vibration: 3, prix: 199 },
+  ],
+};
+
+const COLUMNS_BY_ARCHETYPE: Record<string, Array<{ key: string; label: string; unit: string }>> = {
+  bricolage: [
+    { key: 'puissance', label: 'Puissance', unit: 'W' },
+    { key: 'autonomie', label: 'Autonomie', unit: 'Ah' },
+    { key: 'couple', label: 'Couple', unit: 'Nm' },
+    { key: 'poids', label: 'Poids', unit: 'kg' },
+    { key: 'prix', label: 'Prix', unit: '€' },
+  ],
+  tech: [
+    { key: 'resolution', label: 'Résolution', unit: 'K' },
+    { key: 'pouces', label: 'Taille', unit: '"' },
+    { key: 'hz', label: 'Fréquence', unit: 'Hz' },
+    { key: 'hdmi', label: 'Ports HDMI', unit: '' },
+    { key: 'prix', label: 'Prix', unit: '€' },
+  ],
+  village: [
+    { key: 'surface', label: 'Surface', unit: 'm²' },
+    { key: 'pieces', label: 'Pièces', unit: '' },
+    { key: 'jardin', label: 'Jardin', unit: 'm²' },
+    { key: 'prix', label: 'Prix', unit: '€' },
+  ],
+  adulte: [
+    { key: 'taille', label: 'Taille', unit: 'cm' },
+    { key: 'materiau', label: 'Qualité matériau (1-3)', unit: '' },
+    { key: 'vibration', label: 'Modes vibration', unit: '' },
+    { key: 'prix', label: 'Prix', unit: '€' },
+  ],
+};
+
+const products = PRODUCTS_BY_ARCHETYPE[archetype] ?? PRODUCTS_BY_ARCHETYPE.village;
+const columns = COLUMNS_BY_ARCHETYPE[archetype] ?? COLUMNS_BY_ARCHETYPE.village;
+---
+<Base
+  title="Comparateur"
+  description={`Comparateur de produits ${archetype}. Sélectionnez jusqu'à 4 produits, comparez leurs caractéristiques côte à côte.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Comparateur</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        Comparer <em style="font-style:italic">côte à côte</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:620px">
+        Sélectionnez jusqu'à 4 produits. Le meilleur sur chaque critère est mis en valeur.
+      </p>
+    </div>
+  </section>
+
+  {/* Sélection + tableau */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container">
+      <div id="cmp-app" data-products={JSON.stringify(products)} data-columns={JSON.stringify(columns)}>
+        <div class="eyebrow" style="margin-bottom:24px">Sélectionner les produits</div>
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border);margin-bottom:64px" id="cmp-checkboxes" class="cmp-grid"></div>
+        <div id="cmp-table"></div>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+@media (max-width: 900px) { .cmp-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 600px) { .cmp-grid { grid-template-columns: 1fr !important; } }
+</style>
+
+<script>
+  const root = document.getElementById('cmp-app');
+  const products = JSON.parse(root.dataset.products);
+  const columns = JSON.parse(root.dataset.columns);
+  const cb = document.getElementById('cmp-checkboxes');
+  const tbl = document.getElementById('cmp-table');
+  const selected = new Set();
+
+  cb.innerHTML = products.map(p => `
+    <label style="display:flex;align-items:flex-start;gap:14px;padding:24px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card);cursor:pointer">
+      <input type="checkbox" data-id="${p.id}" style="margin-top:6px;accent-color:var(--color-accent)" />
+      <span style="font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.3;color:var(--color-ink);letter-spacing:-.2px">${p.nom}<br><small style="font-family:'Inter',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">${p.prix} €</small></span>
+    </label>
+  `).join('');
+
+  function render() {
+    if (selected.size === 0) {
+      tbl.innerHTML = '<p style="font-size:16px;color:var(--color-text-muted);line-height:1.6;text-align:center;padding:64px 0">Sélectionnez 1 à 4 produits pour les comparer.</p>';
+      return;
+    }
+    const items = products.filter(p => selected.has(p.id));
+    const bests = {};
+    columns.forEach(c => {
+      const isInverted = c.key === 'prix' || c.key === 'poids';
+      let best = items[0][c.key];
+      items.forEach(it => {
+        if (isInverted ? it[c.key] < best : it[c.key] > best) best = it[c.key];
+      });
+      bests[c.key] = best;
+    });
+    let html = '<div class="eyebrow" style="margin-bottom:24px">Tableau de comparaison</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;border-top:2px solid var(--color-ink);border-bottom:2px solid var(--color-ink);font-family:Inter,sans-serif">';
+    html += '<tr style="border-bottom:1px solid var(--color-border)"><th style="text-align:left;padding:18px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-text-muted)">Critère</th>' + items.map(i => `<th style="text-align:left;padding:18px 20px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;letter-spacing:-.2px;color:var(--color-ink)">${i.nom}</th>`).join('') + '</tr>';
+    columns.forEach(c => {
+      html += `<tr style="border-bottom:1px solid var(--color-border)"><td style="padding:18px 20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-ink)">${c.label}</td>`;
+      items.forEach(i => {
+        const isBest = i[c.key] === bests[c.key];
+        html += `<td style="padding:18px 20px;font-family:'Cormorant Garamond',serif;font-size:${isBest ? '22' : '18'}px;font-style:${isBest ? 'italic' : 'normal'};color:${isBest ? 'var(--color-accent)' : 'var(--color-ink)'};font-weight:400;letter-spacing:-.2px">${i[c.key]} ${c.unit}${isBest ? ' ★' : ''}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</table></div>';
+    tbl.innerHTML = html;
+  }
+
+  cb.addEventListener('change', (e) => {
+    const id = e.target.dataset.id;
+    if (e.target.checked) {
+      if (selected.size >= 4) { e.target.checked = false; alert('Maximum 4 produits.'); return; }
+      selected.add(id);
+    } else {
+      selected.delete(id);
+    }
+    render();
+  });
+  render();
+</script>

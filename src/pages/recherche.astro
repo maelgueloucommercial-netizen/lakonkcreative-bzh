@@ -1,81 +1,214 @@
 ---
-/**
- * Page de recherche interne (item #54 roadmap).
- *
- * Pagefind indexe le HTML statique au build (`postbuild` script) et expose
- * un bundle JS + un index segmenté téléchargé à la demande. La recherche
- * s'exécute côté client : pas de serveur requis, fonctionne sur Workers
- * Static Assets.
- *
- * Doc : https://pagefind.app/
- */
 import Base from '../layouts/Base.astro';
-import Breadcrumb from '../components/Breadcrumb.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+import { getCollection } from 'astro:content';
+
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[4] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const articles = await getCollection('articles');
+articles.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+function getArticleUrl(entry: typeof articles[number]): string {
+  const d = entry.data;
+  if (d.dateUrlFormat) {
+    return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
+  }
+  return d.urlPath ? `/${d.urlPath}/${d.slug}/` : `/${d.slug}/`;
+}
+
+const searchIndex = articles.map((a) => ({
+  url: getArticleUrl(a),
+  title: a.data.title,
+  desc: a.data.description ?? '',
+  date: a.data.pubDate.toLocaleDateString('fr-FR', { year: 'numeric', month: 'short' }),
+  tags: (a.data.tags ?? []).slice(0, 3),
+}));
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: `Recherche — ${SITE_CONFIG.siteName}`,
+  description: `Recherche dans les articles sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/recherche/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
 ---
 <Base
-  title="Recherche dans l'encyclopédie"
-  description="Rechercher dans les régions, pâtes, lexique, articles et produits italiens authentiques de DaRocco."
-  noindex
+  title="Recherche"
+  description={`Recherche dans le contenu de ${SITE_CONFIG.siteName}. ${searchIndex.length} articles indexés.`}
+  jsonLd={[_pageSchema]}
 >
-  <section class="mx-auto max-w-3xl px-6 py-12">
-    <Breadcrumb items={[{ label: 'Recherche' }]} />
 
-    <header class="mb-8">
-      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Recherche</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
-        Rechercher dans l'encyclopédie
-      </h1>
-      <p class="text-lg text-ink-700 leading-relaxed">
-        Régions, pâtes, lexique culinaire, articles, produits AOP/DOP/IGP : tape un mot-clé,
-        Pagefind cherche dans tout le contenu indexé.
-      </p>
-    </header>
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="position:relative;min-height:380px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:72px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">Recherche</div>
+        <h1 class="serif" style="font-size:clamp(36px, 4.5vw, 60px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+          Que <em style="font-style:italic">cherchez-vous</em> ?
+        </h1>
+        <p style="font-size:16px;color:var(--color-text-muted);line-height:1.6;max-width:520px">
+          {searchIndex.length} articles indexés. Tapez un mot-clé pour démarrer.
+        </p>
+      </div>
+    </div>
+  </section>
 
-    <div id="search" class="pagefind-host"></div>
+  {/* Champ recherche */}
+  <section style="padding:64px 0 32px;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <input
+        type="search"
+        id="search-input"
+        placeholder="Tapez un mot-clé…"
+        autofocus
+        style="width:100%;padding:18px 0;border:0;border-bottom:2px solid var(--color-ink);background:transparent;font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--color-ink);outline:none;letter-spacing:-.3px"
+      />
+      <div id="search-stats" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-top:24px;font-weight:600"></div>
+    </div>
+  </section>
 
-    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-    <script src="/pagefind/pagefind-ui.js" defer is:inline></script>
-    <script is:inline>
-      window.addEventListener('load', () => {
-        if (typeof window.PagefindUI === 'undefined') {
-          document.getElementById('search').innerHTML =
-            '<p class="text-sm text-ink-700/70">L\'index de recherche n\'a pas encore été généré. Relance le build pour activer la recherche.</p>';
-          return;
-        }
+  {/* Résultats */}
+  <section style="padding:48px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div id="search-results"></div>
+
+      <details style="margin-top:80px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <summary style="cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600">Recherche full-text avancée (alpha)</summary>
+        <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin-top:24px;max-width:600px">
+          Recherche full-text dans le contenu complet des articles, propulsée par <a href="https://pagefind.app/" rel="noopener" class="link-underline">Pagefind</a>. Plus précise mais nécessite un script externe (~50 KB).
+        </p>
+        <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+        <div id="pagefind-search" style="margin-top:24px"></div>
+      </details>
+    </div>
+  </section>
+
+</Base>
+
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.PagefindUI === 'function') {
+      try {
         new window.PagefindUI({
-          element: '#search',
-          showSubResults: true,
+          element: '#pagefind-search',
           showImages: false,
+          showSubResults: true,
           translations: {
-            placeholder: 'Rechercher (ex: pesto, Sicile, mantecatura…)',
+            placeholder: 'Recherche full-text…',
             clear_search: 'Effacer',
             load_more: 'Charger plus',
-            search_label: 'Recherche',
+            search_label: 'Rechercher',
             filters_label: 'Filtres',
             zero_results: 'Aucun résultat pour [SEARCH_TERM]',
             many_results: '[COUNT] résultats pour [SEARCH_TERM]',
             one_result: '1 résultat pour [SEARCH_TERM]',
-            alt_search: 'Aucun résultat pour [SEARCH_TERM]. Affichage des résultats pour [DIFFERENT_TERM]',
-            search_suggestion: 'Aucun résultat pour [SEARCH_TERM]. Essayez : [DIFFERENT_TERM]',
-            searching: 'Recherche…',
+            alt_search: 'Aucun résultat pour [SEARCH_TERM]. Essayez [DIFFERENT_TERM]',
+            search_suggestion: 'Aucun résultat. Suggestions : [DIFFERENT_TERM]',
           },
         });
-      });
-    </script>
+      } catch (e) { console.warn('Pagefind init failed', e); }
+    }
+  });
+</script>
 
-    <style>
-      /* Adaptations Pagefind UI au thème DaRocco */
-      .pagefind-ui {
-        --pagefind-ui-primary: var(--color-terra-700);
-        --pagefind-ui-text: var(--color-ink-900);
-        --pagefind-ui-background: var(--color-cream-50);
-        --pagefind-ui-border: var(--color-cream-200);
-        --pagefind-ui-tag: var(--color-cream-100);
-        --pagefind-ui-border-radius: 8px;
-        --pagefind-ui-image-border-radius: 6px;
-        --pagefind-ui-image-box-ratio: 3 / 2;
-        --pagefind-ui-font: var(--font-sans);
+<script type="application/json" id="search-data" set:html={JSON.stringify(searchIndex)}></script>
+
+<script>
+  const data = JSON.parse(document.getElementById('search-data').textContent);
+  const input = document.getElementById('search-input');
+  const stats = document.getElementById('search-stats');
+  const results = document.getElementById('search-results');
+
+  function normalize(s) {
+    return s.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+  }
+
+  const norm = data.map(d => ({
+    ...d,
+    nTitle: normalize(d.title),
+    nDesc: normalize(d.desc),
+    nTags: (d.tags || []).map(normalize).join(' '),
+  }));
+
+  function search(q) {
+    if (!q || q.length < 2) {
+      stats.textContent = '';
+      results.innerHTML = '<p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;padding:48px 0;text-align:center">Tapez au moins 2 caractères pour lancer la recherche.</p>';
+      return;
+    }
+    const nq = normalize(q);
+    const tokens = nq.split(/\s+/).filter(t => t.length >= 2);
+    const matches = norm.map(d => {
+      let score = 0;
+      for (const t of tokens) {
+        if (d.nTitle.includes(t)) score += 10;
+        if (d.nDesc.includes(t)) score += 3;
+        if (d.nTags.includes(t)) score += 5;
       }
-    </style>
-  </section>
-</Base>
+      return { d, score };
+    }).filter(m => m.score > 0).sort((a, b) => b.score - a.score).slice(0, 50);
+
+    stats.textContent = `${matches.length} résultat${matches.length > 1 ? 's' : ''} pour "${q}"`;
+    if (matches.length === 0) {
+      results.innerHTML = '<p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;padding:32px 0">Aucun résultat. Essayez un autre mot-clé ou consultez le <a href="/articles/" style="color:var(--color-accent);text-decoration:underline">catalogue complet</a>.</p>';
+      return;
+    }
+    results.innerHTML = '<ul style="list-style:none;padding:0;margin:0;border-top:1px solid var(--color-border)">' + matches.map(m => `
+      <li style="border-bottom:1px solid var(--color-border)">
+        <a href="${m.d.url}" style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline;padding:24px 0;text-decoration:none;color:inherit">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:24px;line-height:1.25;font-weight:400;letter-spacing:-.3px;margin-bottom:6px">${highlight(m.d.title, tokens)}</div>
+            ${m.d.desc ? `<div style="font-size:14px;color:var(--color-text-muted);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${highlight(m.d.desc, tokens)}</div>` : ''}
+          </div>
+          <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">${m.d.date}</span>
+        </a>
+      </li>
+    `).join('') + '</ul>';
+  }
+
+  function highlight(text, tokens) {
+    let h = text.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+    for (const t of tokens) {
+      const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      h = h.replace(re, '<mark style="background:transparent;color:var(--color-accent);font-weight:600">$1</mark>');
+    }
+    return h;
+  }
+
+  let lastQ = '';
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if (q === lastQ) return;
+    lastQ = q;
+    search(q);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const initial = params.get('q');
+  if (initial) {
+    input.value = initial;
+    search(initial);
+  } else {
+    search('');
+  }
+</script>
+
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+}
+</style>

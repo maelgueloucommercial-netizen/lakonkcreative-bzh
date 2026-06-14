@@ -1,0 +1,45 @@
+---
+/**
+ * Sprint 10 — Auto-FAQ générée depuis title + intent.
+ *
+ * Affiche une section FAQ visible (5 Q/R) en fin d'article.
+ * Le JSON-LD FAQPage est injecté séparément par Article.astro
+ * (cf niche-schema.ts).
+ */
+import { buildAutoFaq } from '../lib/auto-faq';
+import type { SearchIntent } from '../lib/intent-classifier';
+import type { FaqEntry } from '../lib/auto-faq';
+
+interface Props {
+  title: string;
+  intent: SearchIntent;
+  archetype: 'village' | 'bricolage' | 'tech' | 'adulte';
+  description?: string;
+  faqOverride?: FaqEntry[];
+}
+
+const { title, intent, archetype, description, faqOverride } = Astro.props as Props;
+const faq = faqOverride && faqOverride.length > 0
+  ? faqOverride
+  : buildAutoFaq({ title, intent, archetype, description });
+
+if (faq.length === 0) return null;
+---
+<section class="auto-faq not-prose" data-faq style="margin:64px 0">
+  <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:18px;font-weight:600">FAQ</div>
+  <h2 class="serif" style="font-size:clamp(28px, 3.2vw, 40px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin:0 0 36px;color:var(--color-ink)">
+    Questions <em style="font-style:italic">fréquentes</em>.
+  </h2>
+  <div style="border-top:1px solid var(--color-border)">
+    {faq.map((qa, idx) => (
+      <details style="border-bottom:1px solid var(--color-border)" open={idx === 0}>
+        <summary style="cursor:pointer;padding:22px 0;font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1.25;font-weight:400;letter-spacing:-.3px;color:var(--color-ink);list-style:none">
+          {qa.q}
+        </summary>
+        <p style="padding:0 0 22px;font-size:15px;line-height:1.7;color:var(--color-text-muted);margin:0">
+          {qa.a}
+        </p>
+      </details>
+    ))}
+  </div>
+</section>

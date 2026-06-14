@@ -1,0 +1,251 @@
+---
+/**
+ * Type de page : categorieCatalogue (archétype product_catalogue) — DESIGN v4 niveau e-commerce
+ * (visunext / Darty) : H1+intro+breadcrumb avec Boutique, FILTRES À FACETTES (marque, prix,
+ * résolution, technologie, usage, note) + chips actifs, tri, grille de cards riches (image/note/
+ * specs clés/usages/prix barré/-%/CTA), bloc SEO long + guide + FAQ, maillage profond.
+ * Dérivée de la collection `produits`. URL : /categorie-produit/{cat}/.
+ * Schemas CollectionPage + ItemList(Product+Offer+AggregateRating) + BreadcrumbList + FAQPage.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { getCollection, render } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const produits = await getCollection('produits');
+  const cats = new Map<string, { label: string; items: typeof produits }>();
+  for (const p of produits) {
+    const c = p.data.category;
+    if (!cats.has(c)) cats.set(c, { label: p.data.categoryLabel ?? c, items: [] as typeof produits });
+    cats.get(c)!.items.push(p);
+  }
+  const catalogues = await getCollection('catalogues');
+  const allCats = [...cats.entries()].map(([slug, v]) => ({ slug, label: v.label, count: v.items.length }));
+  return [...cats.entries()].map(([slug, v]) => ({ params: { cat: slug }, props: { slug, label: v.label, items: v.items, allCats, cat: catalogues.find((c) => c.data.category === slug) ?? null } }));
+}
+
+const { slug, label, items, allCats, cat } = Astro.props as { slug: string; label: string; items: any[]; allCats: { slug: string; label: string; count: number }[]; cat: any };
+const CatContent = cat ? (await render(cat)).Content : null;
+const catFaq = cat?.data?.faq;
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const boutiqueUrl = new URL('/boutique/', SITE_CONFIG.siteUrl).toString();
+const title = cat?.data?.title ?? `${label} : notre sélection, prix et avis`;
+const description = cat?.data?.intro ?? `Comparez notre sélection de ${label.toLowerCase()} : prix, avis, marques et caractéristiques. Filtrez par marque, prix, résolution, technologie et usage.`;
+// « À partir de » (pattern objetrama) quand on n'a qu'une fourchette basse.
+const priceOf = (e: any) => e.data.priceText ?? (typeof e.data.price === 'number' ? `${e.data.price} €` : (typeof e.data.priceLow === 'number' ? `À partir de ${e.data.priceLow} €` : ''));
+const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const disc = (e: any) => (typeof e.data.oldPrice === 'number' && typeof e.data.price === 'number' && e.data.oldPrice > e.data.price) ? Math.round((1 - e.data.price / e.data.oldPrice) * 100) : null;
+const prices = items.map((e) => e.data.price ?? e.data.priceLow).filter((n: number) => typeof n === 'number');
+const lo = prices.length ? Math.min(...prices) : null;
+const hi = prices.length ? Math.max(...prices) : null;
+
+// --- Facettes (affichées seulement si ≥2 valeurs) + compteurs (n) façon objetrama ---
+const uniq = (arr: any[]) => [...new Set(arr.filter(Boolean))];
+const brands = uniq(items.map((e) => e.data.brand)).sort() as string[];
+const resolutions = uniq(items.map((e) => e.data.attributes?.resolution)) as string[];
+const technos = uniq(items.map((e) => e.data.attributes?.techno)).sort() as string[];
+const usages = uniq(items.flatMap((e) => e.data.attributes?.usages ?? [])).sort() as string[];
+const fCount = (group: string, v: string) => items.filter((e) =>
+  group === 'brand' ? e.data.brand === v
+  : group === 'resolution' ? e.data.attributes?.resolution === v
+  : group === 'techno' ? e.data.attributes?.techno === v
+  : (e.data.attributes?.usages ?? []).includes(v)).length;
+const priceBuckets = lo === null ? [] : [
+  { label: `Moins de ${Math.round((lo + (hi - lo) * 0.25) / 10) * 10} €`, min: 0, max: Math.round((lo + (hi - lo) * 0.25) / 10) * 10 },
+  { label: 'Milieu de gamme', min: Math.round((lo + (hi - lo) * 0.25) / 10) * 10, max: Math.round((lo + (hi - lo) * 0.6) / 10) * 10 },
+  { label: `Plus de ${Math.round((lo + (hi - lo) * 0.6) / 10) * 10} €`, min: Math.round((lo + (hi - lo) * 0.6) / 10) * 10, max: 999999 },
+];
+const keySpecs = (e: any) => {
+  const a = e.data.attributes ?? {};
+  return [a.resolution, a.techno, typeof a.lumens === 'number' ? `${a.lumens} lm` : null].filter(Boolean) as string[];
+};
+
+// --- Schemas ---
+const itemListEl = items.map((e, i) => {
+  const a = e.data;
+  const prod: Record<string, unknown> = { '@type': 'Product', name: a.title, ...(a.images?.[0] ? { image: a.images[0] } : {}), ...(a.brand ? { brand: { '@type': 'Brand', name: a.brand } } : {}), url: new URL(`/produit/${a.slug}/`, SITE_CONFIG.siteUrl).toString() };
+  if (typeof a.priceLow === 'number') prod.offers = { '@type': 'AggregateOffer', lowPrice: a.priceLow, ...(typeof a.priceHigh === 'number' ? { highPrice: a.priceHigh } : {}), priceCurrency: a.currency ?? 'EUR' };
+  else if (typeof a.price === 'number') prod.offers = { '@type': 'Offer', price: a.price, priceCurrency: a.currency ?? 'EUR' };
+  if (typeof a.rating === 'number' && a.reviewCount) prod.aggregateRating = { '@type': 'AggregateRating', ratingValue: a.rating, reviewCount: a.reviewCount, bestRating: 5 };
+  return { '@type': 'ListItem', position: i + 1, item: prod };
+});
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: pageUrl, isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl }, mainEntity: { '@type': 'ItemList', numberOfItems: items.length, itemListElement: itemListEl } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Boutique', item: boutiqueUrl },
+    { '@type': 'ListItem', position: 3, name: label, item: pageUrl } ] },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: (catFaq && catFaq.length ? catFaq : [
+    { question: `Comment choisir parmi les ${label.toLowerCase()} ?`, answer: `Comparez le prix, les avis clients et les caractéristiques (résolution, technologie, usage). Utilisez les filtres pour affiner selon votre besoin et votre budget.` },
+    { question: `Quel budget prévoir pour ${label.toLowerCase()} ?`, answer: lo ? `Les prix démarrent autour de ${lo} € et montent jusqu'à ${hi} € selon le modèle, les performances et les options.` : 'Le prix varie selon le modèle et les performances.' }
+  ]).map((f: any) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) },
+];
+---
+<Base title={title} description={description} canonical={pageUrl} ogImage={items[0]?.data.images?.[0]} type="website" jsonLd={jsonLd}>
+  <div class="cat">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/boutique/">Boutique</a> › <span>{label}</span></nav></div>
+
+    <section class="tpl-band tpl-band--tint" style="padding-bottom:1.5rem"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Boutique · {label}</span><h1 class="tpl-h1">{title}</h1>
+      <p class="tpl-lead">{description}</p>
+      <div class="cat-bar">
+        <span class="cat-count"><strong id="cat-n">{items.length}</strong> produit{items.length > 1 ? 's' : ''}{lo ? ` · de ${lo} à ${hi} €` : ''}</span>
+        <label class="cat-sort">Trier : <select id="cat-sort"><option value="pop">Popularité</option><option value="price-asc">Prix croissant</option><option value="price-desc">Prix décroissant</option><option value="rating">Meilleures notes</option><option value="name">Nom (A-Z)</option></select></label>
+      </div>
+    </div></section>
+
+    <section class="tpl-band" style="padding-top:1.5rem"><div class="tpl-wrap cat-layout">
+      <aside class="cat-filters">
+        <button class="cat-filters-toggle" id="cat-ftoggle" aria-expanded="false">Filtrer ▾</button>
+        <div class="cat-filters-inner" id="cat-finner">
+          <strong class="cat-ftitle">Filtrer</strong>
+          <div class="cat-fchips" id="cat-chips"></div>
+          {brands.length > 1 && (<fieldset class="cat-fgroup"><legend>Marque</legend>{brands.map((b) => (<label class="cat-fopt"><input type="checkbox" class="f-facet" data-group="brand" value={b} /> {b} <small class="cat-fn">({fCount('brand', b)})</small></label>))}</fieldset>)}
+          {resolutions.length > 1 && (<fieldset class="cat-fgroup"><legend>Résolution</legend>{resolutions.map((r) => (<label class="cat-fopt"><input type="checkbox" class="f-facet" data-group="resolution" value={r} /> {r} <small class="cat-fn">({fCount('resolution', r)})</small></label>))}</fieldset>)}
+          {technos.length > 1 && (<fieldset class="cat-fgroup"><legend>Technologie</legend>{technos.map((t) => (<label class="cat-fopt"><input type="checkbox" class="f-facet" data-group="techno" value={t} /> {t} <small class="cat-fn">({fCount('techno', t)})</small></label>))}</fieldset>)}
+          {usages.length > 1 && (<fieldset class="cat-fgroup"><legend>Usage</legend>{usages.map((u) => (<label class="cat-fopt"><input type="checkbox" class="f-facet" data-group="usages" value={u} /> {u} <small class="cat-fn">({fCount('usages', u)})</small></label>))}</fieldset>)}
+          {priceBuckets.length > 0 && (<fieldset class="cat-fgroup"><legend>Prix</legend>
+            <label class="cat-fopt"><input type="radio" name="f-price" value="all" checked /> Tous les prix</label>
+            {priceBuckets.map((p) => (<label class="cat-fopt"><input type="radio" name="f-price" value={`${p.min}-${p.max}`} /> {p.label}</label>))}
+          </fieldset>)}
+          <fieldset class="cat-fgroup"><legend>Note client</legend>
+            <label class="cat-fopt"><input type="radio" name="f-rating" value="0" checked /> Toutes</label>
+            <label class="cat-fopt"><input type="radio" name="f-rating" value="4" /> 4★ et plus</label>
+            <label class="cat-fopt"><input type="radio" name="f-rating" value="4.5" /> 4,5★ et plus</label>
+          </fieldset>
+          <button class="cat-reset" id="cat-reset">Réinitialiser</button>
+        </div>
+      </aside>
+
+      <div class="cat-main">
+        <div class="cat-grid" id="cat-grid">
+          {items.map((e) => (
+            <a class="tpl-card cat-card" href={`/produit/${e.data.slug}/`}
+               data-price={typeof e.data.price === 'number' ? e.data.price : ''} data-name={e.data.title} data-rating={e.data.scoreGlobal ?? e.data.rating ?? 0}
+               data-brand={e.data.brand ?? ''} data-resolution={e.data.attributes?.resolution ?? ''} data-techno={e.data.attributes?.techno ?? ''} data-usages={(e.data.attributes?.usages ?? []).join('|')}>
+              <div class="cat-card-imgwrap">
+                {e.data.images?.[0] && <img src={e.data.images[0]} alt={e.data.title} loading="lazy" width="240" height="180" />}
+                {e.data.badge && <span class="cat-badgebrand">{e.data.badge}</span>}
+                {disc(e) && <span class="cat-badge">-{disc(e)}%</span>}
+              </div>
+              {e.data.brand && <span class="cat-cbrand">{e.data.brand}</span>}
+              <strong>{e.data.title}</strong>
+              {typeof (e.data.scoreGlobal ?? e.data.rating) === 'number' && <span class="tpl-stars cat-stars">{stars((e.data.scoreGlobal ?? e.data.rating) as number)} <small>{e.data.scoreGlobal ?? e.data.rating}/5{e.data.reviewCount ? ` · ${e.data.reviewCount}` : ''}</small></span>}
+              {keySpecs(e).length > 0 && <ul class="cat-specs">{keySpecs(e).map((s) => <li>{s}</li>)}</ul>}
+              {(e.data.attributes?.usages ?? []).length > 0 && <div class="cat-usages">{(e.data.attributes.usages as string[]).slice(0, 3).map((u) => <span>{u}</span>)}</div>}
+              <span class="cat-price">{e.data.oldPrice && <span class="cat-old">{e.data.oldPrice} €</span>}{priceOf(e)}</span>
+              <span class="cat-cta">Voir le test →</span>
+            </a>
+          ))}
+        </div>
+        <p class="cat-empty" id="cat-empty" hidden>Aucun produit ne correspond à ces filtres. <a href="#" id="cat-empty-reset">Réinitialiser</a>.</p>
+      </div>
+    </div></section>
+
+    <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow tpl-prose">
+      {CatContent ? <CatContent /> : (<>
+        <h2>Bien choisir parmi nos {label.toLowerCase()}</h2>
+        <p>Notre catalogue de <strong>{label.toLowerCase()}</strong> rassemble une sélection de modèles testés et comparés pour acheter en confiance. Pour chaque produit, nous indiquons le prix, la note, les caractéristiques clés et les usages : comparez d'un coup d'œil et utilisez les filtres pour trouver celui qui correspond à votre besoin et à votre budget.</p>
+        <p>Avant d'acheter, définissez votre usage : un modèle d'entrée de gamme suffit pour un besoin ponctuel, tandis qu'un appareil plus complet se justifie pour un usage régulier. Comparez les performances, lisez les avis et vérifiez le rapport qualité-prix.</p>
+      </>)}
+      {catFaq && catFaq.length > 0 && (<div class="tpl-faq" style="margin-top:1.6rem">{catFaq.map((f: any) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>)}
+    </div></section>
+
+    <section class="tpl-band"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Explorer</span><h2 class="tpl-h2">Toute la boutique</h2>
+      <div class="cat-mesh-wrap">
+        {brands.length > 1 && (<div class="cat-meshcol"><h3>Par marque</h3><ul class="cat-mesh">{brands.map((b) => <li><a href={`/categorie-produit/${slug}/`} data-jumpbrand={b}>{b}</a></li>)}</ul></div>)}
+        <div class="cat-meshcol"><h3>Autres catégories</h3><ul class="cat-mesh">{allCats.filter((c) => c.slug !== slug).map((c) => <li><a href={`/categorie-produit/${c.slug}/`}>{c.label} ({c.count})</a></li>)}<li><a href="/boutique/"><strong>Toute la boutique →</strong></a></li></ul></div>
+      </div>
+    </div></section>
+  </div>
+</Base>
+
+<script is:inline>
+  (function () {
+    var grid = document.getElementById('cat-grid'); if (!grid) return;
+    var sortSel = document.getElementById('cat-sort'), nEl = document.getElementById('cat-n'), empty = document.getElementById('cat-empty'), chips = document.getElementById('cat-chips');
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.cat-card'));
+    function facetVals(group) { return Array.prototype.slice.call(document.querySelectorAll('.f-facet[data-group="' + group + '"]:checked')).map(function (c) { return c.value; }); }
+    function radio(name, def) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : def; }
+    function matchFacet(card, group) {
+      var sel = facetVals(group); if (!sel.length) return true;
+      if (group === 'usages') { var has = (card.dataset.usages || '').split('|'); return sel.some(function (s) { return has.indexOf(s) > -1; }); }
+      return sel.indexOf(card.dataset[group] || '') > -1;
+    }
+    function apply() {
+      var pr = radio('f-price', 'all'), rt = parseFloat(radio('f-rating', '0')) || 0;
+      var pmin = 0, pmax = Infinity; if (pr !== 'all') { var s = pr.split('-'); pmin = +s[0]; pmax = +s[1]; }
+      var visible = 0;
+      cards.forEach(function (c) {
+        var price = parseFloat(c.dataset.price) || 0, rating = parseFloat(c.dataset.rating) || 0;
+        var ok = matchFacet(c, 'brand') && matchFacet(c, 'resolution') && matchFacet(c, 'techno') && matchFacet(c, 'usages') && (price >= pmin && price <= pmax) && (rating >= rt);
+        c.style.display = ok ? '' : 'none'; if (ok) visible++;
+      });
+      if (nEl) nEl.textContent = visible; if (empty) empty.hidden = visible > 0;
+      if (chips) { chips.innerHTML = '';
+        ['brand', 'resolution', 'techno', 'usages'].forEach(function (g) { facetVals(g).forEach(function (v) { addChip(v, function () { document.querySelector('.f-facet[data-group="' + g + '"][value="' + v + '"]').checked = false; apply(); }); }); });
+        if (pr !== 'all') addChip('Prix', function () { document.querySelector('input[name="f-price"][value="all"]').checked = true; apply(); });
+        if (rt) addChip(rt + '★+', function () { document.querySelector('input[name="f-rating"][value="0"]').checked = true; apply(); });
+      }
+      sortNow();
+    }
+    function addChip(text, onx) { var s = document.createElement('span'); s.className = 'cat-chip'; s.textContent = text + ' ✕'; s.addEventListener('click', onx); chips.appendChild(s); }
+    function sortNow() {
+      var v = sortSel ? sortSel.value : 'pop'; var vis = cards.filter(function (c) { return c.style.display !== 'none'; });
+      vis.sort(function (a, b) {
+        var pa = parseFloat(a.dataset.price) || 0, pb = parseFloat(b.dataset.price) || 0, ra = parseFloat(a.dataset.rating) || 0, rb = parseFloat(b.dataset.rating) || 0;
+        if (v === 'price-asc') return pa - pb; if (v === 'price-desc') return pb - pa; if (v === 'rating') return rb - ra; if (v === 'name') return (a.dataset.name || '').localeCompare(b.dataset.name || ''); return 0;
+      });
+      vis.forEach(function (c) { grid.appendChild(c); });
+    }
+    document.querySelectorAll('.f-facet, input[name="f-price"], input[name="f-rating"]').forEach(function (el) { el.addEventListener('change', apply); });
+    if (sortSel) sortSel.addEventListener('change', sortNow);
+    var reset = document.getElementById('cat-reset'), er = document.getElementById('cat-empty-reset'), tog = document.getElementById('cat-ftoggle'), inner = document.getElementById('cat-finner');
+    function doReset(e) { if (e) e.preventDefault(); document.querySelectorAll('.f-facet').forEach(function (c) { c.checked = false; }); var pa = document.querySelector('input[name="f-price"][value="all"]'); if (pa) pa.checked = true; var ra = document.querySelector('input[name="f-rating"][value="0"]'); if (ra) ra.checked = true; apply(); }
+    if (reset) reset.addEventListener('click', doReset); if (er) er.addEventListener('click', doReset);
+    if (tog && inner) tog.addEventListener('click', function () { var open = inner.classList.toggle('open'); tog.setAttribute('aria-expanded', open); });
+    // maillage "par marque" → coche le filtre marque
+    document.querySelectorAll('[data-jumpbrand]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var b = a.getAttribute('data-jumpbrand'); doReset(); var cb = document.querySelector('.f-facet[data-group="brand"][value="' + b + '"]'); if (cb) { cb.checked = true; apply(); grid.scrollIntoView({ behavior: 'smooth' }); } }); });
+  })();
+</script>
+
+<style>
+  .cat-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+  .cat-count { font-weight: 600; } .cat-sort select { padding: .45rem .6rem; border: 1px solid var(--site-border); border-radius: 8px; margin-left: .3rem; }
+  .cat-layout { display: grid; grid-template-columns: 250px 1fr; gap: 1.6rem; align-items: start; }
+  .cat-filters-toggle { display: none; }
+  .cat-ftitle { display: block; font-size: 1.05rem; font-weight: 800; color: var(--site-primary); margin-bottom: .7rem; padding-bottom: .5rem; border-bottom: 2px solid var(--site-bg-2); }
+  .cat-fgroup { border: 1px solid var(--site-border); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 .9rem; }
+  .cat-fgroup legend { font-weight: 800; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--site-primary); padding: 0 .3rem; }
+  .cat-fopt { display: flex; align-items: center; gap: .5rem; font-size: .9rem; padding: .25rem 0; cursor: pointer; }
+  .cat-fn { color: var(--site-text-muted); font-size: .76rem; }
+  .cat-reset { background: transparent; border: 1px solid var(--site-border); border-radius: 999px; padding: .5rem 1rem; font-size: .85rem; cursor: pointer; width: 100%; }
+  .cat-reset:hover { background: var(--site-bg-2); }
+  .cat-fchips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+  .cat-chip { background: var(--site-primary); color: #fff; border-radius: 999px; padding: .25rem .7rem; font-size: .78rem; font-weight: 600; cursor: pointer; }
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 1rem; }
+  .cat-card { position: relative; display: flex; flex-direction: column; text-decoration: none; color: var(--site-text); }
+  .cat-card-imgwrap { position: relative; }
+  .cat-card img { width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #fff; aspect-ratio: 4/3; }
+  .cat-badge { position: absolute; top: .5rem; right: .5rem; background: #b0654f; color: #fff; font-weight: 800; border-radius: 7px; padding: .1rem .5rem; font-size: .8rem; }
+  .cat-badgebrand { position: absolute; top: .5rem; left: .5rem; background: var(--site-secondary); color: #2a1a00; font-weight: 800; border-radius: 7px; padding: .1rem .5rem; font-size: .72rem; }
+  .cat-cbrand { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--site-text-muted); margin-top: .5rem; font-weight: 700; }
+  .cat-card strong { margin: .15rem 0 .2rem; font-size: .92rem; line-height: 1.25; }
+  .cat-stars { color: var(--site-secondary); font-size: .82rem; } .cat-stars small { color: var(--site-text-muted); }
+  .cat-specs { list-style: none; padding: 0; margin: .3rem 0; display: flex; flex-wrap: wrap; gap: .3rem; }
+  .cat-specs li { font-size: .72rem; background: var(--site-bg-2); border-radius: 6px; padding: .1rem .45rem; color: var(--site-text-muted); }
+  .cat-usages { display: flex; flex-wrap: wrap; gap: .25rem; margin: .1rem 0 .2rem; }
+  .cat-usages span { font-size: .68rem; color: var(--site-primary); border: 1px solid var(--site-border); border-radius: 999px; padding: .05rem .45rem; }
+  .cat-price { font-weight: 800; color: var(--site-primary); font-size: 1.05rem; margin: .2rem 0; }
+  .cat-old { text-decoration: line-through; color: var(--site-text-muted); font-weight: 500; font-size: .82rem; margin-right: .4rem; }
+  .cat-cta { margin-top: auto; font-size: .8rem; color: var(--site-primary); font-weight: 600; }
+  .cat-empty { text-align: center; padding: 2rem; color: var(--site-text-muted); }
+  .cat-mesh-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .cat-meshcol h3 { font-size: 1rem; margin: 0 0 .6rem; color: var(--site-primary); }
+  .cat-mesh { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .cat-mesh a { background: var(--site-bg-2); color: var(--site-primary); border-radius: 999px; padding: .4rem 1rem; font-size: .85rem; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .cat-mesh a:hover { background: var(--site-primary); color: #fff; }
+  @media (max-width: 820px) { .cat-layout { grid-template-columns: 1fr; } .cat-mesh-wrap { grid-template-columns: 1fr; } }
+</style>

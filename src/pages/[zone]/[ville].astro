@@ -1,0 +1,300 @@
+---
+/**
+ * Type de page : pageLocale (archétype local_service_leadgen) — DESIGN v4 (full-bleed).
+ * Refonte design (Mael) inspirée des 3 concurrents (pink/123/lyonparebrise) :
+ * bandes pleine largeur (100vw) à fonds alternés, hero photo + carte form,
+ * compteurs de stats, étapes numérotées 01/02/03 avec connecteurs, bandeau
+ * assureurs, boutons "pill", titres display + eyebrows, espacements aérés (~96px).
+ * Couleurs DU SITE (var(--site-*)). URL : /{serviceSlug}/{villeSlug}/.
+ * Schemas AutoBodyShop/LocalBusiness + Breadcrumb + FAQPage (+ AggregateRating/Review).
+ * Contenu validé Haloscan + Thot (≥ cible) en amont.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('locales');
+  return entries.map((entry) => ({ params: { zone: entry.data.serviceSlug, ville: entry.data.villeSlug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'locales'> };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const title = d.title || `${d.service} à ${d.ville}`;
+const tel = d.phone ? d.phone.replace(/\s/g, '') : '';
+const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const insurers = ['MAIF', 'MAAF', 'Macif', 'AXA', 'Allianz', 'GMF', 'Matmut', 'Groupama'];
+const hasRealRating = typeof d.note === 'number' && typeof d.nbAvis === 'number' && d.nbAvis > 0;
+const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+
+// Compteurs de stats (à partir des données réelles disponibles)
+const stats: { num: string; label: string }[] = [];
+if (hasRealRating) stats.push({ num: `${d.note}/5`, label: `${d.nbAvis} avis clients` });
+if (d.delaiInter) stats.push({ num: '24-48h', label: "Délai d'intervention" });
+stats.push({ num: '1-2h', label: 'Pose + calibrage' });
+if (d.agrements.length || d.usps.some((u) => /garantie/i.test(u))) stats.push({ num: 'À vie', label: 'Garantie sur la pose' });
+
+// --- JSON-LD ---
+const localBusiness: Record<string, unknown> = {
+  '@context': 'https://schema.org', '@type': 'AutoBodyShop',
+  name: `${SITE_CONFIG.siteName} — ${d.ville}`, description: d.description, url: pageUrl,
+  ...(d.heroImage ? { image: d.heroImage } : {}), ...(d.phone ? { telephone: d.phone } : {}),
+  areaServed: { '@type': 'City', name: d.ville },
+  address: { '@type': 'PostalAddress', addressLocality: d.ville, ...(d.codePostal ? { postalCode: d.codePostal } : {}), ...(d.region ? { addressRegion: d.region } : {}), addressCountry: 'FR' },
+  ...(d.lat && d.lng ? { geo: { '@type': 'GeoCoordinates', latitude: d.lat, longitude: d.lng } } : {}),
+  ...(d.priceFrom ? { priceRange: d.priceFrom } : {}), ...(d.horaires ? { openingHours: d.horaires } : {}),
+  makesOffer: (d.services.length ? d.services : [{ nom: d.service }]).map((s: { nom: string }) => ({ '@type': 'Offer', name: s.nom, areaServed: d.ville })),
+  ...(hasRealRating ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: d.note, reviewCount: d.nbAvis, bestRating: 5 } } : {}),
+  ...(d.avis && d.avis.length ? { review: d.avis.map((a) => ({ '@type': 'Review', author: { '@type': 'Person', name: a.auteur }, reviewRating: { '@type': 'Rating', ratingValue: a.note, bestRating: 5 }, reviewBody: a.texte })) } : {}),
+};
+const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+  { '@type': 'ListItem', position: 2, name: d.service, item: new URL(`/${d.serviceSlug}/`, SITE_CONFIG.siteUrl).toString() },
+  { '@type': 'ListItem', position: 3, name: d.ville, item: pageUrl } ] };
+const jsonLd: Record<string, unknown>[] = [localBusiness, breadcrumb];
+if (d.faq && d.faq.length) jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+---
+<Base title={title} description={d.description} canonical={pageUrl} ogImage={d.heroImage} type="website" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="pl">
+    <div class="pl-bcband"><nav class="wrap pl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href={`/${d.serviceSlug}/`}>{d.service}</a> › <span>{d.ville}</span></nav></div>
+
+    {/* ===== HERO full-bleed ===== */}
+    <header class="pl-hero" style={d.heroImage ? `--hero:url('${d.heroImage}')` : ''}>
+      <div class="wrap pl-hero-inner">
+        <div class="pl-hero-text">
+          <span class="pl-eyebrow">{d.delaiInter ?? `${d.service} · ${d.ville}`}</span>
+          <h1>{d.service} à {d.ville}</h1>
+          {hasRealRating && <p class="pl-hero-rating"><span class="pl-stars">{stars(d.note!)}</span> <strong>{d.note}/5</strong> · {d.nbAvis} avis clients</p>}
+          {d.priceFrom && <p class="pl-hero-price">💶 {d.priceFrom}</p>}
+          {d.usps.length > 0 && <ul class="pl-usps">{d.usps.map((u: string) => <li>✓ {u}</li>)}</ul>}
+          <div class="pl-hero-cta">
+            <a href="#devis" class="pl-btn pl-btn-amber">{d.ctaLabel}</a>
+            {d.phone && <a href={`tel:${tel}`} class="pl-btn pl-btn-ghost">☎ {d.phone}</a>}
+          </div>
+        </div>
+        <div class="pl-form-card" id="devis">
+          <h2>Devis gratuit en 1 minute</h2>
+          <form method="POST" action={LEAD} class="pl-form">
+            <input type="hidden" name="service" value={d.service} /><input type="hidden" name="ville" value={d.ville} /><input type="hidden" name="source" value={pageUrl} />
+            <input name="nom" required placeholder="Nom *" /><input name="tel" required type="tel" placeholder="Téléphone *" />
+            <input name="cp" placeholder="Code postal" /><input name="vehicule" placeholder="Véhicule (marque / modèle)" />
+            <button type="submit" class="pl-btn pl-btn-amber pl-btn-full">Recevoir mon devis gratuit</button>
+          </form>
+          <p class="pl-form-note">Sans engagement · Prise en charge assurance vérifiée</p>
+          <div id="pl-form-msg" class="pl-form-msg" role="status" hidden></div>
+        </div>
+      </div>
+    </header>
+
+    {/* ===== STATS band ===== */}
+    {stats.length > 0 && (
+      <section class="band band--dark"><div class="wrap pl-stats">{stats.map((s) => (<div><strong>{s.num}</strong><span>{s.label}</span></div>))}</div></section>
+    )}
+
+    {/* ===== TRUST assureurs ===== */}
+    <section class="band"><div class="wrap pl-trust">
+      <p class="pl-trust-title">Prise en charge directe, sans avance de frais, avec votre assurance</p>
+      <ul class="pl-insurers">{insurers.map((i) => <li>{i}</li>)}</ul>
+    </div></section>
+
+    {/* ===== SERVICES (tinted) ===== */}
+    {d.services.length > 0 && (
+      <section class="band band--tint"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">Nos prestations</span><h2 class="pl-h2">Tout le vitrage auto à {d.ville}</h2>
+        <div class="pl-grid">{d.services.map((s: { nom: string; desc?: string; icon?: string }) => (
+          <div class="pl-card"><span class="pl-ic">{s.icon ?? '🔧'}</span><strong>{s.nom}</strong>{s.desc && <p>{s.desc}</p>}</div>
+        ))}</div>
+      </div></section>
+    )}
+
+    {/* ===== ÉTAPES (numérotées + connecteurs) ===== */}
+    {d.etapes.length > 0 && (
+      <section class="band"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">Comment ça marche</span><h2 class="pl-h2">Simple, rapide, sans avance de frais</h2>
+        <ol class="pl-steps">{d.etapes.map((e: { titre: string; desc: string }, i: number) => (
+          <li><span class="pl-step-n">{String(i + 1).padStart(2, '0')}</span><strong>{e.titre.replace(/^\d+\.\s*/, '')}</strong><p>{e.desc}</p></li>
+        ))}</ol>
+      </div></section>
+    )}
+
+    {/* ===== TARIFS (tinted) ===== */}
+    {d.tarifs.length > 0 && (
+      <section class="band band--tint"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">Tarifs</span><h2 class="pl-h2">Des prix transparents à {d.ville}</h2>
+        <div class="pl-tablewrap"><table class="pl-tarifs">
+          <thead><tr><th>Prestation</th><th>Prix</th></tr></thead>
+          <tbody>{d.tarifs.map((t: { prestation: string; prix: string; note?: string }) => (
+            <tr><td>{t.prestation}{t.note && <span class="pl-tnote"> — {t.note}</span>}</td><td class="pl-tprix">{t.prix}</td></tr>
+          ))}</tbody>
+        </table></div>
+        <p class="pl-mini">Prix indicatifs — devis gratuit pour le tarif exact selon votre véhicule.</p>
+      </div></section>
+    )}
+
+    {/* ===== CONTENU (narrow) ===== */}
+    <section class="band"><div class="wrap wrap--narrow pl-content"><Content /></div></section>
+
+    {/* ===== AVIS (tinted) ===== */}
+    {d.avis && d.avis.length > 0 && (
+      <section class="band band--tint"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">Avis clients</span><h2 class="pl-h2">Ils nous ont fait confiance à {d.ville}{hasRealRating ? ` — ${d.note}/5` : ''}</h2>
+        <div class="pl-grid">{d.avis.map((a: { auteur: string; note: number; texte: string; date?: string }) => (
+          <blockquote class="pl-review"><div class="pl-stars">{stars(a.note)}</div><p>« {a.texte} »</p><cite>— {a.auteur}{a.date ? `, ${a.date}` : ''}</cite></blockquote>
+        ))}</div>
+      </div></section>
+    )}
+
+    {/* ===== ZONES + CARTE ===== */}
+    {(d.zones.length > 0 || (d.lat && d.lng)) && (
+      <section class="band"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">Zones d'intervention</span><h2 class="pl-h2">Autour de {d.ville}</h2>
+        {d.zones.length > 0 && <ul class="pl-zones">{d.zones.map((z: string) => <li>{z}</li>)}</ul>}
+        {d.lat && d.lng && <iframe class="pl-map" title={`Carte d'intervention ${d.service} à ${d.ville}`} loading="lazy" width="100%" height="340" src={`https://www.openstreetmap.org/export/embed.html?bbox=${d.lng - 0.12}%2C${d.lat - 0.06}%2C${d.lng + 0.12}%2C${d.lat + 0.06}&layer=mapnik&marker=${d.lat}%2C${d.lng}`}></iframe>}
+        {d.agrements.length > 0 && <p class="pl-agree"><strong>Nos garanties :</strong> {d.agrements.join(' · ')}</p>}
+      </div></section>
+    )}
+
+    {/* ===== FAQ (tinted, narrow) ===== */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="band band--tint"><div class="wrap wrap--narrow">
+        <span class="pl-eyebrow pl-eyebrow--dark">FAQ</span><h2 class="pl-h2">Questions fréquentes</h2>
+        <div class="pl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {/* ===== MAILLAGE ===== */}
+    {d.villesProches.length > 0 && (
+      <section class="band"><div class="wrap">
+        <span class="pl-eyebrow pl-eyebrow--dark">À proximité</span><h2 class="pl-h2">{d.service} dans les environs</h2>
+        <ul class="pl-mesh">{d.villesProches.map((v: { ville: string; slug: string }) => (<li><a href={`/${d.serviceSlug}/${v.slug}/`}>{d.service} {v.ville}</a></li>))}</ul>
+      </div></section>
+    )}
+
+    {/* ===== CTA final full-bleed ===== */}
+    <section class="band band--cta"><div class="wrap pl-final">
+      <h2>Besoin d'un {d.service.toLowerCase()} à {d.ville} ?</h2>
+      <p>Devis gratuit, prise en charge assurance vérifiée, intervention rapide.</p>
+      <div class="pl-hero-cta pl-hero-cta--center">
+        <a href="#devis" class="pl-btn pl-btn-amber">{d.ctaLabel}</a>
+        {d.phone && <a href={`tel:${tel}`} class="pl-btn pl-btn-light">☎ {d.phone}</a>}
+      </div>
+    </div></section>
+  </div>
+
+  <div class="pl-sticky">
+    {d.phone && <a href={`tel:${tel}`} class="pl-btn pl-btn-ghost-dark">☎ Appeler</a>}
+    <a href="#devis" class="pl-btn pl-btn-amber">Devis gratuit</a>
+  </div>
+
+  <script is:inline define:vars={{ leadUrl: LEAD, phone: d.phone || '' }}>
+    (function () {
+      var form = document.querySelector('#devis form'); var msg = document.getElementById('pl-form-msg');
+      function show(ok, t) { if (!msg) return; msg.hidden = false; msg.className = 'pl-form-msg ' + (ok ? 'ok' : 'err'); msg.textContent = t; }
+      var q = new URLSearchParams(location.search).get('devis');
+      if (q === 'ok') show(true, 'Merci ! Votre demande de devis a bien été envoyée. Nous vous rappelons rapidement.');
+      if (q === 'err') show(false, 'Merci de renseigner au moins votre nom et votre téléphone.');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); var btn = form.querySelector('button[type=submit]'); var label = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
+        var body = new URLSearchParams(new FormData(form)); body.set('ajax', '1');
+        fetch(leadUrl, { method: 'POST', body: body })
+          .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json().catch(function () { return { ok: true }; }); })
+          .then(function () { form.reset(); show(true, 'Merci ! Votre demande a bien été envoyée. Nous vous rappelons au plus vite' + (phone ? ' — ou appelez le ' + phone + '.' : '.')); })
+          .catch(function () { show(false, 'Envoi momentanément indisponible.' + (phone ? ' Appelez-nous directement au ' + phone + '.' : ' Merci de réessayer.')); })
+          .finally(function () { if (btn) { btn.disabled = false; btn.textContent = label; } });
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  .pl { color: var(--site-text); --maxw: 1180px; }
+  .pl * { box-sizing: border-box; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding-left: 1.2rem; padding-right: 1.2rem; }
+  .wrap--narrow { max-width: 760px; }
+  .band { padding: clamp(2.6rem, 6vw, 5.5rem) 0; }
+  .band--tint { background: var(--site-bg-2); }
+  .band--dark { background: var(--site-primary); color: #fff; padding: clamp(1.6rem, 4vw, 2.6rem) 0; }
+  .band--cta { background: var(--site-primary); color: #fff; }
+  .pl-bcband { border-bottom: 1px solid var(--site-border); }
+  .pl-bc { font-size: .82rem; color: var(--site-text-muted); padding-top: .7rem; padding-bottom: .7rem; }
+  .pl-bc a { color: var(--site-text-muted); }
+  .pl-eyebrow { display: inline-block; font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; color: #ffd9a3; }
+  .pl-eyebrow--dark { color: var(--site-secondary); }
+  .pl-h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); font-weight: 800; letter-spacing: -.5px; margin: .3rem 0 1.5rem; line-height: 1.1; }
+  .pl-hero { position: relative; background: var(--site-primary); color: #fff; background-image: linear-gradient(115deg, rgba(11,38,66,.95), rgba(17,68,119,.7) 60%, rgba(17,68,119,.42)), var(--hero); background-size: cover; background-position: center; }
+  .pl-hero-inner { display: grid; grid-template-columns: 1.05fr .95fr; gap: 2rem; align-items: center; padding-top: clamp(2.5rem, 6vw, 5rem); padding-bottom: clamp(2.5rem, 6vw, 5rem); }
+  .pl-hero-text h1 { font-size: clamp(1.9rem, 5vw, 3.1rem); font-weight: 800; letter-spacing: -1px; line-height: 1.05; margin: .5rem 0; color: #fff; }
+  .pl-hero-rating { margin: .4rem 0; } .pl-stars { color: var(--site-secondary); letter-spacing: 1px; }
+  .pl-hero-price { font-size: 1.05rem; opacity: .95; margin: .3rem 0; }
+  .pl-usps { list-style: none; padding: 0; margin: 1rem 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .pl-usps li { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: .3rem .85rem; font-size: .83rem; font-weight: 600; }
+  .pl-hero-cta { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.2rem; }
+  .pl-hero-cta--center { justify-content: center; }
+  .pl-btn { display: inline-block; padding: .9rem 1.7rem; border-radius: 999px; font-weight: 800; text-decoration: none; text-align: center; border: 0; cursor: pointer; font-size: 1rem; transition: transform .08s, filter .15s; }
+  .pl-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .pl-btn-amber { background: var(--site-secondary); color: #2a1a00; box-shadow: 0 10px 24px rgba(0,0,0,.2); }
+  .pl-btn-ghost { background: rgba(255,255,255,.12); color: #fff; border: 2px solid rgba(255,255,255,.75); }
+  .pl-btn-ghost-dark { background: transparent; color: var(--site-primary); border: 2px solid var(--site-primary); }
+  .pl-btn-light { background: #fff; color: var(--site-primary); }
+  .pl-btn-full { width: 100%; }
+  .pl-form-card { background: var(--site-bg-card); color: var(--site-text); border-radius: 18px; padding: 1.5rem; box-shadow: 0 19px 45px rgba(0,0,0,.28); }
+  .pl-form-card h2 { margin: 0 0 .9rem; font-size: 1.2rem; color: var(--site-primary); }
+  .pl-form { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .pl-form input { padding: .8rem; border: 1px solid var(--site-border); border-radius: 10px; font-size: .95rem; width: 100%; }
+  .pl-form input:focus { outline: 2px solid var(--site-primary); border-color: transparent; }
+  .pl-form .pl-btn-full { grid-column: 1 / -1; }
+  .pl-form-note { font-size: .76rem; color: var(--site-text-muted); margin: .6rem 0 0; }
+  .pl-form-msg { margin: .7rem 0 0; padding: .7rem .85rem; border-radius: 10px; font-size: .9rem; font-weight: 600; }
+  .pl-form-msg.ok { background: #e7f3ec; color: #1b6b3e; } .pl-form-msg.err { background: #fdecea; color: #9a3528; }
+  .pl-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center; }
+  .pl-stats strong { display: block; font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 800; color: var(--site-secondary); }
+  .pl-stats span { font-size: .85rem; opacity: .9; }
+  .pl-trust-title { text-align: center; color: var(--site-text-muted); font-weight: 600; margin: 0 0 1rem; }
+  .pl-insurers { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; }
+  .pl-insurers li { background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 10px; padding: .45rem 1rem; font-weight: 800; font-size: .9rem; color: var(--site-primary); }
+  .pl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .pl-card { background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 16px; padding: 1.4rem; box-shadow: 0 4px 14px rgba(20,50,90,.05); transition: box-shadow .15s, transform .1s; }
+  .pl-card:hover { box-shadow: 0 19px 35px rgba(20,50,90,.12); transform: translateY(-3px); }
+  .pl-ic { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: var(--site-bg-2); font-size: 1.5rem; margin-bottom: .6rem; }
+  .pl-card strong { display: block; font-size: 1.05rem; } .pl-card p { margin: .4rem 0 0; font-size: .9rem; color: var(--site-text-muted); }
+  .pl-steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.4rem; }
+  .pl-steps li { position: relative; }
+  .pl-step-n { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%; background: var(--site-secondary); color: #2a1a00; font-weight: 800; font-size: 1.15rem; margin-bottom: .6rem; }
+  .pl-steps li:not(:last-child)::after { content: ""; position: absolute; top: 27px; left: 62px; right: -0.7rem; height: 2px; background: var(--site-border); }
+  .pl-steps strong { display: block; } .pl-steps p { margin: .35rem 0 0; font-size: .9rem; color: var(--site-text-muted); }
+  .pl-tablewrap { overflow-x: auto; }
+  .pl-tarifs { width: 100%; border-collapse: collapse; background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 14px; overflow: hidden; }
+  .pl-tarifs thead tr { background: var(--site-primary); color: #fff; text-align: left; }
+  .pl-tarifs th, .pl-tarifs td { padding: .85rem 1rem; }
+  .pl-tarifs tbody tr { border-top: 1px solid var(--site-border); } .pl-tarifs tbody tr:nth-child(even) { background: var(--site-bg-base); }
+  .pl-tprix { font-weight: 800; color: var(--site-primary); white-space: nowrap; } .pl-tnote { color: var(--site-text-muted); font-size: .82rem; }
+  .pl-mini { font-size: .78rem; color: var(--site-text-muted); margin-top: .6rem; }
+  .pl-content { line-height: 1.8; } .pl-content :global(h2) { font-size: 1.5rem; font-weight: 800; margin: 1.8rem 0 .8rem; }
+  .pl-content :global(img) { width: 100%; height: auto; border-radius: 14px; margin: 1.2rem 0; box-shadow: 0 8px 22px rgba(20,50,90,.12); }
+  .pl-review { margin: 0; background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 16px; padding: 1.3rem; box-shadow: 0 4px 14px rgba(20,50,90,.05); }
+  .pl-review p { margin: .5rem 0; } .pl-review cite { font-size: .85rem; color: var(--site-text-muted); font-style: normal; }
+  .pl-zones { list-style: none; padding: 0; margin: 0 0 1.2rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .pl-zones li { background: var(--site-bg-2); border-radius: 999px; padding: .35rem .9rem; font-size: .85rem; }
+  .pl-map { border: 0; border-radius: 16px; display: block; }
+  .pl-agree { margin-top: 1rem; color: var(--site-text-muted); font-size: .92rem; }
+  .pl-faq details { border: 1px solid var(--site-border); border-radius: 12px; padding: .3rem 1.1rem; margin: .6rem 0; background: var(--site-bg-card); }
+  .pl-faq summary { font-weight: 700; cursor: pointer; padding: .7rem 0; }
+  .pl-faq p { margin: .2rem 0 .7rem; color: var(--site-text-muted); }
+  .pl-mesh { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .pl-mesh a { display: inline-block; background: var(--site-bg-2); color: var(--site-primary); border-radius: 999px; padding: .45rem 1.1rem; font-size: .9rem; font-weight: 700; text-decoration: none; }
+  .pl-mesh a:hover { background: var(--site-primary); color: #fff; }
+  .pl-final { text-align: center; } .pl-final h2 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800; margin: 0 0 .6rem; }
+  .pl-final p { opacity: .92; margin: 0 0 1.4rem; }
+  .pl-sticky { display: none; }
+  @media (max-width: 860px) { .pl-hero-inner { grid-template-columns: 1fr; } .pl-steps li:not(:last-child)::after { display: none; } }
+  @media (max-width: 600px) {
+    .pl-form { grid-template-columns: 1fr; }
+    .pl-sticky { display: flex; position: fixed; bottom: 0; left: 0; right: 0; gap: .5rem; padding: .55rem .7rem; background: var(--site-bg-card); border-top: 1px solid var(--site-border); box-shadow: 0 -4px 16px rgba(0,0,0,.12); z-index: 50; }
+    .pl-sticky .pl-btn { flex: 1; padding: .75rem; }
+    .band { padding: 2.4rem 0; }
+  }
+</style>

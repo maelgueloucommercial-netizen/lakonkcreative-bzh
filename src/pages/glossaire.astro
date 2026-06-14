@@ -1,0 +1,154 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+
+const profile = SITE_CONFIG.profile;
+const archetype = SITE_CONFIG.theme.archetype;
+const heroSubject = profile?.wikiImageSubjects?.[3] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+interface Term { mot: string; def: string; alt?: string; }
+
+const GLOSSAIRES: Record<string, Term[]> = {
+  village: [
+    { mot: 'Cadastre', def: 'Registre public qui décrit toutes les propriétés foncières d\'une commune. Sert de base au calcul des impôts fonciers. Consultable gratuitement sur cadastre.gouv.fr.' },
+    { mot: 'EPCI', def: 'Établissement Public de Coopération Intercommunale. Regroupement de communes pour mutualiser certaines compétences (déchets, eau, transport).', alt: 'Intercommunalité' },
+    { mot: 'PLU', def: 'Plan Local d\'Urbanisme. Document qui fixe les règles d\'utilisation des sols sur une commune ou intercommunalité (zones constructibles, règles architecturales, etc.).' },
+    { mot: 'TEOM', def: 'Taxe d\'Enlèvement des Ordures Ménagères. S\'ajoute à la taxe foncière, calculée selon la valeur locative du bien.' },
+    { mot: 'DDT', def: 'Direction Départementale des Territoires. Service de l\'État qui instruit certaines demandes d\'urbanisme (permis de construire en commune RNU).' },
+    { mot: 'RNU', def: 'Règlement National d\'Urbanisme. S\'applique en l\'absence de PLU. Plus restrictif sur les zones constructibles.' },
+    { mot: 'BAFA', def: 'Brevet d\'Aptitude aux Fonctions d\'Animateur. Diplôme nécessaire pour encadrer des enfants en accueil collectif (centres aérés, colonies).' },
+  ],
+  bricolage: [
+    { mot: 'Couple (Nm)', def: 'Force de rotation d\'un outil (visseuse, perceuse). Plus le couple est élevé, plus l\'outil peut visser dans des matériaux durs.' },
+    { mot: 'SDS Plus', def: 'Standard de mandrin pour perforateurs. Permet un changement rapide des forets et une transmission optimale des coups de frappe.', alt: 'SDS Max' },
+    { mot: 'IP (indice de protection)', def: 'Norme indiquant la résistance d\'un produit aux poussières et à l\'eau. Format IPxy : x = poussière (0-6), y = eau (0-9). IP44 minimum pour extérieur.' },
+    { mot: 'DPE', def: 'Diagnostic de Performance Énergétique. Obligatoire à la vente/location. Note de A (très performant) à G (passoire thermique).' },
+    { mot: 'RT 2012 / RE 2020', def: 'Réglementations thermiques applicables aux constructions neuves. RE 2020 est la plus récente et inclut un volet carbone.' },
+    { mot: 'OSB', def: 'Oriented Strand Board. Panneau de bois fait de copeaux orientés. Très utilisé pour les sols, parois et toitures en construction bois.' },
+    { mot: 'BBC', def: 'Bâtiment Basse Consommation. Label qui désigne des bâtiments très peu énergivores, intégré dans la RE 2020.' },
+    { mot: 'NF habitat', def: 'Certification française qui atteste de la qualité de construction d\'un logement neuf.' },
+  ],
+  tech: [
+    { mot: 'HDR', def: 'High Dynamic Range. Technologie d\'image qui élargit la plage de luminosité affichée. Formats : HDR10, HDR10+, Dolby Vision, HLG.' },
+    { mot: 'OLED', def: 'Organic Light Emitting Diode. Technologie d\'écran où chaque pixel émet sa propre lumière. Permet des noirs absolus et un contraste infini.' },
+    { mot: 'Mini-LED / QLED', def: 'Variations LCD avec rétro-éclairage par micro-LED (Mini-LED) ou amélioration par filtre quantique (QLED). Très lumineuses, mais le contraste reste inférieur à l\'OLED.' },
+    { mot: 'Dolby Atmos', def: 'Format audio 3D qui ajoute une dimension verticale au son surround. Nécessite une chaîne compatible et un contenu encodé en Atmos.' },
+    { mot: 'eARC', def: 'Enhanced Audio Return Channel. Évolution de l\'ARC HDMI qui permet de transmettre l\'audio HD non compressé (Atmos true) entre TV et ampli.' },
+    { mot: 'CEC', def: 'Consumer Electronics Control. Permet à plusieurs appareils HDMI de se commander mutuellement (allumer la barre de son avec la TV, par exemple).' },
+    { mot: 'Lumens ANSI', def: 'Mesure standardisée du flux lumineux d\'un vidéoprojecteur. Toujours préférer les lumens ANSI aux "lumens crête" marketing.' },
+    { mot: 'Throw ratio', def: 'Rapport de projection d\'un vidéoprojecteur (distance/largeur image). Court (< 1) = grandes images dans peu d\'espace. Long (> 2) = images plus précises mais demande du recul.' },
+    { mot: 'Hi-Res Audio', def: 'Label qui certifie la diffusion audio à une qualité supérieure au CD (24 bits / 96 kHz minimum).' },
+  ],
+  adulte: [
+    { mot: 'Silicone medical grade', def: 'Silicone certifié pour usage médical, sans phtalates, non poreux, chimiquement inerte. Le matériau de référence pour les produits intimes haut de gamme.' },
+    { mot: 'Phtalates', def: 'Famille de plastifiants chimiques. Certains (DEHP, BBP, DBP) sont classés perturbateurs endocriniens. À éviter dans tout produit en contact avec le corps.' },
+    { mot: 'Lubrifiant à base d\'eau', def: 'Compatible avec tous matériaux et préservatifs. Sèche plus vite mais facile à nettoyer.' },
+    { mot: 'Lubrifiant silicone', def: 'Très glissant, longue durée. Incompatible avec les produits en silicone (les abîme). Compatible avec les préservatifs latex.' },
+    { mot: 'PH muqueuse', def: 'Le pH naturel des muqueuses est légèrement acide (4-5). Les produits respectueux du pH sont essentiels pour préserver la flore.' },
+  ],
+};
+
+const list = GLOSSAIRES[archetype] ?? GLOSSAIRES.village;
+list.sort((a, b) => a.mot.localeCompare(b.mot, 'fr'));
+
+const byLetter = new Map<string, Term[]>();
+for (const t of list) {
+  const l = t.mot.charAt(0).toUpperCase();
+  if (!byLetter.has(l)) byLetter.set(l, []);
+  byLetter.get(l)!.push(t);
+}
+const letters = [...byLetter.keys()];
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  name: `Glossaire — ${SITE_CONFIG.siteName}`,
+  description: `Glossaire des termes techniques sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/glossaire/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
+---
+<Base
+  title="Glossaire"
+  description={`Glossaire des termes techniques et professionnels utilisés sur ${SITE_CONFIG.siteName}. ${list.length} définitions claires.`}
+  jsonLd={[_pageSchema]}
+>
+
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="position:relative;min-height:440px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:88px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">Glossaire</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 68px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          Le <em style="font-style:italic">vocabulaire</em> indispensable.
+        </h1>
+        <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:520px">
+          {list.length} définitions claires des termes techniques que nous utilisons dans nos articles.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* Navigation alphabétique */}
+  <section style="padding:64px 0 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding-bottom:32px;border-bottom:1px solid var(--color-border)">
+        {letters.map((l) => (
+          <a href={`#${l}`} style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--color-ink);text-decoration:none;border:1px solid var(--color-border);transition:background .2s">{l}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Définitions par lettre */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      {letters.map((letter) => (
+        <section id={letter} style="margin-bottom:80px;display:grid;grid-template-columns:120px 1fr;gap:48px;align-items:start" class="gloss-row">
+          <h2 class="serif" style="font-size:96px;line-height:1;font-weight:400;letter-spacing:-3px;color:var(--color-accent);position:sticky;top:120px">{letter}</h2>
+          <dl style="margin:0">
+            {byLetter.get(letter)!.map((t, i) => (
+              <div style={`padding:${i === 0 ? '0' : '32px'} 0 32px;${i > 0 ? 'border-top:1px solid var(--color-border)' : ''}`}>
+                <dt class="serif" style="font-size:28px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:12px">
+                  {t.mot}
+                  {t.alt && <em style="font-style:italic;font-size:18px;color:var(--color-text-muted);font-weight:400"> / {t.alt}</em>}
+                </dt>
+                <dd style="margin:0;font-size:16px;line-height:1.7;color:var(--color-text-muted)">{t.def}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+    </div>
+  </section>
+
+  {/* Bandeau correction */}
+  <section style="padding:80px 0;background:var(--color-bg-card);border-top:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow" style="text-align:center">
+      <div class="eyebrow" style="margin-bottom:14px">Une définition à compléter ?</div>
+      <h2 class="serif" style="font-size:clamp(28px, 3vw, 38px);line-height:1.1;font-weight:400;letter-spacing:-.4px;margin-bottom:24px">
+        Suggérez une <em style="font-style:italic">amélioration</em>.
+      </h2>
+      <a href="/contact/" class="btn-fill">Nous écrire</a>
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+  .gloss-row { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .gloss-row h2 { position: static !important; font-size: 64px !important; }
+}
+</style>

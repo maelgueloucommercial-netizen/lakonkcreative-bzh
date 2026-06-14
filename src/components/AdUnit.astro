@@ -1,0 +1,36 @@
+---
+/**
+ * Unité AdSense manuelle in-content. Ne rend RIEN si AdSense désactivé pour le
+ * site (ADSENSE.enabled=false) ou si le slot est vide (sécurité : pas de bloc
+ * pub cassé, et aucune pub sur les sites non conformes).
+ *
+ * format : 'auto' (display responsive) | 'autorelaxed' (multiplex/grille) |
+ *          'fluid' (in-article).
+ */
+import { ADSENSE, type AdSlotKey } from '../lib/adsense';
+
+interface Props { slotKey: AdSlotKey; }
+const { slotKey } = Astro.props as Props;
+const cfg = ADSENSE.slots[slotKey];
+const show = ADSENSE.enabled && cfg && cfg.slot;
+
+let insAttrs: Record<string, string> = {
+  class: 'adsbygoogle',
+  style: 'display:block',
+  'data-ad-client': ADSENSE.client,
+  'data-ad-slot': cfg?.slot ?? '',
+};
+if (cfg?.format === 'fluid') {
+  insAttrs = { ...insAttrs, 'data-ad-layout': 'in-article', 'data-ad-format': 'fluid' };
+} else if (cfg?.format === 'autorelaxed') {
+  insAttrs = { ...insAttrs, 'data-ad-format': 'autorelaxed' };
+} else {
+  insAttrs = { ...insAttrs, 'data-ad-format': 'auto', 'data-full-width-responsive': 'true' };
+}
+---
+{show && (
+  <div class="ad-unit not-prose" style="margin:36px 0;text-align:center;min-height:90px" data-ad-unit={slotKey} aria-label="Publicité">
+    <ins {...insAttrs}></ins>
+    <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+)}

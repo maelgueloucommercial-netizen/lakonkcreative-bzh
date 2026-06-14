@@ -1,49 +1,84 @@
 ---
 /**
- * Bloc bio auteur signée — rendu en fin d'article (item #40 roadmap).
- *
- * Crucial pour l'E-E-A-T : Google attribue plus de crédit aux contenus
- * signés par un auteur identifié et lié à une page biographique. Ici on
- * pointe vers /a-propos où la persona Lorenzo Da Rocco est détaillée
- * (et où le schema Person est rendu).
+ * AuthorBio — bloc auteur en fin d'article.
+ * Persona configurable par site dans site-config.ts.
  */
-import { PERSONA, SITE } from '../consts';
+import { SITE_CONFIG } from '../lib/site-config';
 
 interface Props {
-  /** Auteur affiché. Par défaut Lorenzo Da Rocco. */
-  author?: string;
+  authorName?: string;
+  authorRole?: string;
+  authorBio?: string;
+  authorAvatar?: string;
 }
 
-const { author = PERSONA.fullName } = Astro.props;
-const isPersona = author === PERSONA.fullName;
+// Personas par archetype (fallback si pas configuré au niveau du site)
+const PERSONA_BY_ARCHETYPE: Record<string, { name: string; role: string; bio: string }> = {
+  village: {
+    name: 'Léa Charpentier',
+    role: 'Rédactrice locale',
+    bio: `Passionnée par la vie de nos villages, Léa parcourt la région depuis 8 ans pour dénicher les meilleurs spots, événements et initiatives locales. Habitante engagée, elle connaît chaque commerçant et association de la commune.`,
+  },
+  bricolage: {
+    name: 'Thomas Reno',
+    role: 'Expert outillage et bricolage',
+    bio: `Ancien chef de chantier reconverti en testeur d'outils, Thomas a manipulé plus de 500 machines en 15 ans. Il décortique chaque produit pour vous éviter les achats regrettables et privilégie toujours la sécurité et la durabilité.`,
+  },
+  tech: {
+    name: 'Marc Devauclair',
+    role: 'Journaliste tech indépendant',
+    bio: `Passionné par les technologies de l'image et du son depuis 1998, Marc teste les produits chez lui pendant des semaines avant d'écrire. Aucune marque ne sponsorise ses tests : il achète tout pour rester libre.`,
+  },
+  adulte: {
+    name: 'Camille Vermeer',
+    role: 'Rédactrice et conseillère',
+    bio: `Sexologue diplômée DIU Sexologie clinique (Bordeaux 2020), Camille démystifie le plaisir avec un ton sans tabou ni vulgarité. Elle teste, compare et recommande dans le respect du consentement.`,
+  },
+};
+
+const persona = PERSONA_BY_ARCHETYPE[SITE_CONFIG.theme.archetype] ?? PERSONA_BY_ARCHETYPE.village;
+
+const {
+  authorName = persona.name,
+  authorRole = persona.role,
+  authorBio = persona.bio,
+  authorAvatar,
+} = Astro.props;
+
+// Avatar fallback : initiales en SVG
+const initials = authorName.split(/\s+/).map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 ---
-<aside
-  class="not-prose mt-12 rounded-lg border border-cream-200 bg-cream-50 p-6 sm:p-8 flex gap-5 sm:gap-6"
-  aria-label="À propos de l'auteur"
->
-  <div class="flex-shrink-0 w-16 h-16 rounded-full bg-terra-600 text-cream-50 flex items-center justify-center font-serif text-2xl">
-    {(isPersona ? PERSONA.firstName.charAt(0) : author.charAt(0))}
-  </div>
-  <div class="flex-1">
-    <p class="font-serif text-base text-ink-900 mb-1">
-      {isPersona ? (
-        <a href="/a-propos" class="hover:text-terra-700">{author}</a>
-      ) : (
-        author
-      )}
-    </p>
-    <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">
-      {isPersona ? PERSONA.role : 'Contributeur'}
-    </p>
-    <p class="text-sm text-ink-700 leading-relaxed mb-3">
-      {isPersona ? PERSONA.shortBio : `Contributeur DaRocco — ${SITE.shortDescription}`}
-    </p>
-    {isPersona && (
-      <p class="text-sm">
-        <a href="/a-propos" class="text-terra-700 hover:text-terra-900 underline-offset-2 hover:underline">
-          En savoir plus sur l'auteur →
-        </a>
-      </p>
+<aside class="author-bio not-prose" style="margin:64px 0 32px;padding:48px 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+  <div style="display:flex;gap:32px;align-items:flex-start" class="author-row">
+    {authorAvatar ? (
+      <img src={authorAvatar} alt={authorName}
+           style="width:96px;height:96px;border-radius:50%;object-fit:cover;flex-shrink:0;filter:grayscale(.2)" />
+    ) : (
+      <div style="width:96px;height:96px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--color-bg-card);border:1px solid var(--color-border);font-family:'Cormorant Garamond',serif;font-size:36px;font-style:italic;color:var(--color-accent);letter-spacing:-1px;font-weight:400">
+        {initials}
+      </div>
     )}
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:10px;font-weight:600">Signé par</div>
+      <h3 class="serif" style="font-size:28px;line-height:1.15;font-weight:400;letter-spacing:-.3px;color:var(--color-ink);margin:0 0 6px">{authorName}</h3>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--color-text-muted);margin-bottom:18px">— {authorRole}</div>
+      <p style="font-size:15px;line-height:1.7;color:var(--color-text-muted);margin:0 0 24px;max-width:620px">
+        {authorBio}
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:24px">
+        <a href="/equipe-editoriale/" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);text-decoration:none;font-weight:600">
+          Toute l'équipe →
+        </a>
+        <a href="/charte-editoriale/" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);text-decoration:none;font-weight:600">
+          Notre charte →
+        </a>
+      </div>
+    </div>
   </div>
 </aside>
+<style>
+@media (max-width: 600px) {
+  .author-row { flex-direction: column !important; gap: 16px !important; }
+  .author-row > img, .author-row > div:first-child { width: 64px !important; height: 64px !important; }
+}
+</style>

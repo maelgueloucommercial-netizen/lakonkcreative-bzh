@@ -1,0 +1,196 @@
+---
+import Base from '../../layouts/Base.astro';
+import { articleUrl } from '../../lib/article-url';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { getCollection } from 'astro:content';
+import { getArticleImage } from '../../lib/article-wiki-images';
+import { buildBlogCategories } from '../../lib/blog-categories';
+
+const articles = await getCollection('articles');
+articles.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+// Sidebar rubriques (style blog ionomat) — classification canonique partagée.
+const blogCats = buildBlogCategories(articles, SITE_CONFIG.profile?.categories as any)
+  .sort((a, b) => b.articles.length - a.articles.length);
+const hasBoutique = (await getCollection('produits').catch(() => [])).length > 0;
+
+function getArticleUrl(entry: typeof articles[number]): string {
+  const d = entry.data;
+    return articleUrl(d);
+}
+
+const profile = SITE_CONFIG.profile;
+// Group by year
+const byYear = new Map<string, typeof articles>();
+for (const a of articles) {
+  const y = String(a.data.pubDate.getFullYear());
+  if (!byYear.has(y)) byYear.set(y, [] as typeof articles);
+  byYear.get(y)!.push(a);
+}
+const sortedYears = [...byYear.keys()].sort().reverse();
+const featured = articles.slice(0, 3);
+
+// CollectionPage schema pour signaler à Google que c'est l'index du catalogue
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `Tous les articles — ${SITE_CONFIG.siteName}`,
+  description: `Catalogue complet des ${articles.length} articles publiés sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/articles/`,
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: articles.length,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListElement: articles.slice(0, 30).map((a, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: SITE_CONFIG.siteUrl + getArticleUrl(a),
+      name: a.data.title,
+    })),
+  },
+};
+---
+<Base
+  title="Tous les articles"
+  description={`Catalogue complet des ${articles.length} articles publiés sur ${SITE_CONFIG.siteName}.`}
+  jsonLd={[collectionSchema]}
+>
+
+  {/* Hero éditorial sobre */}
+  <section style="padding:120px 0 80px;border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow" style="text-align:center">
+      <div class="eyebrow" style="margin-bottom:18px">Catalogue éditorial</div>
+      <h1 class="serif" style="font-size:clamp(48px, 6vw, 88px);line-height:1.05;font-weight:400;letter-spacing:-1.5px;margin-bottom:24px">
+        Tous nos <em style="font-style:italic">articles</em>.
+      </h1>
+      <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:600px;margin:0 auto">
+        {articles.length} contenus publiés depuis {sortedYears[sortedYears.length - 1]}, classés par année.
+        {profile && <span> Découvrez aussi nos <a href="/index-thematique/" style="color:var(--color-accent);text-decoration:underline;text-underline-offset:4px">{profile.categories.length} rubriques thématiques</a>.</span>}
+      </p>
+    </div>
+  </section>
+
+  {/* Featured 3 — magazine */}
+  {featured.length === 3 && (
+    <section style="padding:96px 0;background:var(--color-bg-base)">
+      <div class="site-container">
+        <div class="eyebrow" style="margin-bottom:32px">À la une</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;align-items:start" class="feat-grid">
+          {featured.map((entry, i) => {
+            const wikiImg = getArticleImage(entry.data.slug);
+            const img = entry.data.heroImage ?? wikiImg;
+            return (
+              <a href={getArticleUrl(entry)} style={`text-decoration:none;color:inherit;display:block;${i === 0 ? '' : ''}`}>
+                {img ? (
+                  <img src={img} alt={entry.data.title} style={`width:100%;${i === 0 ? 'aspect-ratio:4/3' : 'aspect-ratio:5/4'};object-fit:cover;margin-bottom:18px`} loading={i === 0 ? 'eager' : 'lazy'} />
+                ) : (
+                  <div style={`width:100%;${i === 0 ? 'aspect-ratio:4/3' : 'aspect-ratio:5/4'};background:linear-gradient(135deg, var(--color-bg-2), var(--color-border));margin-bottom:18px`}></div>
+                )}
+                <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:8px">
+                  {entry.data.pubDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+                <h2 class="serif" style={`font-size:${i === 0 ? '36px' : '22px'};line-height:1.15;font-weight:400;margin-bottom:8px;letter-spacing:-.3px`}>{entry.data.title}</h2>
+                {i === 0 && entry.data.description && (
+                  <p style="font-size:15px;color:var(--color-text-muted);line-height:1.6;margin-top:12px">{entry.data.description.slice(0, 200)}…</p>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Liste par année + sidebar rubriques (style blog) */}
+  <section style="padding:80px 0;border-top:1px solid var(--color-border)">
+    <div class="site-container">
+      <div class="al-layout">
+        <div class="al-main">
+          {sortedYears.map((year) => (
+            <div class="al-year">
+              <div style="display:flex;align-items:baseline;gap:20px;margin-bottom:28px">
+                <h2 class="serif" style="font-size:clamp(44px, 5vw, 72px);line-height:1;font-weight:400;letter-spacing:-2px;color:var(--color-ink)">
+                  {year}
+                </h2>
+                <span style="font-size:13px;color:var(--color-text-muted);letter-spacing:1px">{byYear.get(year)!.length} articles</span>
+              </div>
+              <ul style="list-style:none;margin:0 0 64px;padding:0">
+                {byYear.get(year)!.map((a) => (
+                  <li style="border-top:1px solid var(--color-border);padding:18px 0">
+                    <a href={getArticleUrl(a)} class="article-row" style="display:grid;grid-template-columns:90px 1fr auto;gap:22px;align-items:center;text-decoration:none;color:inherit">
+                      <span style="font-size:11px;color:var(--color-text-muted);letter-spacing:2px;text-transform:uppercase;font-family:'Inter',sans-serif">
+                        {a.data.pubDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                      </span>
+                      <span class="serif article-title" style="font-size:21px;line-height:1.3;color:var(--color-ink);transition:color .2s">
+                        {a.data.title}
+                      </span>
+                      <span class="article-arrow" style="font-size:18px;color:var(--color-text-muted);transition:transform .2s">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <aside class="al-side">
+          <div class="al-side-in">
+            {blogCats.length > 0 && (
+              <div class="al-box">
+                <div class="eyebrow" style="margin-bottom:16px">Rubriques</div>
+                <nav class="al-cats">
+                  {blogCats.map((c) => (
+                    <a href={`/categorie/${c.slug}/`} class="al-cat">
+                      <span class="al-cat-name">{c.emoji && <span class="al-cat-emoji">{c.emoji}</span>}{c.name}</span>
+                      <span class="al-cat-n">{c.articles.length}</span>
+                    </a>
+                  ))}
+                </nav>
+              </div>
+            )}
+            <div class="al-box">
+              <div class="eyebrow" style="margin-bottom:16px">Explorer</div>
+              <nav class="al-links">
+                <a href="/index-thematique/">Index thématique</a>
+                <a href="/recherche/">Recherche d'article</a>
+                {hasBoutique && <a href="/boutique/">🛒 Notre boutique</a>}
+              </nav>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+.article-row:hover .article-title { color: var(--color-accent) !important; }
+.article-row:hover .article-arrow { transform: translateX(8px); color: var(--color-accent); }
+
+/* Layout liste + sidebar rubriques */
+.al-layout { display: grid; grid-template-columns: 1fr 280px; gap: 64px; align-items: start; }
+.al-side-in { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 24px; }
+.al-box { border: 1px solid var(--color-border); border-radius: 14px; padding: 22px 22px 24px; background: var(--color-bg-card, #fff); }
+.al-cats { display: flex; flex-direction: column; }
+.al-cat { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid var(--color-border); text-decoration: none; color: var(--color-ink); transition: color .15s; }
+.al-cat:first-child { border-top: none; padding-top: 0; }
+.al-cat:hover { color: var(--color-accent); }
+.al-cat-name { font-size: 14.5px; font-weight: 500; display: flex; align-items: center; gap: 9px; line-height: 1.3; }
+.al-cat-emoji { font-size: 16px; }
+.al-cat-n { font-size: 11px; font-weight: 600; color: var(--color-text-muted); background: var(--color-bg-2, #f6f3ee); border-radius: 999px; padding: 3px 9px; flex-shrink: 0; }
+.al-links { display: flex; flex-direction: column; gap: 13px; }
+.al-links a { font-size: 14px; color: var(--color-ink); text-decoration: none; transition: color .15s; }
+.al-links a:hover { color: var(--color-accent); }
+@media (max-width: 900px) {
+  .al-layout { grid-template-columns: 1fr; gap: 40px; }
+  .al-side-in { position: static; }
+}
+
+@media (max-width: 768px) {
+  .feat-grid { grid-template-columns: 1fr !important; }
+  .article-row { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .article-row > span:last-child { display: none; }
+  h2 { font-size: 36px !important; }
+}
+</style>

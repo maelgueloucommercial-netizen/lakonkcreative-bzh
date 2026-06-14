@@ -1,0 +1,138 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[6] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const PRINCIPLES = [
+  {
+    num: '01',
+    title: 'Indépendance éditoriale',
+    body: `Nous publions sans pression d'annonceur. Nos opinions, comparatifs et tests sont décidés par notre rédaction. Lorsqu'un article est sponsorisé, c'est explicitement signalé en haut de l'article par un encart visible "Article sponsorisé" et un disclosure RGPD-friendly en pied. Aucune marque ne peut faire modifier un article publié, sauf erreur factuelle avérée.`,
+  },
+  {
+    num: '02',
+    title: 'Sources et vérification',
+    body: `Nous citons nos sources lorsque c'est pertinent : sources institutionnelles (mairie, préfecture, ministère), normes (NF, CE, IP), articles scientifiques pour les recommandations santé, fabricants pour les caractéristiques techniques. Pour les chiffres, nous indiquons toujours la date de la donnée et la source.`,
+  },
+  {
+    num: '03',
+    title: 'Mises à jour',
+    body: `La date de mise à jour est affichée en haut de chaque article. Nous relisons régulièrement nos articles publiés et corrigeons sans mention spéciale les erreurs typographiques ou les liens cassés. Pour les corrections de fait, une note est ajoutée en pied d'article.`,
+  },
+  {
+    num: '04',
+    title: 'Liens et affiliations',
+    body: `Certains liens externes vers des produits ou services sont des liens d'affiliation : si vous achetez via ce lien, nous touchons une commission. Cela ne change ni le prix payé, ni notre opinion. Nous ne recommandons jamais un produit que nous n'aurions pas recommandé sans affiliation.`,
+  },
+  {
+    num: '05',
+    title: 'Corrections et droit de réponse',
+    body: `Si vous repérez une erreur factuelle, signalez-la via la page contact. Nous corrigeons sous 48 h ouvrées. Toute personne mise en cause directement dispose d'un droit de réponse, à exercer par email avec pièces justificatives.`,
+  },
+  {
+    num: '06',
+    title: 'Photos et illustrations',
+    body: `Nous privilégions les photos prises par notre équipe ou les images issues de Wikipedia Commons / banques d'images libres. Toute image tierce est utilisée avec autorisation ou sous licence Creative Commons explicite. Les images générées par IA sont signalées par une mention discrète.`,
+  },
+  {
+    num: '07',
+    title: 'Modération des commentaires',
+    body: `Si une zone de commentaires est ouverte sur le site, nous modérons selon ces règles : pas d'attaque personnelle, pas de spam ni de promotion non sollicitée, la critique des contenus est bienvenue si argumentée et respectueuse. Les commentaires hors sujet ou injurieux sont supprimés.`,
+  },
+  {
+    num: '08',
+    title: 'Données personnelles',
+    body: `Notre approche est minimaliste : pas de cookies tiers de tracking, pas de profilage. Pour le détail, voir notre politique de confidentialité.`,
+  },
+  {
+    num: '09',
+    title: 'Suspension d\'article',
+    body: `Un article peut être dépublié pour des motifs légaux (atteinte au droit, demande judiciaire) ou éthiques (information avérée fausse impossible à corriger). Une note est ajoutée à l'URL le cas échéant.`,
+  },
+  {
+    num: '10',
+    title: 'Notre engagement',
+    body: `Le but de cette charte est simple : que vous puissiez nous lire en sachant comment nous travaillons. Nous nous engageons à respecter ces principes et à les appliquer même quand c'est inconfortable. Si vous estimez que nous nous en éloignons, signalez-le-nous, c'est ainsi que nous progressons.`,
+  },
+];
+
+const dateMaj = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: `Charte éditoriale — ${SITE_CONFIG.siteName}`,
+  description: `Charte éditoriale et engagements de transparence sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/charte-editoriale/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
+---
+<Base
+  title="Charte éditoriale"
+  description={`Charte éditoriale de ${SITE_CONFIG.siteName} : nos principes, notre méthode, nos engagements de transparence.`}
+  jsonLd={[_pageSchema]}
+>
+
+  {/* Hero éditorial pleine largeur */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="position:relative;min-height:520px;display:flex;align-items:center;overflow:hidden">
+      {heroImg ? (
+        <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+      ) : (
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+      )}
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.55) 100%)"></div>
+      <div class="site-container site-container--narrow" style="position:relative;color:#fff;padding:96px 0">
+        <div class="eyebrow" style="margin-bottom:18px;color:rgba(255,255,255,.85)">Charte éditoriale</div>
+        <h1 class="serif" style="font-size:clamp(48px, 6vw, 88px);line-height:1.02;font-weight:400;margin-bottom:28px;letter-spacing:-1.5px;color:#fff;max-width:900px">
+          Comment nous <em style="font-style:italic">travaillons</em>.
+        </h1>
+        <p style="font-size:19px;line-height:1.6;max-width:680px;color:rgba(255,255,255,.92)">
+          Cette charte définit comment nous travaillons et ce que vous, lecteur, pouvez attendre de notre rédaction.
+        </p>
+        <div style="margin-top:32px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:600">
+          Dernière mise à jour : {dateMaj}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Principes numérotés */}
+  <section style="padding:96px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      {PRINCIPLES.map((p, i) => (
+        <article style={`display:grid;grid-template-columns:140px 1fr;gap:48px;align-items:start;padding:${i === 0 ? '0' : '48px'} 0 48px;${i > 0 ? 'border-top:1px solid var(--color-border)' : ''}`} class="charte-row">
+          <div class="serif" style="font-size:72px;line-height:1;font-weight:400;letter-spacing:-2px;color:var(--color-accent)">{p.num}</div>
+          <div>
+            <h2 class="serif" style="font-size:clamp(28px, 3vw, 36px);line-height:1.15;font-weight:400;letter-spacing:-.5px;margin-bottom:18px">{p.title}</h2>
+            <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);max-width:680px">{p.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {/* Signature */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-card);border-top:1px solid var(--color-border);text-align:center">
+    <div class="site-container site-container--narrow">
+      <p class="serif" style="font-size:24px;line-height:1.5;font-style:italic;color:var(--color-text-muted);margin:0">
+        — La rédaction de {SITE_CONFIG.siteName}
+      </p>
+      <div style="margin-top:32px">
+        <a href="/contact/" class="btn-fill">Nous écrire</a>
+      </div>
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) {
+  .charte-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .charte-row > div:first-child { font-size: 48px !important; }
+}
+</style>

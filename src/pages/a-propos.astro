@@ -1,154 +1,149 @@
 ---
 import Base from '../layouts/Base.astro';
-import Breadcrumb from '../components/Breadcrumb.astro';
-import OptimizedPicture from '../components/OptimizedPicture.astro';
-import { SITE, PERSONA } from '../consts';
+import { SITE_CONFIG } from '../lib/site-config';
+import { getCollection } from 'astro:content';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
 
-const personSchema = {
+const articles = await getCollection('articles');
+const articleCount = articles.length;
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const aboutPageSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  '@id': `${SITE.url}#lorenzo`,
-  name: PERSONA.fullName,
-  givenName: PERSONA.firstName,
-  familyName: PERSONA.lastName,
-  jobTitle: PERSONA.role,
-  description: PERSONA.shortBio,
-  url: `${SITE.url}/a-propos`,
-  birthPlace: { '@type': 'Place', name: 'Cosenza, Calabre, Italie' },
-  alumniOf: { '@type': 'EducationalOrganization', name: 'École Ferrandi Paris' },
-  knowsAbout: PERSONA.expertise,
-  worksFor: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  '@type': 'AboutPage',
+  name: `À propos — ${SITE_CONFIG.siteName}`,
+  description: `Découvrez ${SITE_CONFIG.siteName} : notre rédaction, notre méthode, nos engagements.`,
+  url: `${SITE_CONFIG.siteUrl}/a-propos/`,
+  mainEntity: {
+    '@type': 'Organization',
+    name: SITE_CONFIG.siteName,
+    url: SITE_CONFIG.siteUrl,
+    description: SITE_CONFIG.tagline,
+  },
 };
 ---
 <Base
-  title="À propos — Lorenzo Da Rocco"
-  description={`Lorenzo Da Rocco, fondateur de ${SITE.name}, consultant en cuisine italienne authentique depuis 30 ans. Né en Calabre, formé en cuisine à Paris.`}
-  schema={personSchema}
+  title="À propos"
+  description={`Découvrez ${SITE_CONFIG.siteName} : notre rédaction, notre méthode, nos engagements.`}
+  jsonLd={[aboutPageSchema]}
 >
-  <!-- HERO À propos avec photo d'ambiance -->
-  <section class="relative overflow-hidden border-b border-cream-200 bg-cream-100">
-    <div class="absolute inset-0 z-0 opacity-30">
-      <OptimizedPicture
-        src="/images/home/hero-tuscany.jpg"
-        alt=""
-        class="w-full h-full object-cover"
-        lazy={false}
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-cream-100/40 to-cream-100"></div>
-    </div>
-    <div class="relative z-10 mx-auto max-w-4xl px-6 py-16 lg:py-20">
-      <Breadcrumb items={[{ label: 'À propos' }]} />
-      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3 mt-4">Qui tient ce site</p>
-      <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink-900 leading-tight mb-4">
-        {PERSONA.fullName}
-      </h1>
-      <p class="text-xl text-ink-700 max-w-2xl leading-relaxed">{PERSONA.role}</p>
-      <blockquote class="mt-8 border-l-4 border-terra-500 pl-6 italic text-ink-700 text-lg max-w-2xl leading-relaxed">
-        « Pour cuisiner italien, il ne faut pas plus d'ingrédients qu'ailleurs. Il en faut moins. Mais ils doivent être les bons. »
-      </blockquote>
-    </div>
-  </section>
 
-  <!-- Stats de parcours -->
-  <section class="bg-ink-900 text-cream-50">
-    <div class="mx-auto max-w-4xl px-6 py-12">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        <div>
-          <div class="font-serif text-4xl text-cream-50">30+</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">années en cuisine</div>
-        </div>
-        <div>
-          <div class="font-serif text-4xl text-cream-50">20</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">régions parcourues</div>
-        </div>
-        <div>
-          <div class="font-serif text-4xl text-cream-50">300+</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">producteurs visités</div>
-        </div>
-        <div>
-          <div class="font-serif text-4xl text-cream-50">2014</div>
-          <div class="text-xs uppercase tracking-widest text-cream-200/70 mt-1">création du site</div>
-        </div>
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">À propos</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 72px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          {profile?.positioning ? profile.positioning.split('—')[0] || profile.positioning.split(':')[0] || profile.positioning : SITE_CONFIG.siteName}
+        </h1>
+        <p style="font-size:17px;color:var(--color-text-muted);line-height:1.7;max-width:520px">
+          {profile?.mission ?? SITE_CONFIG.tagline}
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Expertise blocks -->
-  <section class="mx-auto max-w-4xl px-6 py-12">
-    <h2 class="font-serif text-2xl text-ink-900 mb-6">Expertise</h2>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="rounded-lg border border-cream-200 bg-white p-5">
-        <div class="text-2xl mb-2">🗺</div>
-        <h3 class="font-serif text-lg text-ink-900 mb-2">Cuisine régionale</h3>
-        <p class="text-sm text-ink-700/80">Vingt cuisines distinctes — du Piémont à la Sicile, du Frioul à la Calabre.</p>
-      </div>
-      <div class="rounded-lg border border-cream-200 bg-white p-5">
-        <div class="text-2xl mb-2">🏷</div>
-        <h3 class="font-serif text-lg text-ink-900 mb-2">AOP / DOP / IGP</h3>
-        <p class="text-sm text-ink-700/80">Lecture des appellations italiennes, dossiers techniques, contrôle d'origine.</p>
-      </div>
-      <div class="rounded-lg border border-cream-200 bg-white p-5">
-        <div class="text-2xl mb-2">🍝</div>
-        <h3 class="font-serif text-lg text-ink-900 mb-2">Pâtes artisanales</h3>
-        <p class="text-sm text-ink-700/80">300+ formats traditionnels, règle d'aderenza, fabricants au bronze.</p>
-      </div>
-      <div class="rounded-lg border border-cream-200 bg-white p-5">
-        <div class="text-2xl mb-2">🚚</div>
-        <h3 class="font-serif text-lg text-ink-900 mb-2">Sourcing B2B</h3>
-        <p class="text-sm text-ink-700/80">Mise en relation directe avec producteurs italiens pour restaurants et épiciers.</p>
+  {/* Mission */}
+  <section style="padding:120px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Notre mission</div>
+      <h2 class="serif" style="font-size:clamp(36px, 4vw, 56px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin-bottom:32px">
+        Pourquoi ce <em style="font-style:italic">magazine</em>.
+      </h2>
+      <div class="prose-article" style="margin:0">
+        <p style="font-size:18px;line-height:1.75">{profile?.uniqueValue ?? SITE_CONFIG.tagline}</p>
+        {profile?.targetAudience && (
+          <>
+            <h3 class="serif">À qui s'adresse ce site ?</h3>
+            <p>{profile.targetAudience}</p>
+          </>
+        )}
+        <h3 class="serif">Notre méthode éditoriale</h3>
+        <ul>
+          <li><strong>Indépendance</strong> : nos contenus ne sont pas dictés par des annonceurs. Quand un article est sponsorisé, c'est <a href="/annoncer-chez-nous/">clairement indiqué</a>.</li>
+          <li><strong>Mises à jour</strong> : les articles sont relus et actualisés régulièrement. La date de mise à jour est affichée en haut de chaque article.</li>
+          <li><strong>Sources</strong> : pour les informations chiffrées ou les normes, nous citons les sources officielles (Wikipedia, INSEE, sites institutionnels).</li>
+          <li><strong>Corrections</strong> : si vous repérez une erreur, signalez-la via la <a href="/contact/">page contact</a>, nous corrigeons sous 48 h.</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <article class="mx-auto max-w-3xl px-6 py-12">
-
-    <div class="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-ink-900 prose-a:text-terra-700">
-      <h2>L'enfance entre deux pays</h2>
-      <p>
-        Né à Cosenza en 1962, je suis arrivé à Paris en 1972 avec mes parents, dans une vague d'émigration calabraise qui suivait celle, plus connue, des années 1950. Mon père tenait une trattoria modeste avant le départ ; à Paris, il a travaillé en cuisine de brasserie pendant vingt ans, sans jamais cesser d'acheter ses anchois sous sel à la même épicerie italienne du 11ᵉ.
-      </p>
-      <p>
-        J'ai grandi entre deux cuisines : celle des étés en Calabre, où ma grand-mère faisait des _fileja_ à la main toutes les semaines, et celle d'un appartement parisien où l'on cuisinait italien le dimanche et français en semaine. C'est ce double regard qui forme tout ce que je raconte ici.
-      </p>
-
-      <h2>Ferrandi, puis le service</h2>
-      <p>
-        Formé à l'école Ferrandi de Paris au début des années 1980, j'ai travaillé en cuisine dans plusieurs maisons parisiennes pendant dix ans : un bistrot italien du 5ᵉ, un restaurant de cuisine méditerranéenne dans le 7ᵉ, et brièvement en saison à Florence. C'est là, dans une trattoria de la rive droite de l'Arno, que j'ai compris à quel point la cuisine italienne en France était <em>simplifiée</em> — réduite à quelques tics (parmesan, basilic, tomate) pour plaire au goût français.
-      </p>
-
-      <h2>Le tournant éditorial</h2>
-      <p>
-        En 1994, j'ai cessé de travailler en cuisine pour ouvrir un cabinet de conseil en sourcing italien, d'abord pour des restaurants étoilés français, ensuite pour des distributeurs et des épiciers fines. Le métier consiste à parcourir l'Italie, à identifier des producteurs sérieux, et à négocier des accords stables — c'est un travail patient, fait de visites de fermes, de coopératives, de moulins.
-      </p>
-      <p>
-        En 2014, j'ai créé <strong>{SITE.name}</strong> comme un blog personnel, pour partager ce que je voyais en visite. Le site est resté confidentiel pendant dix ans. En 2024, j'ai décidé de le relancer dans une forme plus structurée : une encyclopédie francophone de la cuisine italienne authentique, accessible au grand public mais utilisable par les professionnels.
-      </p>
-
-      <h2>La ligne éditoriale</h2>
-      <p>
-        Je n'ai aucune ambition de représenter <em>la</em> cuisine italienne dans son entier — c'est un objet trop vaste pour une seule personne. Ma ligne est plus modeste :
-      </p>
-      <ul>
-        <li>Distinguer ce qui est <strong>authentique</strong> de ce qui est <strong>italian sounding</strong>, notamment pour le marché français.</li>
-        <li>Rendre intelligible la <strong>structure régionale</strong> de la cuisine italienne — vingt cuisines distinctes, pas une.</li>
-        <li>Donner aux cuisiniers amateurs et aux pros les <strong>signaux techniques</strong> qui font la différence entre un plat correct et un plat juste.</li>
-        <li>Faciliter le <strong>sourcing</strong> de produits AOP/DOP/IGP italiens en France, par un catalogue B2B et un annuaire d'épiciers.</li>
-      </ul>
-
-      <h2>Indépendance</h2>
-      <p>
-        Le site est financé par mon activité de conseil et par les marges sur le catalogue B2B (produits revendus directement à des clients pros). Il n'y a pas de publicité tierce, pas de placement de produit, pas de partenariat commercial déguisé. Quand je recommande une marque, c'est parce que je l'utilise depuis dix ans, pas parce que je suis payé pour le faire.
-      </p>
-      <p>
-        Si un jour cela change, ce sera mentionné clairement.
-      </p>
-
-      <hr/>
-
-      <p class="text-sm">
-        Pour me contacter : <a href={`mailto:${SITE.email}`}>{SITE.email}</a><br/>
-        Pour une demande de devis pro : <a href="/devis">formulaire dédié</a>
-      </p>
+  {/* Stats */}
+  <section style="padding:96px 0;background:var(--color-bg-card);border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:64px;text-align:center">
+        <div>
+          <div class="serif" style="font-size:64px;font-weight:400;letter-spacing:-2px;line-height:1;color:var(--color-accent);margin-bottom:8px">{articleCount}</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">Articles publiés</div>
+        </div>
+        <div>
+          <div class="serif" style="font-size:64px;font-weight:400;letter-spacing:-2px;line-height:1;color:var(--color-accent);margin-bottom:8px">{profile?.tools.length ?? 8}</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">Outils gratuits</div>
+        </div>
+        <div>
+          <div class="serif" style="font-size:64px;font-weight:400;letter-spacing:-2px;line-height:1;color:var(--color-accent);margin-bottom:8px">100%</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">Cookie-less</div>
+        </div>
+        <div>
+          <div class="serif" style="font-size:64px;font-weight:400;letter-spacing:-2px;line-height:1;color:var(--color-accent);margin-bottom:8px">0</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">Tracker tiers</div>
+        </div>
+      </div>
     </div>
-  </article>
+  </section>
+
+  {/* Author / équipe */}
+  {profile?.author && (
+    <section style="padding:120px 0">
+      <div class="site-container site-container--narrow">
+        <div class="eyebrow" style="margin-bottom:18px">La rédaction</div>
+        <h2 class="serif" style="font-size:clamp(36px, 4vw, 56px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin-bottom:48px">
+          Signé par <em style="font-style:italic">notre équipe</em>.
+        </h2>
+        <div style="background:var(--color-bg-card);padding:48px;border:1px solid var(--color-border)">
+          <div class="serif italic" style="font-size:14px;color:var(--color-accent);margin-bottom:8px">Rédaction principale</div>
+          <h3 class="serif" style="font-size:36px;font-weight:400;letter-spacing:-.5px;margin-bottom:6px">{profile.author.name}</h3>
+          <p class="serif italic" style="font-size:16px;color:var(--color-text-muted);margin-bottom:18px">{profile.author.role} · {profile.author.credentials}</p>
+          <p style="font-size:15px;line-height:1.7;color:var(--color-text);margin-bottom:24px">{profile.author.bio}</p>
+          <a href="/equipe-editoriale/" class="link-underline">Voir toute l'équipe</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Contact */}
+  <section style="padding:120px 0;background:var(--color-ink);color:var(--color-bg-base)">
+    <div class="site-container site-container--narrow" style="text-align:center">
+      <div class="eyebrow" style="color:var(--color-secondary);margin-bottom:18px">Contact</div>
+      <h2 class="serif" style="font-size:clamp(36px, 4vw, 56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;color:var(--color-bg-base);margin-bottom:24px">
+        Une <em style="font-style:italic;color:var(--color-secondary)">question</em> ? Écrivez-nous.
+      </h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.8);line-height:1.6;max-width:480px;margin:0 auto 48px">
+        Pour toute question, correction, proposition d'article invité ou partenariat, rendez-vous sur la page contact.
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="/contact/" class="btn-fill" style="background:#fff;color:var(--color-ink);border-color:#fff">Page contact</a>
+        <a href="/annoncer-chez-nous/" class="btn-line" style="color:#fff;border-color:rgba(255,255,255,.6)">Annonceurs</a>
+      </div>
+    </div>
+  </section>
+
 </Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+  h1 { font-size: 36px !important; }
+  h2 { font-size: 28px !important; }
+}
+</style>

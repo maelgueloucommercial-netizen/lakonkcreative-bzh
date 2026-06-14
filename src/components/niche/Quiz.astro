@@ -1,0 +1,152 @@
+---
+/**
+ * Quiz interactif — questions adaptées à l'archétype.
+ * Banque de questions par archetype (village=local culture, bricolage=outils, tech=produits, adulte=discrétion).
+ * 10 questions par archetype par défaut.
+ */
+import { SITE_CONFIG } from '../../lib/site-config';
+
+interface Question {
+  q: string;
+  options: string[];
+  correct: number; // index 0-based
+  explanation: string;
+}
+
+const QUESTIONS_BY_ARCHETYPE: Record<string, Question[]> = {
+  village: [
+    { q: 'Combien de communes compte la France métropolitaine en 2026 ?', options: ['Environ 27 000', 'Environ 35 000', 'Environ 41 000'], correct: 1, explanation: 'La France compte environ 35 000 communes, un record en Europe.' },
+    { q: 'Quel est le rôle principal d\'une mairie ?', options: ['Collecter les impôts nationaux', 'Gérer l\'état civil et les services publics locaux', 'Délivrer les permis de conduire'], correct: 1, explanation: 'La mairie gère l\'état civil, l\'urbanisme local, les écoles primaires et les services de proximité.' },
+    { q: 'À quelle fréquence sont organisées les élections municipales ?', options: ['Tous les 4 ans', 'Tous les 6 ans', 'Tous les 7 ans'], correct: 1, explanation: 'Les élections municipales ont lieu tous les 6 ans en France.' },
+    { q: 'Qu\'est-ce qu\'un PLU ?', options: ['Plan Local d\'Urbanisme', 'Permis Légal d\'Usage', 'Programme Local Universitaire'], correct: 0, explanation: 'Le Plan Local d\'Urbanisme régit l\'aménagement et la construction sur la commune.' },
+    { q: 'Qui peut consulter le PLU d\'une commune ?', options: ['Uniquement les élus', 'Tout citoyen', 'Uniquement les notaires'], correct: 1, explanation: 'Le PLU est un document public consultable en mairie ou en ligne.' },
+    { q: 'Combien de temps dure un mandat de maire ?', options: ['5 ans', '6 ans', '7 ans'], correct: 1, explanation: 'Le mandat est de 6 ans, comme les élections municipales.' },
+    { q: 'Quel document atteste la naissance d\'un enfant en France ?', options: ['Carte d\'identité', 'Acte de naissance', 'Livret de famille'], correct: 1, explanation: 'L\'acte de naissance, délivré par la mairie du lieu de naissance.' },
+    { q: 'Pour combien de temps une carte d\'identité est-elle valable ?', options: ['10 ans', '15 ans', '5 ans'], correct: 1, explanation: 'Depuis 2014, la durée a été étendue à 15 ans pour les majeurs.' },
+    { q: 'Que signifie "PACS" ?', options: ['Pacte Civil de Solidarité', 'Programme Communal d\'Activités Sociales', 'Plan d\'Action Civique Solidaire'], correct: 0, explanation: 'Le PACS est un contrat conclu entre deux personnes majeures pour organiser leur vie commune.' },
+    { q: 'À partir de quel âge peut-on voter en France ?', options: ['16 ans', '18 ans', '21 ans'], correct: 1, explanation: 'L\'âge de la majorité civile et électorale est fixé à 18 ans.' },
+  ],
+  bricolage: [
+    { q: 'Quelle puissance minimale pour une meuleuse 125mm correcte ?', options: ['600W', '800W', '1200W'], correct: 1, explanation: '800W minimum permet de couper acier et béton sans surchauffe.' },
+    { q: 'Quel disque pour couper du métal avec une meuleuse ?', options: ['Disque diamant', 'Disque à tronçonner métal', 'Disque à lamelles'], correct: 1, explanation: 'Le disque à tronçonner métal (rouge ou noir) est dédié à la coupe des métaux.' },
+    { q: 'Quelle EPI est OBLIGATOIRE quand on utilise une meuleuse ?', options: ['Casque audio', 'Lunettes + masque + gants', 'Bottes en caoutchouc'], correct: 1, explanation: 'Les projections d\'étincelles et particules nécessitent lunettes, masque et gants minimum.' },
+    { q: 'Combien de tours/minute typiques pour une meuleuse 125mm ?', options: ['~2 800', '~6 000', '~11 000'], correct: 2, explanation: '~11 000 tr/min, contre ~8 500 pour une 180mm. Plus le disque est petit, plus la vitesse est élevée.' },
+    { q: 'Quelle scie pour découper du carrelage ?', options: ['Scie circulaire', 'Scie sauteuse', 'Scie à eau (carrelet)'], correct: 2, explanation: 'La scie à eau (carrelette électrique) refroidit la lame diamant et évite l\'éclat.' },
+    { q: 'À quoi sert le bouton "soft start" sur une meuleuse ?', options: ['Démarrage progressif anti-rebond', 'Mode silencieux', 'Économie d\'énergie'], correct: 0, explanation: 'Le soft start évite le coup de couple au démarrage qui peut faire dévier l\'outil.' },
+    { q: 'Quelle pression d\'eau minimale pour un robinet de cuisine ?', options: ['1 bar', '3 bars', '5 bars'], correct: 1, explanation: '3 bars typique. Sous 1 bar la pression est faible, au-dessus de 5 bars il faut un réducteur.' },
+    { q: 'Quelle est la profondeur de coupe d\'une scie circulaire 190mm ?', options: ['~50 mm', '~70 mm', '~90 mm'], correct: 1, explanation: '~70 mm pour 190mm. La profondeur dépend du diamètre de la lame.' },
+    { q: 'Quelle batterie est plus durable : NiMH ou Li-ion ?', options: ['NiMH', 'Li-ion', 'Égales'], correct: 1, explanation: 'Li-ion : pas d\'effet mémoire, plus de cycles de charge, autodécharge faible.' },
+    { q: 'Pourquoi utiliser un disjoncteur différentiel 30 mA ?', options: ['Stabilise la tension', 'Détecte les fuites de courant et protège des électrocutions', 'Économise l\'électricité'], correct: 1, explanation: 'Le différentiel 30 mA détecte les fuites de courant vers la terre et coupe en moins de 40 ms.' },
+  ],
+  tech: [
+    { q: 'Quelle résolution est "4K UHD" ?', options: ['1920x1080', '2560x1440', '3840x2160'], correct: 2, explanation: '4K UHD = 3840×2160 pixels (4× la résolution Full HD).' },
+    { q: 'Que signifie "HDR" en vidéo ?', options: ['High Dynamic Range', 'Hyper Definition Resolution', 'High Density Render'], correct: 0, explanation: 'High Dynamic Range : plage de luminosité plus large, noirs plus profonds, blancs plus brillants.' },
+    { q: 'Quelle latence visée pour le gaming sur vidéoprojecteur ?', options: ['<16 ms', '<50 ms', '<100 ms'], correct: 0, explanation: '<16 ms est la cible "console gaming" (60Hz = 16.6 ms par frame).' },
+    { q: 'Quelle est la différence entre lumens ANSI et lumens fabricant ?', options: ['Aucune', 'Les lumens ANSI sont mesurés selon norme stricte (plus fiables)', 'Les lumens fabricant sont plus précis'], correct: 1, explanation: 'Lumens ANSI = norme indépendante. Les lumens fabricant sont souvent gonflés × 2-3.' },
+    { q: 'Quelle technologie offre le meilleur contraste : LCD, DLP, LED ?', options: ['LCD', 'DLP', 'LED (laser)'], correct: 2, explanation: 'LED/laser offre 100 000:1 ou plus. DLP autour de 10 000:1, LCD plus bas.' },
+    { q: 'Que signifie "throw ratio" ?', options: ['Le rapport distance/largeur d\'image', 'La durée de vie de la lampe', 'La luminosité maximale'], correct: 0, explanation: 'Throw ratio = distance écran ÷ largeur image. <1 = ultra-courte focale, ~1 = courte, >1.5 = standard.' },
+    { q: 'Combien de bits a un câble HDMI 2.1 par couleur ?', options: ['8 bits', '10 bits', '12 bits'], correct: 2, explanation: 'HDMI 2.1 supporte jusqu\'à 12 bits par couleur (Deep Color), 4K @ 120 Hz.' },
+    { q: 'Quelle est la fréquence Wi-Fi 6 idéale pour le streaming 4K ?', options: ['2.4 GHz', '5 GHz', '6 GHz'], correct: 1, explanation: '5 GHz : moins de saturation que 2.4 GHz, débits jusqu\'à 9.6 Gbps en théorie.' },
+    { q: 'Que veut dire "DLP" ?', options: ['Direct Light Processor', 'Digital Light Processing', 'Dual Lens Projection'], correct: 1, explanation: 'Digital Light Processing : technologie Texas Instruments à miroirs micro-mécaniques.' },
+    { q: 'Quel rapport d\'aspect cinéma standard ?', options: ['16:9', '21:9 (CinemaScope)', '4:3'], correct: 1, explanation: '21:9 (2.39:1) = format CinemaScope cinéma. 16:9 = télé/streaming.' },
+  ],
+  adulte: [
+    { q: 'Qu\'est-ce que le DPP (Discreet Packaging Policy) ?', options: ['Politique de livraison discrète sans logo', 'Système de paiement sécurisé', 'Garantie produit'], correct: 0, explanation: 'Livraison en colis neutre sans mention du contenu, devenu standard pour la confidentialité.' },
+    { q: 'Quel matériau est recommandé pour les jouets intimes ?', options: ['PVC', 'Silicone médical', 'Latex'], correct: 1, explanation: 'Silicone médical : non poreux, hypoallergénique, résistant à la chaleur (stérilisable).' },
+    { q: 'Quel pH idéal pour un nettoyant intime ?', options: ['3.5-5.5 (acide)', '7 (neutre)', '8-10 (basique)'], correct: 0, explanation: 'pH acide 3.5-5.5 préserve la flore vaginale naturelle (pH lacto-fermenté).' },
+    { q: 'Comment stocker correctement un jouet en silicone ?', options: ['Dans son emballage d\'origine ou pochette tissu, à l\'abri de la lumière', 'Dans un sachet plastique étanche', 'Au réfrigérateur'], correct: 0, explanation: 'Pochette tissu/coton respirante évite l\'humidité et préserve le silicone.' },
+    { q: 'Que signifie le marquage CE sur un produit ?', options: ['Conformité européenne aux normes de sécurité', 'Origine chinoise', 'Certificat écologique'], correct: 0, explanation: 'CE = conformité aux directives UE : sécurité électrique, matériaux, etc.' },
+    { q: 'Quel lubrifiant compatible avec préservatifs en latex ?', options: ['Huile (massage, coco)', 'Silicone', 'Eau'], correct: 2, explanation: 'Lubrifiant à l\'eau uniquement avec préservatifs latex. L\'huile et silicone détruisent le latex.' },
+    { q: 'Combien de temps un préservatif est-il valable ?', options: ['1 an', '3-5 ans selon emballage', '10 ans'], correct: 1, explanation: 'Date de péremption imprimée sur emballage, généralement 3-5 ans à l\'abri de la chaleur.' },
+    { q: 'Le terme "consentement" en droit français signifie ?', options: ['Accord libre, éclairé, spécifique et révocable', 'Acceptation tacite', 'Accord écrit obligatoire'], correct: 0, explanation: 'Le consentement doit être libre (sans contrainte), éclairé (informé), spécifique et révocable à tout moment.' },
+    { q: 'Que vérifier avant l\'achat sur un site adulte ?', options: ['Mention CE/sécurité, retours clients, politique de retour, mention légale', 'Uniquement le prix', 'La rapidité de livraison'], correct: 0, explanation: 'Sites sérieux : mentions légales complètes, conditions de retour 14j (DCC), CE, support client identifié.' },
+    { q: 'Comment se désabonner d\'une newsletter en France ?', options: ['Cliquer sur "désinscription" en bas du mail (RGPD obligatoire)', 'Bloquer l\'expéditeur', 'Marquer comme spam'], correct: 0, explanation: 'RGPD impose un mécanisme de désinscription en 1 clic, sans réauthentification.' },
+  ],
+};
+
+const archetype = SITE_CONFIG.theme.archetype;
+const qs = QUESTIONS_BY_ARCHETYPE[archetype] ?? QUESTIONS_BY_ARCHETYPE.village;
+
+const titles: Record<string, string> = {
+  village: '🏛 Quiz : connaissez-vous bien la vie communale ?',
+  bricolage: '🛠 Quiz : êtes-vous un bricoleur averti ?',
+  tech: '💻 Quiz : maîtrisez-vous l\'écosystème tech ?',
+  adulte: '🔍 Quiz : connaissez-vous vos droits et bonnes pratiques ?',
+};
+const title = titles[archetype];
+---
+<section class="quiz-component not-prose" style="margin:64px 0;padding:48px;background:var(--color-bg-card);border:1px solid var(--color-border)" data-quiz>
+  <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:14px;font-weight:600">Quiz</div>
+  <h2 class="serif" style="font-size:clamp(28px, 3vw, 36px);line-height:1.15;font-weight:400;letter-spacing:-.4px;margin:0 0 12px;color:var(--color-ink)">{title}</h2>
+  <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin:0 0 40px">10 questions, score à la fin. Aucun email, aucune donnée stockée.</p>
+  <div class="quiz-content" data-quiz-content style="border-top:1px solid var(--color-border)">
+    {qs.map((q, qi) => (
+      <fieldset style="padding:24px 0;border-bottom:1px solid var(--color-border);border-left:0;border-right:0;border-top:0" data-q-index={qi}>
+        <legend style="font-family:'Cormorant Garamond',serif;font-size:20px;line-height:1.3;font-weight:400;letter-spacing:-.2px;color:var(--color-ink);margin-bottom:18px;padding:0;display:flex;gap:14px;align-items:baseline">
+          <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600;font-family:Inter,sans-serif">Q{qi + 1}</span>
+          <span>{q.q}</span>
+        </legend>
+        <div style="display:grid;gap:6px">
+          {q.options.map((opt, oi) => (
+            <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:8px 0;font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.4;color:var(--color-ink);letter-spacing:-.1px">
+              <input type="radio" name={`q${qi}`} value={oi} style="margin-top:6px;accent-color:var(--color-accent);flex-shrink:0" data-q={qi} data-correct={q.correct} />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </div>
+        <p class="quiz-explanation hidden" style="margin-top:14px;padding:14px 18px;background:var(--color-bg-base);border-left:2px solid var(--color-accent);font-size:13px;color:var(--color-text-muted);line-height:1.65;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px" data-explanation>💡 {q.explanation}</p>
+      </fieldset>
+    ))}
+  </div>
+  <div style="margin-top:32px;display:flex;flex-wrap:wrap;gap:18px;align-items:center">
+    <button type="button" class="btn-fill" data-quiz-submit>Voir mon score</button>
+    <button type="button" class="hidden" data-quiz-reset style="background:transparent;border:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600;cursor:pointer;text-decoration:underline">Recommencer</button>
+    <div class="quiz-result hidden" data-quiz-result style="font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;letter-spacing:-.3px"></div>
+  </div>
+</section>
+<script is:inline>
+  (function() {
+    const root = document.querySelector('[data-quiz]');
+    if (!root) return;
+    const submitBtn = root.querySelector('[data-quiz-submit]');
+    const resetBtn = root.querySelector('[data-quiz-reset]');
+    const resultEl = root.querySelector('[data-quiz-result]');
+    submitBtn.addEventListener('click', () => {
+      const questions = root.querySelectorAll('[data-q-index]');
+      let score = 0;
+      questions.forEach((qFs) => {
+        const inputs = qFs.querySelectorAll('input[type="radio"]');
+        const correct = inputs[0]?.dataset.correct;
+        let chosen = null;
+        inputs.forEach((i) => { if (i.checked) chosen = i.value; });
+        if (chosen !== null && chosen === correct) {
+          score++;
+          qFs.style.borderColor = 'var(--color-primary)';
+        } else if (chosen !== null) {
+          qFs.style.borderColor = '#dc2626';
+        }
+        const exp = qFs.querySelector('[data-explanation]');
+        if (exp) exp.classList.remove('hidden');
+      });
+      const total = questions.length;
+      let msg = `Votre score : ${score} / ${total}`;
+      if (score === total) msg += ' 🎯 Parfait !';
+      else if (score >= total * 0.7) msg += ' 👍 Très bien !';
+      else if (score >= total * 0.5) msg += ' 🙂 Pas mal !';
+      else msg += ' 📚 À réviser !';
+      resultEl.textContent = msg;
+      resultEl.classList.remove('hidden');
+      submitBtn.classList.add('hidden');
+      resetBtn.classList.remove('hidden');
+      resultEl.style.color = score >= total * 0.7 ? 'var(--color-accent)' : 'var(--color-text-muted)';
+    });
+    resetBtn.addEventListener('click', () => {
+      root.querySelectorAll('input[type="radio"]').forEach((i) => i.checked = false);
+      root.querySelectorAll('[data-q-index]').forEach((q) => q.style.borderColor = '');
+      root.querySelectorAll('[data-explanation]').forEach((e) => e.classList.add('hidden'));
+      resultEl.classList.add('hidden');
+      submitBtn.classList.remove('hidden');
+      resetBtn.classList.add('hidden');
+    });
+  })();
+</script>

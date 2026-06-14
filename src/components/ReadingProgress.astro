@@ -1,51 +1,32 @@
 ---
 /**
- * Reading progress bar — barre fine en haut de l'écran (item #51 roadmap).
- *
- * Calcule la progression scroll dans l'élément cible (par défaut <article>)
- * et met à jour la largeur d'une barre fixe top:0. Pas de framework, pure
- * vanilla, ~30 lignes.
- *
- * Pourquoi : signal d'engagement UX subtil mais efficace, surtout sur les
- * articles longs (>10 min). Sert aussi à signaler à l'utilisateur la
- * longueur restante du contenu.
+ * ReadingProgress — barre de progression de lecture en haut de page.
+ * Visible uniquement sur les pages article (data-article).
  */
 ---
-<div
-  id="reading-progress"
-  class="fixed top-0 left-0 h-0.5 bg-terra-600 z-50 transition-[width] duration-150 ease-out"
-  style="width: 0%"
-  aria-hidden="true"
-></div>
+<div id="reading-progress" style="position:fixed;top:0;left:0;right:0;height:2px;background:transparent;z-index:60;pointer-events:none">
+  <div id="reading-progress-bar" style="height:100%;width:0%;background:var(--color-accent);transition:width .15s ease-out"></div>
+</div>
 <script is:inline>
-  (function () {
-    const bar = document.getElementById('reading-progress');
-    const article = document.querySelector('article');
-    if (!bar || !article) return;
-
+  (function() {
+    const article = document.querySelector('article.prose-article, [data-article]');
+    if (!article) {
+      document.getElementById('reading-progress')?.remove();
+      return;
+    }
+    const bar = document.getElementById('reading-progress-bar');
+    if (!bar) return;
     function update() {
       const rect = article.getBoundingClientRect();
-      const articleHeight = rect.height;
-      const viewportHeight = window.innerHeight;
-      // Distance scrollée à l'intérieur de l'article (clamp 0..articleHeight)
+      const total = article.offsetHeight;
+      const winH = window.innerHeight;
       const scrolled = Math.max(0, -rect.top);
-      const total = Math.max(1, articleHeight - viewportHeight);
-      const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
-      bar.style.width = pct + '%';
+      const visible = Math.max(0, Math.min(total, winH));
+      const progress = Math.min(100, (scrolled / Math.max(1, total - winH)) * 100);
+      bar.style.width = Math.max(0, Math.min(100, progress)) + '%';
     }
-
-    let scheduled = false;
-    function onScroll() {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(() => {
-        scheduled = false;
-        update();
-      });
-    }
-
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
     update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
   })();
 </script>

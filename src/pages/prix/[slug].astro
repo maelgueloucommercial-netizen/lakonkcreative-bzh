@@ -1,0 +1,137 @@
+---
+/**
+ * Type de page : etudePrix ("prix / combien coûte X") — DESIGN v2 (templates.css).
+ * Design partagé pageLocale (bandes pleine largeur, pills, eyebrows). Patterns
+ * concurrents (prix-travaux-m2/desamiantage/glassandmobility) : réponse fourchette
+ * above-fold, tableaux de prix par variante, facteurs, comparaison prestataires,
+ * CTA devis répété + form→/lead, FAQ. Pas de markup Offer (fourchette en texte).
+ * URL : /prix/{slug}/. Schemas Article + BreadcrumbList + FAQPage. Thot en amont.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('etudesPrix');
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'etudesPrix'> };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const tel = d.phone ? d.phone.replace(/\s/g, '') : '';
+const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const maj = new Date(d.modifiedDate ?? d.pubDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+
+const graph: Record<string, unknown>[] = [
+  { '@type': 'Article', headline: d.title, description: d.description, mainEntityOfPage: pageUrl,
+    datePublished: d.pubDate.toISOString(), dateModified: (d.modifiedDate ?? d.pubDate).toISOString(),
+    ...(d.author ? { author: { '@type': 'Person', name: d.author } } : {}), ...(d.heroImage ? { image: d.heroImage } : {}) },
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Prix', item: new URL('/prix/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] },
+];
+if (d.faq && d.faq.length) graph.push({ '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+const jsonLd = [{ '@context': 'https://schema.org', '@graph': graph }];
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="px">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/prix/">Prix</a> › <span>{d.title}</span></nav></div>
+
+    {/* HERO : réponse fourchette above-fold */}
+    <header class="tpl-band tpl-band--dark px-hero" style={d.heroImage ? `--hero:url('${d.heroImage}')` : ''}><div class="tpl-wrap">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Prix · Mis à jour en {maj}</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      {d.priceRange && <p class="px-range">💶 {d.priceRange}</p>}
+      {d.priceFrom && <p class="tpl-lead" style="margin:.2rem 0">{d.priceFrom}</p>}
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+      <div class="tpl-ctarow"><a href="#devis" class="tpl-btn tpl-btn-amber">{d.ctaLabel}</a>{d.phone && <a href={`tel:${tel}`} class="tpl-btn tpl-btn-ghost">☎ {d.phone}</a>}</div>
+    </div></header>
+
+    {/* TABLEAUX de prix par variante */}
+    {d.priceTables.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Combien ça coûte</span><h2 class="tpl-h2">Les prix en détail</h2>
+        {d.priceTables.map((t) => (
+          <div class="px-tblock"><h3>{t.titre}</h3>
+            <div class="tpl-tablewrap"><table class="tpl-table">
+              {t.cols.length > 0 && <thead><tr>{t.cols.map((c) => <th>{c}</th>)}</tr></thead>}
+              <tbody>{t.rows.map((row) => (<tr>{row.map((cell, i) => <td class={i === 0 ? 'px-c0' : (i === row.length - 1 ? 'px-cp' : '')}>{cell}</td>)}</tr>))}</tbody>
+            </table></div>
+          </div>
+        ))}
+      </div></section>
+    )}
+
+    {/* FACTEURS de prix */}
+    {d.facteurs.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Ce qui fait varier le prix</span><h2 class="tpl-h2">De quoi dépend le tarif ?</h2>
+        <div class="tpl-grid">{d.facteurs.map((f) => (<div class="tpl-card"><strong>{f.titre}</strong><p style="margin:.3rem 0 0;color:var(--site-text-muted)">{f.desc}</p></div>))}</div>
+      </div></section>
+    )}
+
+    {/* CONTENU (comparaison prestataires, aides, conseils) */}
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {/* CTA DEVIS (capture lead) */}
+    <section class="tpl-band tpl-band--cta" id="devis"><div class="tpl-wrap tpl-wrap--narrow px-devis">
+      <h2 class="tpl-h2" style="color:#fff">Obtenez des devis gratuits en 2 minutes</h2>
+      <p class="tpl-lead">Comparez plusieurs professionnels et ne payez que le juste prix.</p>
+      <form method="POST" action={LEAD} class="px-form">
+        <input type="hidden" name="service" value={d.title} /><input type="hidden" name="source" value={pageUrl} />
+        <input name="nom" required placeholder="Nom *" /><input name="tel" required type="tel" placeholder="Téléphone *" /><input name="cp" placeholder="Code postal" />
+        <button type="submit" class="tpl-btn tpl-btn-amber px-form-full">Recevoir mes devis gratuits</button>
+      </form>
+      <p class="px-devis-note">Gratuit & sans engagement{d.phone ? ` · ou appelez le ${d.phone}` : ''}</p>
+      <div id="px-form-msg" class="px-form-msg" role="status" hidden></div>
+    </div></section>
+
+    {/* FAQ */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes sur le prix</h2>
+        <div class="tpl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+  </div>
+
+  <script is:inline define:vars={{ leadUrl: LEAD, phone: d.phone || '' }}>
+    (function () {
+      var form = document.querySelector('#devis form'); var msg = document.getElementById('px-form-msg');
+      function show(ok, t) { if (!msg) return; msg.hidden = false; msg.className = 'px-form-msg ' + (ok ? 'ok' : 'err'); msg.textContent = t; }
+      var q = new URLSearchParams(location.search).get('devis');
+      if (q === 'ok') show(true, 'Merci ! Votre demande a bien été envoyée, vous serez recontacté rapidement.');
+      if (q === 'err') show(false, 'Merci de renseigner au moins votre nom et votre téléphone.');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); var btn = form.querySelector('button[type=submit]'); var l = btn ? btn.textContent : '';
+        if (btn) { btn.disabled = true; btn.textContent = 'Envoi…'; }
+        var body = new URLSearchParams(new FormData(form)); body.set('ajax', '1');
+        fetch(leadUrl, { method: 'POST', body: body })
+          .then(function (r) { if (!r.ok) throw 0; return r.json().catch(function () { return {}; }); })
+          .then(function () { form.reset(); show(true, 'Merci ! Demande envoyée, vous serez recontacté au plus vite' + (phone ? ' — ou appelez le ' + phone + '.' : '.')); })
+          .catch(function () { show(false, 'Envoi indisponible.' + (phone ? ' Appelez-nous au ' + phone + '.' : ' Réessayez dans un instant.')); })
+          .finally(function () { if (btn) { btn.disabled = false; btn.textContent = l; } });
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  .px-hero { background-image: linear-gradient(115deg, rgba(11,38,66,.95), rgba(17,68,119,.72) 60%, rgba(17,68,119,.45)), var(--hero); background-size: cover; background-position: center; }
+  .px-range { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin: .3rem 0; color: #ffd9a3; }
+  .px-tblock { margin-bottom: 1.4rem; } .px-tblock h3 { font-size: 1.05rem; margin: 0 0 .5rem; }
+  .px-c0 { font-weight: 600; } .px-cp { font-weight: 800; color: var(--site-primary); white-space: nowrap; }
+  .px-devis { text-align: center; }
+  .px-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin: 1rem 0 .4rem; }
+  .px-form input { padding: .8rem; border: 0; border-radius: 999px; font-size: .95rem; width: 100%; box-sizing: border-box; }
+  .px-form-full { grid-column: 1 / -1; }
+  .px-devis-note { font-size: .8rem; color: rgba(255,255,255,.85); }
+  .px-form-msg { margin: .6rem auto 0; max-width: 480px; padding: .6rem .8rem; border-radius: 9px; font-size: .9rem; font-weight: 600; }
+  .px-form-msg.ok { background: #e7f3ec; color: #1b6b3e; } .px-form-msg.err { background: #fdecea; color: #9a3528; }
+  @media (max-width: 600px) { .px-form { grid-template-columns: 1fr; } }
+</style>

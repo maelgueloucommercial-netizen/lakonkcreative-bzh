@@ -1,0 +1,245 @@
+---
+/**
+ * Type de page : comparateur (archétype comparator_affiliate / leadgen) — DESIGN v3.
+ * Design partagé pageLocale (templates.css). Comble les écarts concurrents
+ * (lesnumeriques/jardideco) : hero image, photos produit + vignettes tableau,
+ * étoiles visuelles, prix multi-marchands + fourchette (AggregateOffer), auteur
+ * (Person) + double date, barre collante, newsletter. + "notre choix en bref",
+ * picks par usage, à-retenir, méthodologie, autres guides.
+ * URL : /comparateur/{cat}/. Schemas @graph ItemList>Product(AggregateOffer+
+ * AggregateRating) + Person + BreadcrumbList + FAQPage. Haloscan + Thot en amont.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('comparateurs');
+  return entries.map((entry) => ({ params: { cat: entry.data.category }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'comparateurs'> };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const items = [...d.items].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+const byRank = (r: number) => items.find((i) => i.rank === r);
+const fmtNote = (n?: number, max = 10) => (typeof n === 'number' ? `${n}/${max}` : '');
+const starRow = (n?: number, max = 10) => { if (typeof n !== 'number') return ''; const k = Math.round((n / max) * 5); return '★'.repeat(k) + '☆'.repeat(5 - k); };
+const priceText = (it: any) => (typeof it.priceLow === 'number' && typeof it.priceHigh === 'number') ? `${it.priceLow} – ${it.priceHigh} €` : (it.price ?? '');
+const pub = new Date(d.pubDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const maj = new Date(d.modifiedDate ?? d.pubDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const top = items[0];
+
+// --- JSON-LD (@graph) ---
+const graph: Record<string, unknown>[] = [];
+if (d.author) graph.push({ '@type': 'Person', name: d.author });
+graph.push({ '@type': 'ItemList', name: d.title, numberOfItems: items.length,
+  itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: it.rank ?? i + 1,
+    item: { '@type': 'Product', name: it.name, ...(it.image ? { image: it.image } : {}), ...(it.brand ? { brand: { '@type': 'Brand', name: it.brand } } : {}),
+      ...(typeof it.priceLow === 'number' ? { offers: { '@type': 'AggregateOffer', lowPrice: it.priceLow, ...(typeof it.priceHigh === 'number' ? { highPrice: it.priceHigh } : {}), priceCurrency: it.currency ?? 'EUR', offerCount: Math.max(it.merchants?.length ?? 1, 1) } } : {}),
+      ...(typeof it.note === 'number' ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: it.note, bestRating: it.noteMax ?? 10, ...(it.reviewCount ? { reviewCount: it.reviewCount } : { ratingCount: 1 }) } } : {}) } })) });
+graph.push({ '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+  { '@type': 'ListItem', position: 2, name: 'Comparateurs', item: new URL('/comparateur/', SITE_CONFIG.siteUrl).toString() },
+  { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] });
+if (d.faq && d.faq.length) graph.push({ '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+const jsonLd = [{ '@context': 'https://schema.org', '@graph': graph }];
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="cmp">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/comparateur/">Comparateurs</a> › <span>{d.title}</span></nav></div>
+
+    {/* HERO (image de fond) */}
+    <header class="tpl-band tpl-band--dark cmp-hero" style={d.heroImage ? `--hero:url('${d.heroImage}')` : ''}><div class="tpl-wrap">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Comparatif · {items.length} modèles testés</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      <p class="tpl-meta">{d.author && <>Par {d.author} · </>}Publié le {pub} · Mis à jour le {maj}</p>
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+      <div class="tpl-ctarow"><a href="#classement" class="tpl-btn tpl-btn-amber">Voir le classement</a>{top?.ctaUrl && <a href={top.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-ghost">N°1 : {top.name}</a>}</div>
+      {d.affiliateDisclosure && <p class="cmp-disclo">Liens partenaires : une commission peut nous être versée, sans surcoût pour vous. Notre classement reste indépendant.</p>}
+    </div></header>
+
+    {/* NOTRE CHOIX EN BREF */}
+    {(d.verdict || d.topPicks.length > 0 || d.takeaways.length > 0) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">En bref</span><h2 class="tpl-h2">Notre sélection en bref</h2>
+        {d.verdict && <p class="tpl-lead" style="margin-bottom:1.2rem">{d.verdict}</p>}
+        {d.topPicks.length > 0 && (
+          <div class="tpl-grid">{d.topPicks.map((tp) => { const it = byRank(tp.itemRank); return it ? (
+            <div class="tpl-card cmp-pick">{it.image && <img src={it.image} alt={it.imageAlt ?? it.name} loading="lazy" width="200" height="150" class="cmp-pick-img" />}<span class="tpl-badge">{tp.label}</span><strong>{it.name}</strong>{typeof it.note === 'number' && <span class="tpl-stars">{starRow(it.note, it.noteMax)} <small>{fmtNote(it.note, it.noteMax)}</small></span>}{priceText(it) && <span class="cmp-pick-price">{priceText(it)}</span>}{it.ctaUrl && <a href={it.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm tpl-btn-full">{it.ctaLabel}</a>}</div>
+          ) : null; })}</div>
+        )}
+        {d.takeaways.length > 0 && <ul class="cmp-takeaways">{d.takeaways.map((t) => <li>{t}</li>)}</ul>}
+      </div></section>
+    )}
+
+    {/* POUR QUEL USAGE */}
+    {d.usagePicks.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Recommandations</span><h2 class="tpl-h2">Quel modèle pour quel usage ?</h2>
+        <div class="tpl-grid">{d.usagePicks.map((u) => { const it = byRank(u.itemRank); return it ? (
+          <div class="tpl-card cmp-usage">{it.image && <img src={it.image} alt={it.imageAlt ?? it.name} loading="lazy" width="90" height="68" />}<div><strong>{u.usage}</strong><p>→ {it.name}</p><a href={`#item-${it.rank}`} class="cmp-link">Voir pourquoi ↓</a></div></div>
+        ) : null; })}</div>
+      </div></section>
+    )}
+
+    {/* TABLEAU (avec vignettes + étoiles) */}
+    {items.length > 0 && (
+      <section class="tpl-band tpl-band--tint" id="classement"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Classement</span><h2 class="tpl-h2">Le comparatif en un coup d'œil</h2>
+        <div class="tpl-tablewrap"><table class="tpl-table cmp-table">
+          <thead><tr><th>#</th><th>Modèle</th>{d.specColumns.map((c) => <th>{c}</th>)}<th>Prix</th><th>Note</th><th></th></tr></thead>
+          <tbody>{items.map((it) => (<tr>
+            <td class="cmp-rank">{it.rank ?? ''}</td>
+            <td class="cmp-tcell"><a href={`#item-${it.rank}`} class="cmp-tname">{it.image && <img src={it.image} alt={it.imageAlt ?? it.name} loading="lazy" width="56" height="42" />}<span>{it.name}{it.badge && <span class="tpl-badge">{it.badge}</span>}</span></a></td>
+            {d.specColumns.map((c) => <td>{it.specs.find((s) => s.label === c)?.value ?? '—'}</td>)}
+            <td>{priceText(it) || '—'}</td>
+            <td class="cmp-tnote"><span class="tpl-stars">{starRow(it.note, it.noteMax)}</span><br /><small>{fmtNote(it.note, it.noteMax)}</small></td>
+            <td>{it.ctaUrl && <a href={it.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm">{it.ctaLabel}</a>}</td>
+          </tr>))}</tbody>
+        </table></div>
+      </div></section>
+    )}
+
+    {/* MINI-TESTS */}
+    <section class="tpl-band"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Le détail</span><h2 class="tpl-h2">Nos {items.length} modèles testés</h2>
+      <div class="cmp-items">{items.map((it) => (
+        <div class="tpl-card cmp-card" id={`item-${it.rank}`}>
+          <div class="cmp-card-head">
+            {typeof it.rank === 'number' && <span class="cmp-rankbadge">n°{it.rank}</span>}
+            <div><h3>{it.name}</h3>{it.bestFor && <p class="cmp-bestfor">{it.bestFor}</p>}</div>
+            {typeof it.note === 'number' && <span class="cmp-note-lg"><span class="tpl-stars">{starRow(it.note, it.noteMax)}</span>{fmtNote(it.note, it.noteMax)}{it.reviewCount ? <small>{it.reviewCount} avis</small> : null}</span>}
+          </div>
+          <div class="cmp-card-body">
+            {it.image && <img src={it.image} alt={it.imageAlt ?? it.name} loading="lazy" width="260" height="195" class="cmp-card-img" />}
+            <div class="cmp-card-main">
+              {it.specs.length > 0 && <ul class="cmp-specs">{it.specs.map((s) => <li><span>{s.label}</span><strong>{s.value}</strong></li>)}</ul>}
+              {it.verdict && <p class="cmp-verdict">{it.verdict}</p>}
+              <div class="cmp-proscons">
+                {it.pros.length > 0 && <div class="cmp-pros"><strong>Les plus</strong><ul>{it.pros.map((p) => <li>{p}</li>)}</ul></div>}
+                {it.cons.length > 0 && <div class="cmp-cons"><strong>Les moins</strong><ul>{it.cons.map((c) => <li>{c}</li>)}</ul></div>}
+              </div>
+              <div class="cmp-buyrow">
+                {priceText(it) && <span class="cmp-price">{priceText(it)}{it.merchants.length > 1 ? ` · ${it.merchants.length} offres` : ''}</span>}
+                {it.merchants.length > 0
+                  ? it.merchants.map((m) => <a href={m.url} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm">{m.name}{m.price ? ` · ${m.price}` : ''}</a>)
+                  : (it.ctaUrl && <a href={it.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber">{it.ctaLabel} →</a>)}
+                {it.reviewUrl && <a href={it.reviewUrl} class="cmp-link">Lire le test complet →</a>}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}</div>
+    </div></section>
+
+    {/* CRITÈRES */}
+    {d.criteria.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Bien choisir</span><h2 class="tpl-h2">Comment choisir ?</h2>
+        <div class="tpl-grid">{d.criteria.map((c) => (<div class="tpl-card"><strong>{c.titre}</strong><p style="margin:.3rem 0 0;color:var(--site-text-muted)">{c.desc}</p></div>))}</div>
+      </div></section>
+    )}
+
+    {/* CONTENU */}
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {/* MÉTHODOLOGIE */}
+    {(d.methodology || d.author) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Notre méthode</span><h2 class="tpl-h2">Comment nous comparons</h2>
+        {d.methodology && <p class="tpl-lead">{d.methodology}</p>}
+        {d.author && <p class="tpl-meta">Comparatif établi par {d.author} · Mis à jour le {maj}.</p>}
+      </div></section>
+    )}
+
+    {/* FAQ */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes</h2>
+        <div class="tpl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {/* NEWSLETTER */}
+    <section class="tpl-band tpl-band--cta"><div class="tpl-wrap tpl-wrap--narrow cmp-news">
+      <h2 class="tpl-h2" style="color:#fff">Restez informé des meilleures offres</h2>
+      <form method="POST" action={LEAD} class="cmp-news-form">
+        <input type="hidden" name="service" value="Newsletter" /><input type="hidden" name="source" value={pageUrl} />
+        <input name="email" type="email" required placeholder="Votre e-mail" />
+        <button type="submit" class="tpl-btn tpl-btn-amber">Je m'inscris</button>
+      </form>
+      <p class="cmp-news-note">Sans spam · désinscription en 1 clic</p>
+    </div></section>
+
+    {/* AUTRES GUIDES */}
+    {d.relatedGuides.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À lire aussi</span><h2 class="tpl-h2">Nos autres comparatifs</h2>
+        <ul class="cmp-related">{d.relatedGuides.map((g) => <li><a href={g.url}>{g.title}</a></li>)}</ul>
+      </div></section>
+    )}
+  </div>
+
+  {/* Barre collante mobile */}
+  {top && (
+    <div class="cmp-sticky">
+      <span class="cmp-sticky-pick">N°1 · {top.name}{typeof top.note === 'number' ? ` ${fmtNote(top.note, top.noteMax)}` : ''}</span>
+      <a href={top.ctaUrl ?? '#classement'} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber">{top.ctaLabel}</a>
+    </div>
+  )}
+</Base>
+
+<style>
+  .cmp-hero { background-image: linear-gradient(115deg, rgba(11,38,66,.95), rgba(17,68,119,.72) 60%, rgba(17,68,119,.45)), var(--hero); background-size: cover; background-position: center; }
+  .cmp-disclo { font-size: .78rem; margin-top: 1rem; background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); border-radius: 8px; padding: .55rem .85rem; }
+  .cmp-rank { font-weight: 800; color: var(--site-primary); }
+  .cmp-tnote { font-weight: 700; color: var(--site-secondary); text-align: center; line-height: 1.1; }
+  .cmp-tnote small { color: var(--site-text-muted); font-weight: 500; }
+  .cmp-tcell .cmp-tname { display: flex; align-items: center; gap: .5rem; text-decoration: none; }
+  .cmp-tname img { border-radius: 7px; object-fit: cover; flex: 0 0 auto; }
+  .cmp-pick { text-align: center; display: flex; flex-direction: column; gap: .4rem; align-items: center; }
+  .cmp-pick-img { border-radius: 12px; object-fit: cover; width: 100%; max-width: 220px; aspect-ratio: 4/3; }
+  .cmp-pick strong { display: block; font-size: 1.05rem; }
+  .cmp-pick-price { font-weight: 800; color: var(--site-primary); }
+  .cmp-link { font-size: .85rem; color: var(--site-primary); font-weight: 700; text-decoration: none; }
+  .cmp-usage { display: flex; gap: .8rem; align-items: center; }
+  .cmp-usage img { border-radius: 8px; object-fit: cover; flex: 0 0 auto; }
+  .cmp-usage strong { display: block; } .cmp-usage p { margin: .2rem 0 .3rem; color: var(--site-text-muted); }
+  .cmp-takeaways { margin: 1.4rem 0 0; padding-left: 1.2rem; display: grid; gap: .35rem; }
+  .cmp-items { display: grid; gap: 1rem; }
+  .cmp-card { scroll-margin-top: 1rem; }
+  .cmp-card-head { display: flex; align-items: center; gap: .8rem; }
+  .cmp-rankbadge { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; background: var(--site-primary); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: .85rem; }
+  .cmp-card-head h3 { margin: 0; } .cmp-bestfor { margin: .1rem 0 0; font-size: .85rem; color: var(--site-text-muted); }
+  .cmp-note-lg { margin-left: auto; font-size: 1.1rem; font-weight: 800; color: var(--site-secondary); display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+  .cmp-note-lg .tpl-stars { font-size: .85rem; } .cmp-note-lg small { font-size: .68rem; color: var(--site-text-muted); font-weight: 500; }
+  .cmp-card-body { display: flex; gap: 1.2rem; margin-top: .8rem; flex-wrap: wrap; }
+  .cmp-card-img { border-radius: 14px; object-fit: cover; flex: 0 0 auto; }
+  .cmp-card-main { flex: 1; min-width: 240px; }
+  .cmp-specs { list-style: none; padding: 0; margin: 0 0 .7rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .2rem .8rem; font-size: .85rem; }
+  .cmp-specs li { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--site-border); padding: .15rem 0; }
+  .cmp-specs span { color: var(--site-text-muted); }
+  .cmp-verdict { font-size: .94rem; line-height: 1.6; margin: 0 0 .6rem; }
+  .cmp-proscons { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: .7rem; }
+  .cmp-pros, .cmp-cons { font-size: .85rem; } .cmp-pros ul, .cmp-cons ul { margin: .2rem 0 0; padding-left: 1.1rem; }
+  .cmp-pros strong { color: #1b6b3e; } .cmp-cons strong { color: #9a3528; }
+  .cmp-buyrow { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+  .cmp-price { font-weight: 800; color: var(--site-primary); }
+  .cmp-related { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .cmp-related a { display: inline-block; background: var(--site-bg-card); border: 1px solid var(--site-border); color: var(--site-primary); border-radius: 999px; padding: .45rem 1.1rem; font-weight: 700; font-size: .9rem; text-decoration: none; }
+  .cmp-related a:hover { background: var(--site-primary); color: #fff; }
+  .cmp-news { text-align: center; } .cmp-news-form { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0 .5rem; }
+  .cmp-news-form input { padding: .8rem 1rem; border: 0; border-radius: 999px; min-width: 260px; font-size: .95rem; }
+  .cmp-news-note { font-size: .78rem; color: rgba(255,255,255,.85); }
+  .cmp-sticky { display: none; }
+  @media (max-width: 600px) {
+    .cmp-proscons { grid-template-columns: 1fr; }
+    .cmp-sticky { display: flex; position: fixed; bottom: 0; left: 0; right: 0; gap: .6rem; align-items: center; padding: .55rem .8rem; background: var(--site-bg-card); border-top: 1px solid var(--site-border); box-shadow: 0 -4px 16px rgba(0,0,0,.12); z-index: 50; }
+    .cmp-sticky-pick { font-size: .8rem; font-weight: 700; flex: 1; }
+    .cmp-sticky .tpl-btn { padding: .65rem 1rem; }
+  }
+</style>

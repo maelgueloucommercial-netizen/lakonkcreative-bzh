@@ -1,0 +1,85 @@
+---
+/**
+ * Type de page : hub (page pilier — archétype editorial_magazine) — DESIGN v2 (templates.css).
+ * Pilier 2000+ mots qui maille vers ses articles enfants (cluster).
+ * Lu depuis `articles` filtrés pageType==='hub'. clusterSlugs = enfants.
+ * URL : /dossier/{slug}/. Schemas Article + BreadcrumbList + FAQPage.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const arts = await getCollection('articles');
+  const hubs = arts.filter((a) => a.data.pageType === 'hub');
+  return hubs.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry, all: arts } }));
+}
+
+const { entry, all } = Astro.props as { entry: any; all: any[] };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const hrefFor = (a: any) => {
+  const pt = a.data.pageType ?? 'article';
+  if (pt === 'faq') return `/faq/${a.data.slug}/`;
+  if (pt === 'lexique') return `/glossaire/${a.data.slug}/`;
+  if (pt === 'hub') return `/dossier/${a.data.slug}/`;
+  return a.data.dateUrlFormat === false ? `/${a.data.urlPath ? a.data.urlPath + '/' : ''}${a.data.slug}/` : `/${a.data.urlYear}/${a.data.urlMonth}/${a.data.urlDay}/${a.data.slug}/`;
+};
+const children = (d.clusterSlugs ?? []).map((s: string) => all.find((a) => a.data.slug === s)).filter(Boolean)
+  .map((a: any) => ({ title: a.data.title, description: a.data.description, href: hrefFor(a) }));
+
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, description: d.description, mainEntityOfPage: pageUrl,
+    datePublished: d.pubDate.toISOString(), dateModified: (d.modifiedDate ?? d.pubDate).toISOString(), ...(d.heroImage ? { image: d.heroImage } : {}) },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Dossiers', item: new URL('/dossier/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] },
+];
+if (d.faq && d.faq.length) jsonLd.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faq.map((f: any) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="hb">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/dossier/">Dossiers</a> › <span>{d.title}</span></nav></div>
+
+    <header class="tpl-band tpl-band--dark" style={d.heroImage ? `background-image:linear-gradient(115deg,rgba(11,38,66,.95),rgba(17,68,119,.72) 60%,rgba(17,68,119,.45)),url('${d.heroImage}');background-size:cover;background-position:center` : ''}><div class="tpl-wrap">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Dossier complet</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+    </div></header>
+
+    {children.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Sommaire</span><h2 class="tpl-h2">Au sommaire de ce dossier</h2>
+        <ol class="hb-toc">{children.map((c: any) => <li><a href={c.href}>{c.title}</a></li>)}</ol>
+      </div></section>
+    )}
+
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {children.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Approfondir</span><h2 class="tpl-h2">Les articles de ce dossier</h2>
+        <div class="tpl-grid">{children.map((c: any) => (
+          <a class="tpl-card hb-card" href={c.href}><strong>{c.title}</strong>{c.description && <p>{c.description}</p>}<span class="hb-more">Lire →</span></a>
+        ))}</div>
+      </div></section>
+    )}
+
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes</h2>
+        <div class="tpl-faq">{d.faq.map((f: any) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+  </div>
+</Base>
+
+<style>
+  .hb-toc { margin: .4rem 0 0; padding-left: 1.3rem; } .hb-toc a { color: var(--site-primary); }
+  .hb-card { text-decoration: none; color: var(--site-text); display: block; }
+  .hb-card strong { display: block; } .hb-card p { margin: .35rem 0; font-size: .88rem; color: var(--site-text-muted); }
+  .hb-more { font-size: .82rem; color: var(--site-primary); font-weight: 700; }
+</style>

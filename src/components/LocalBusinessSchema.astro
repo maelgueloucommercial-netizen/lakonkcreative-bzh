@@ -1,0 +1,93 @@
+---
+/**
+ * LocalBusinessSchema — JSON-LD Schema.org pour les commerces locaux décrits dans un article.
+ * Utilisé par les pages commerces (boulangerie, pharmacie, restaurant, banque, etc.)
+ * Boost le ranking Google sur les requêtes locales (intent local fort).
+ *
+ * Usage :
+ *   <LocalBusinessSchema
+ *     type="Bakery"  (ou Restaurant, Pharmacy, BankOrCreditUnion, FloristShop, LocalBusiness…)
+ *     name="Le Fournil de Gardonne"
+ *     telephone="05 53 27 80 00"
+ *     address={{ street: "26 av...", postalCode: "24680", locality: "Gardonne", region: "Dordogne", country: "FR" }}
+ *     openingHours={["Mo-Fr 07:00-19:30", "Sa 07:00-13:00"]}
+ *     priceRange="$"
+ *   />
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+
+interface Props {
+  type?: string;
+  name: string;
+  description?: string;
+  url?: string;
+  telephone?: string;
+  email?: string;
+  address?: {
+    street?: string;
+    postalCode?: string;
+    locality?: string;
+    region?: string;
+    country?: string;
+  };
+  geo?: { lat: number; lng: number };
+  openingHours?: string[];
+  priceRange?: string;
+  image?: string;
+}
+
+const {
+  type = 'LocalBusiness',
+  name,
+  description,
+  url,
+  telephone,
+  email,
+  address,
+  geo,
+  openingHours,
+  priceRange,
+  image,
+} = Astro.props;
+
+const profile = SITE_CONFIG.profile;
+const profileGeo = profile?.geo;
+
+// Geo defaulté à la commune principale du site si non fourni
+const finalGeo = geo ?? (profileGeo ? { lat: profileGeo.lat, lng: profileGeo.lng } : null);
+const finalLocality = address?.locality ?? profileGeo?.placename;
+const finalPostalCode = address?.postalCode;
+const finalRegion = address?.region ?? 'Dordogne';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': type,
+  name,
+  ...(description && { description }),
+  url: url ?? Astro.url.href,
+  ...(telephone && { telephone }),
+  ...(email && { email }),
+  ...(image && { image }),
+  ...(priceRange && { priceRange }),
+  ...((address || finalLocality) && {
+    address: {
+      '@type': 'PostalAddress',
+      ...(address?.street && { streetAddress: address.street }),
+      ...(finalPostalCode && { postalCode: finalPostalCode }),
+      ...(finalLocality && { addressLocality: finalLocality }),
+      ...(finalRegion && { addressRegion: finalRegion }),
+      addressCountry: address?.country ?? 'FR',
+    },
+  }),
+  ...(finalGeo && {
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: finalGeo.lat,
+      longitude: finalGeo.lng,
+    },
+  }),
+  ...(openingHours?.length && { openingHours }),
+  inLanguage: 'fr-FR',
+};
+---
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

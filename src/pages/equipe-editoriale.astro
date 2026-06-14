@@ -1,0 +1,172 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+
+const archetype = SITE_CONFIG.theme.archetype;
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const TEAM: Record<string, Array<{ name: string; role: string; bio: string; expertise: string[] }>> = {
+  village: [
+    {
+      name: profile?.author.name ?? 'Léa Charpentier',
+      role: profile?.author.role ?? 'Rédactrice locale principale',
+      bio: profile?.author.bio ?? 'Habitante engagée depuis 8 ans, parcourt la région pour rencontrer commerçants, élus et acteurs associatifs.',
+      expertise: ['Vie locale', 'Patrimoine', 'Démarches administratives', 'Annuaire commerces'],
+    },
+    {
+      name: 'Pierre Maréchal',
+      role: 'Rédacteur tourisme et patrimoine',
+      bio: 'Guide-conférencier de formation, Pierre photographie et écrit sur les lieux remarquables, sites historiques et chemins de randonnée de la région depuis 15 ans.',
+      expertise: ['Tourisme', 'Histoire', 'Architecture', 'Randonnée'],
+    },
+  ],
+  bricolage: [
+    {
+      name: profile?.author.name ?? 'Thomas Reno',
+      role: profile?.author.role ?? 'Expert outillage & rédacteur en chef',
+      bio: profile?.author.bio ?? 'Ancien chef de chantier (15 ans BTP). Teste chaque produit pendant plusieurs semaines avant publication. Sa passion : la sécurité au travail et la durabilité.',
+      expertise: ['Outillage électroportatif', 'Sécurité chantier', 'Béton et maçonnerie'],
+    },
+    {
+      name: 'Stéphane Couture',
+      role: 'Rédacteur menuiserie & ébénisterie',
+      bio: 'Compagnon menuisier formé sur le Tour de France. Maîtrise les techniques traditionnelles autant que l\'outillage électroportatif moderne.',
+      expertise: ['Menuiserie', 'Ébénisterie', 'Outils manuels', 'Finitions bois'],
+    },
+  ],
+  tech: [
+    {
+      name: profile?.author.name ?? 'Marc Devauclair',
+      role: profile?.author.role ?? 'Rédacteur en chef',
+      bio: profile?.author.bio ?? 'Journaliste tech depuis 1998, teste les produits chez lui pendant plusieurs semaines avant chaque test. Aucune marque ne sponsorise ses tests.',
+      expertise: ['Vidéoprojection', 'Audio Hi-Fi', 'Home cinéma', 'TV grand format'],
+    },
+    {
+      name: 'Élise Vandermeulen',
+      role: 'Spécialiste audio',
+      bio: 'Ingénieure du son de formation (École Louis-Lumière, 2008). Studio de mesure calibré, analyses techniques détaillées (réponse fréquence, distorsion, latence).',
+      expertise: ['Audio Hi-Fi', 'Casques', 'Enceintes', 'Mesures acoustiques'],
+    },
+  ],
+  adulte: [
+    {
+      name: profile?.author.name ?? 'Camille Vermeer',
+      role: profile?.author.role ?? 'Rédactrice principale',
+      bio: profile?.author.bio ?? 'Sexologue diplômée DIU Sexologie clinique (Bordeaux 2020). Démystifie le plaisir avec un ton sans tabou ni vulgarité.',
+      expertise: ['Santé sexuelle', 'Pédagogie', 'Comparatifs produits'],
+    },
+  ],
+};
+
+const team = TEAM[archetype] ?? TEAM.village;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_CONFIG.siteName,
+  url: SITE_CONFIG.siteUrl,
+  description: SITE_CONFIG.tagline,
+  employee: team.map((m) => ({
+    '@type': 'Person',
+    name: m.name,
+    jobTitle: m.role,
+    description: m.bio,
+    knowsAbout: m.expertise,
+  })),
+};
+---
+<Base
+  title="Équipe éditoriale"
+  description={`L'équipe rédactionnelle de ${SITE_CONFIG.siteName}.`}
+  jsonLd={[orgJsonLd]}
+>
+
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">Notre rédaction</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 72px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          Les <em style="font-style:italic">signatures</em> du magazine.
+        </h1>
+        <p style="font-size:17px;color:var(--color-text-muted);line-height:1.7;max-width:520px">
+          {team.length} rédacteur·trice{team.length > 1 ? 's' : ''} de spécialité, chacun·e apporte son expertise terrain et signe ce qu'il/elle écrit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* Team */}
+  <section style="padding:120px 0;background:var(--color-bg-base)">
+    <div class="site-container">
+      {team.map((member, idx) => {
+        const initials = member.name.split(/\s+/).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        const reverse = idx % 2 === 1;
+        return (
+          <article style={`display:grid;grid-template-columns:1fr 1.3fr;gap:80px;align-items:center;${idx > 0 ? 'margin-top:120px;border-top:1px solid var(--color-border);padding-top:120px' : ''}`} class="member-row">
+            <div style={`aspect-ratio:3/4;background:var(--color-primary);position:relative;${reverse ? 'order:2' : ''}`}>
+              {heroImg && (
+                <img src={heroImg} alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:luminosity;opacity:.55" />
+              )}
+              <div class="serif italic" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;color:rgba(255,255,255,.3);letter-spacing:-4px;font-weight:400">
+                {initials}
+              </div>
+            </div>
+            <div>
+              <div class="eyebrow" style="margin-bottom:14px">Rédaction · n°{idx + 1}</div>
+              <h2 class="serif" style="font-size:clamp(40px, 4.5vw, 64px);line-height:1.05;font-weight:400;letter-spacing:-1.5px;margin-bottom:12px">
+                {member.name.split(' ')[0]} <em style="font-style:italic">{member.name.split(' ').slice(1).join(' ')}</em>
+              </h2>
+              <p class="serif italic" style="font-size:18px;color:var(--color-text-muted);margin-bottom:32px">{member.role}</p>
+              <p style="font-size:16px;color:var(--color-text);line-height:1.75;margin-bottom:32px;max-width:560px">{member.bio}</p>
+              <div>
+                <div class="eyebrow" style="margin-bottom:14px;font-size:10px">Expertise</div>
+                <div style="display:flex;flex-wrap:wrap;gap:24px">
+                  {member.expertise.map((e) => (
+                    <span class="serif italic" style="font-size:18px;color:var(--color-ink)">— {e}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  {/* Contact CTA */}
+  <section style="padding:120px 0;background:var(--color-ink);color:var(--color-bg-base)">
+    <div class="site-container site-container--narrow" style="text-align:center">
+      <div class="eyebrow" style="color:var(--color-secondary);margin-bottom:18px">Vous voulez écrire pour nous ?</div>
+      <h2 class="serif" style="font-size:clamp(36px, 4vw, 56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;color:var(--color-bg-base);margin-bottom:24px">
+        Une <em style="font-style:italic;color:var(--color-secondary)">contribution</em> à proposer ?
+      </h2>
+      <p style="font-size:16px;color:rgba(255,255,255,.8);line-height:1.6;max-width:520px;margin:0 auto 48px">
+        Spécialiste de votre domaine ? Vous voulez proposer un article de fond ? Écrivez-nous en précisant vos références et votre proposition.
+      </p>
+      <a href="/contact/" class="btn-fill" style="background:#fff;color:var(--color-ink);border-color:#fff">Page contact</a>
+      <a href="/charte-editoriale/" class="btn-line" style="margin-left:14px;color:#fff;border-color:rgba(255,255,255,.6)">Notre charte</a>
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+  .member-row { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .member-row > div { order: unset !important; }
+  h1 { font-size: 36px !important; }
+  h2 { font-size: 32px !important; }
+}
+</style>

@@ -1,0 +1,188 @@
+---
+/**
+ * Calculator — outil interactif adapté à l'archetype.
+ * - Bricolage : Convertisseur W ↔ CV ↔ HP, calculateur surface coupe
+ * - Tech : Calculateur taille écran selon distance / résolution
+ * - Village : Calculateur taxe d'habitation simplifiée (estimation)
+ * - Adulte : pas de calculateur direct (intéraction limitée)
+ */
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+const showFor = ['bricolage', 'tech', 'village'];
+if (!showFor.includes(archetype)) return null;
+
+const titles: Record<string, string> = {
+  bricolage: '⚙️ Convertisseur de puissance (Watts ↔ CV ↔ HP)',
+  tech: '📺 Calculateur taille écran idéal',
+  village: '🏠 Estimateur taxe foncière simplifié',
+};
+---
+{archetype === 'bricolage' && (
+  <section class="calculator not-prose" style="margin:48px 0;padding:36px;background:var(--color-bg-card);border:1px solid var(--color-border)" data-calc="watts-cv">
+    <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.2;font-weight:400;letter-spacing:-.3px;margin:0 0 14px;color:var(--color-ink)">{titles[archetype]}</h2>
+    <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin-bottom:32px">Saisissez une valeur, les autres se calculent automatiquement (1 CV = 735.5 W, 1 HP = 745.7 W).</p>
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:24px" class="calc-grid">
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Watts (W)</span>
+        <input type="number" min="0" step="0.1" data-watts style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none" placeholder="ex: 1500" />
+      </label>
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Chevaux (CV)</span>
+        <input type="number" min="0" step="0.01" data-cv style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none" placeholder="ex: 2.04" />
+      </label>
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Horsepower (HP)</span>
+        <input type="number" min="0" step="0.01" data-hp style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none" placeholder="ex: 2.01" />
+      </label>
+    </div>
+    <p style="font-size:13px;color:var(--color-text-muted);line-height:1.6;margin-top:32px;padding-top:24px;border-top:1px solid var(--color-border)">
+      💡 <strong style="color:var(--color-ink);font-weight:500">À retenir :</strong> 1 cheval (CV) = 735.5 watts · 1 HP (US) = 745.7 watts · 1 kW = 1000 W = ~1.36 CV
+    </p>
+  </section>
+)}
+
+{archetype === 'tech' && (
+  <section class="calculator not-prose" style="margin:48px 0;padding:36px;background:var(--color-bg-card);border:1px solid var(--color-border)" data-calc="screen">
+    <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.2;font-weight:400;letter-spacing:-.3px;margin:0 0 14px;color:var(--color-ink)">{titles[archetype]}</h2>
+    <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin-bottom:32px">Distance recommandée selon la taille et résolution. Pour 4K, on peut s'asseoir 2× plus près qu'en HD.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" class="calc-grid">
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Diagonale écran (pouces)</span>
+        <input type="number" min="20" max="200" step="1" data-diag style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none" placeholder="ex: 65" />
+      </label>
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Résolution</span>
+        <select data-res style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none">
+          <option value="1080">Full HD (1080p)</option>
+          <option value="1440">QHD (1440p)</option>
+          <option value="2160" selected>4K UHD (2160p)</option>
+          <option value="4320">8K UHD (4320p)</option>
+        </select>
+      </label>
+    </div>
+    <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="calc-results">
+      <div style="padding:24px;background:var(--color-bg-base);border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:10px">Distance idéale</div>
+        <div class="serif" style="font-size:36px;line-height:1;font-style:italic;color:var(--color-accent);font-weight:400;letter-spacing:-.5px" data-dist-ideal>—</div>
+        <div style="font-size:11px;color:var(--color-text-muted);margin-top:8px">Confort visuel optimal</div>
+      </div>
+      <div style="padding:24px;background:var(--color-bg-base);border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:10px">Distance min/max</div>
+        <div class="serif" style="font-size:36px;line-height:1;font-style:italic;color:var(--color-accent);font-weight:400;letter-spacing:-.5px" data-dist-range>—</div>
+        <div style="font-size:11px;color:var(--color-text-muted);margin-top:8px">Plage acceptable</div>
+      </div>
+    </div>
+  </section>
+)}
+
+{archetype === 'village' && (
+  <section class="calculator not-prose" style="margin:48px 0;padding:36px;background:var(--color-bg-card);border:1px solid var(--color-border)" data-calc="taxe">
+    <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.2;font-weight:400;letter-spacing:-.3px;margin:0 0 14px;color:var(--color-ink)">{titles[archetype]}</h2>
+    <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin-bottom:32px">Estimation indicative basée sur la valeur locative cadastrale et le taux moyen de la commune. Pour un calcul officiel, contactez le centre des impôts.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" class="calc-grid">
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Surface habitable (m²)</span>
+        <input type="number" min="1" step="1" data-surface style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none" placeholder="ex: 100" />
+      </label>
+      <label style="display:block">
+        <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Standing</span>
+        <select data-standing style="width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:Cormorant Garamond,serif;font-size:24px;color:var(--color-ink);outline:none">
+          <option value="modeste">Modeste (cat. 7-8)</option>
+          <option value="moyen" selected>Moyen (cat. 5-6)</option>
+          <option value="bon">Bon (cat. 3-4)</option>
+          <option value="excellent">Excellent (cat. 1-2)</option>
+        </select>
+      </label>
+    </div>
+    <div style="margin-top:32px;padding:32px;background:var(--color-bg-base);border:1px solid var(--color-border)">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:14px">Estimation taxe foncière annuelle</div>
+      <div class="serif" style="font-size:48px;line-height:1;font-style:italic;color:var(--color-accent);font-weight:400;letter-spacing:-1px" data-taxe-result>— €</div>
+      <div style="font-size:12px;color:var(--color-text-muted);margin-top:14px;line-height:1.5">⚠️ Estimation rurale moyenne. Vérifiez le taux exact de votre commune.</div>
+    </div>
+  </section>
+)}
+
+<script is:inline>
+  // Bricolage W ↔ CV ↔ HP
+  (function() {
+    const root = document.querySelector('[data-calc="watts-cv"]');
+    if (!root) return;
+    const w = root.querySelector('[data-watts]');
+    const cv = root.querySelector('[data-cv]');
+    const hp = root.querySelector('[data-hp]');
+    let last = '';
+    function sync(source) {
+      if (source === 'w') {
+        const v = parseFloat(w.value) || 0;
+        cv.value = v ? (v / 735.5).toFixed(2) : '';
+        hp.value = v ? (v / 745.7).toFixed(2) : '';
+      } else if (source === 'cv') {
+        const v = parseFloat(cv.value) || 0;
+        w.value = v ? (v * 735.5).toFixed(0) : '';
+        hp.value = v ? (v * 735.5 / 745.7).toFixed(2) : '';
+      } else if (source === 'hp') {
+        const v = parseFloat(hp.value) || 0;
+        w.value = v ? (v * 745.7).toFixed(0) : '';
+        cv.value = v ? (v * 745.7 / 735.5).toFixed(2) : '';
+      }
+    }
+    w.addEventListener('input', () => sync('w'));
+    cv.addEventListener('input', () => sync('cv'));
+    hp.addEventListener('input', () => sync('hp'));
+  })();
+
+  // Tech screen distance
+  (function() {
+    const root = document.querySelector('[data-calc="screen"]');
+    if (!root) return;
+    const diag = root.querySelector('[data-diag]');
+    const res = root.querySelector('[data-res]');
+    const ideal = root.querySelector('[data-dist-ideal]');
+    const range = root.querySelector('[data-dist-range]');
+    function calc() {
+      const d = parseFloat(diag.value) || 0;
+      const r = parseInt(res.value);
+      if (!d) { ideal.textContent = '—'; range.textContent = '—'; return; }
+      // Diagonale en cm
+      const cm = d * 2.54;
+      // THX: ratio 1.0× pour 1080p, 0.5× pour 4K, 0.4× pour 8K
+      const factor = r === 4320 ? 0.4 : r === 2160 ? 0.5 : r === 1440 ? 0.7 : 1.0;
+      const idealM = (cm * factor / 100).toFixed(1);
+      const minM = (cm * factor * 0.7 / 100).toFixed(1);
+      const maxM = (cm * factor * 1.5 / 100).toFixed(1);
+      ideal.textContent = `${idealM} m`;
+      range.textContent = `${minM} – ${maxM} m`;
+    }
+    diag.addEventListener('input', calc);
+    res.addEventListener('change', calc);
+  })();
+
+  // Village taxe
+  (function() {
+    const root = document.querySelector('[data-calc="taxe"]');
+    if (!root) return;
+    const surf = root.querySelector('[data-surface]');
+    const stand = root.querySelector('[data-standing]');
+    const result = root.querySelector('[data-taxe-result]');
+    function calc() {
+      const s = parseFloat(surf.value) || 0;
+      const st = stand.value;
+      if (!s) { result.textContent = '— €'; return; }
+      const baseRate = { modeste: 5, moyen: 8, bon: 12, excellent: 18 }[st];
+      // Valeur locative cadastrale moyenne par m² × taux taxe foncière commune (~30-45%)
+      const vlc = s * baseRate * 12; // valeur locative annuelle
+      const taxeRate = 0.42; // moyenne France métropolitaine 2024
+      const taxe = Math.round(vlc * taxeRate);
+      result.textContent = `${taxe.toLocaleString('fr-FR')} €`;
+    }
+    surf.addEventListener('input', calc);
+    stand.addEventListener('change', calc);
+  })();
+</script>
+<style>
+@media (max-width: 700px) {
+  .calc-grid { grid-template-columns: 1fr !important; }
+  .calc-results { grid-template-columns: 1fr !important; }
+}
+</style>

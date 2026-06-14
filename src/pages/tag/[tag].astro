@@ -1,0 +1,83 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  const tags = new Map<string, typeof articles>();
+  for (const a of articles) {
+    for (const t of a.data.tags ?? []) {
+      const slug = t.toLowerCase()
+        .normalize('NFD').replace(/\p{M}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      if (!slug) continue;
+      if (!tags.has(slug)) tags.set(slug, [] as typeof articles);
+      tags.get(slug)!.push(a);
+    }
+  }
+  return [...tags.entries()]
+    .filter(([, arts]) => arts.length >= 2)
+    .map(([slug, arts]) => ({
+      params: { tag: slug },
+      props: { tagLabel: arts[0].data.tags?.find((t: string) => {
+        const s = t.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        return s === slug;
+      }) ?? slug, articles: arts },
+    }));
+}
+
+const { tagLabel, articles } = Astro.props as { tagLabel: string; articles: any[] };
+articles.sort((a: any, b: any) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+function getArticleUrl(entry: any): string {
+  const d = entry.data;
+  if (d.dateUrlFormat) {
+    return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
+  }
+  return d.urlPath ? `/${d.urlPath}/${d.slug}/` : `/${d.slug}/`;
+}
+---
+<Base
+  title={`#${tagLabel}`}
+  description={`Articles taggés "${tagLabel}" sur ${SITE_CONFIG.siteName} — ${articles.length} contenus.`}
+  noindex={articles.length < 3}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:96px 0 64px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <nav style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:24px;font-weight:600" aria-label="Fil d'Ariane">
+        <a href="/" style="color:var(--color-text-muted);text-decoration:none">Accueil</a>
+        <span style="margin:0 12px;color:var(--color-border)">/</span>
+        <a href="/articles/" style="color:var(--color-text-muted);text-decoration:none">Articles</a>
+        <span style="margin:0 12px;color:var(--color-border)">/</span>
+        <span style="color:var(--color-accent)">Tag</span>
+      </nav>
+      <div class="eyebrow" style="margin-bottom:18px">Sujet</div>
+      <h1 class="serif" style="font-size:clamp(40px, 6vw, 84px);line-height:1.02;font-weight:400;margin-bottom:18px;letter-spacing:-1.5px">
+        <em style="font-style:italic;color:var(--color-accent)">#</em>{tagLabel}
+      </h1>
+      <p style="font-size:17px;line-height:1.7;color:var(--color-text-muted)">
+        <strong style="color:var(--color-ink);font-weight:500">{articles.length}</strong> article{articles.length > 1 ? 's' : ''} mentionnent ce sujet.
+      </p>
+    </div>
+  </section>
+
+  {/* Articles grid */}
+  <section style="padding:80px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container">
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:48px 32px" class="tag-grid">
+        {articles.map((a: any) => (
+          <ArticleCard entry={a} href={getArticleUrl(a)} size="medium" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+</Base>
+<style>
+@media (max-width: 900px) { .tag-grid { grid-template-columns: 1fr 1fr !important; } }
+@media (max-width: 600px) { .tag-grid { grid-template-columns: 1fr !important; } }
+</style>

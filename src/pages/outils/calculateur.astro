@@ -1,0 +1,213 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+const profilePresets = SITE_CONFIG.profile?.calculatorPresets;
+
+const PRESETS: Record<string, Array<{ id: string; label: string; emoji: string; vars: Array<{ key: string; label: string; unit: string; default: number }>; formula: string; result: string; explain: string }>> = {
+  village: [
+    {
+      id: 'taxe-fonciere',
+      label: 'Taxe foncière (estimation)',
+      emoji: '🏠',
+      vars: [
+        { key: 'valeur', label: 'Valeur locative cadastrale annuelle', unit: '€', default: 5000 },
+        { key: 'taux', label: 'Taux communal', unit: '%', default: 25 },
+      ],
+      formula: 'valeur * (taux / 100)',
+      result: '€ par an',
+      explain: 'Estimation indicative. La taxe réelle inclut aussi des taux départementaux, intercommunaux et la TEOM. Renseignez-vous en mairie pour le taux exact.',
+    },
+    {
+      id: 'distance-ville',
+      label: 'Vitesse moyenne nécessaire',
+      emoji: '🚗',
+      vars: [
+        { key: 'distance', label: 'Distance à parcourir', unit: 'km', default: 10 },
+        { key: 'minutes', label: 'Temps disponible', unit: 'min', default: 15 },
+      ],
+      formula: '(distance / minutes) * 60',
+      result: 'km/h moyens',
+      explain: 'Calcul de la vitesse moyenne nécessaire pour parcourir la distance dans le temps imparti. Respectez toujours le code de la route.',
+    },
+  ],
+  bricolage: [
+    {
+      id: 'peinture',
+      label: 'Quantité de peinture',
+      emoji: '🎨',
+      vars: [
+        { key: 'surface', label: 'Surface à peindre', unit: 'm²', default: 30 },
+        { key: 'rendement', label: 'Rendement de la peinture', unit: 'm²/L', default: 10 },
+        { key: 'couches', label: 'Nombre de couches', unit: '', default: 2 },
+      ],
+      formula: '(surface / rendement) * couches',
+      result: 'litres',
+      explain: 'Prévoyez 10% de marge pour les retouches. Le rendement varie selon la peinture (5 à 14 m²/L). Lisez l\'étiquette du pot.',
+    },
+    {
+      id: 'beton',
+      label: 'Volume de béton',
+      emoji: '🧱',
+      vars: [
+        { key: 'longueur', label: 'Longueur', unit: 'm', default: 3 },
+        { key: 'largeur', label: 'Largeur', unit: 'm', default: 0.5 },
+        { key: 'epaisseur', label: 'Épaisseur', unit: 'm', default: 0.15 },
+      ],
+      formula: 'longueur * largeur * epaisseur',
+      result: 'm³ de béton',
+      explain: 'Pour un dosage standard, comptez environ 350 kg de ciment, 700 L de sable et 1100 L de gravier par m³ de béton.',
+    },
+    {
+      id: 'plinthes',
+      label: 'Longueur de plinthes',
+      emoji: '📏',
+      vars: [
+        { key: 'largeur', label: 'Largeur de la pièce', unit: 'm', default: 4 },
+        { key: 'longueur', label: 'Longueur de la pièce', unit: 'm', default: 5 },
+        { key: 'portes', label: 'Largeur cumulée des portes', unit: 'm', default: 1.6 },
+      ],
+      formula: '(2 * (largeur + longueur)) - portes',
+      result: 'm linéaires',
+      explain: 'Ajoutez 5 à 10% de marge pour les coupes en angle. Les plinthes se vendent en barres de 2,4 m généralement.',
+    },
+  ],
+  tech: [
+    {
+      id: 'taille-ecran',
+      label: 'Taille d\'écran idéale',
+      emoji: '📺',
+      vars: [
+        { key: 'distance', label: 'Distance de visionnage', unit: 'm', default: 3 },
+      ],
+      formula: '(distance * 100) / 2.54 / 1.6',
+      result: 'pouces (4K)',
+      explain: 'Calcul SMPTE pour un visionnage immersif en 4K (angle 30°). Pour de la TV classique, divisez par 2 le résultat. Pour du cinéma immersif, augmentez de 30%.',
+    },
+    {
+      id: 'lumens-projecteur',
+      label: 'Lumens nécessaires (vidéoprojecteur)',
+      emoji: '💡',
+      vars: [
+        { key: 'taille', label: 'Taille de l\'image (diagonale)', unit: 'pouces', default: 100 },
+        { key: 'eclairage', label: 'Éclairage ambiant (1=noir, 5=jour)', unit: '', default: 2 },
+      ],
+      formula: '(taille * taille * eclairage * 0.5)',
+      result: 'lumens ANSI',
+      explain: 'Estimation grossière. Pour un home cinéma dans le noir : 2000-3000 lm. Pour une pièce semi-éclairée : 4000-5000 lm. Pour une réunion en plein jour : 6000+ lm.',
+    },
+    {
+      id: 'consommation',
+      label: 'Coût électrique annuel',
+      emoji: '⚡',
+      vars: [
+        { key: 'puissance', label: 'Puissance', unit: 'W', default: 100 },
+        { key: 'heures', label: 'Heures par jour', unit: 'h', default: 4 },
+        { key: 'tarif', label: 'Tarif kWh', unit: '€', default: 0.25 },
+      ],
+      formula: '(puissance * heures * 365 / 1000) * tarif',
+      result: '€ par an',
+      explain: 'Calcul basé sur le tarif réglementé EDF actuel (~0,25 €/kWh). La consommation réelle dépend de l\'usage effectif et des modes veille.',
+    },
+  ],
+  adulte: [
+    {
+      id: 'taille-conseillee',
+      label: 'Taille conseillée (lubrifiant requis)',
+      emoji: '📏',
+      vars: [
+        { key: 'longueur', label: 'Longueur du produit', unit: 'cm', default: 15 },
+        { key: 'diametre', label: 'Diamètre', unit: 'cm', default: 4 },
+      ],
+      formula: '3.14159 * (diametre / 2) * (diametre / 2) * longueur / 1000',
+      result: 'mL volume approximatif',
+      explain: 'Calcul indicatif du volume. Pour le lubrifiant : prévoir 5 à 15 ml selon les besoins, eau ou silicone selon le matériau.',
+    },
+  ],
+};
+
+// Profile.calculatorPresets prend priorité sur l'archetype si défini
+const calculs = profilePresets && profilePresets.length > 0 ? profilePresets : (PRESETS[archetype] ?? PRESETS.village);
+---
+<Base
+  title="Calculateurs"
+  description={`Calculateurs gratuits et instantanés sur ${SITE_CONFIG.siteName} : ${calculs.map(c => c.label).join(', ')}.`}
+>
+
+  {/* Hero éditorial sobre */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Calculateurs</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        {calculs.length} calculs <em style="font-style:italic">instantanés</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:680px">
+        Sans inscription, sans envoi de données. Tout se passe dans votre navigateur.
+      </p>
+    </div>
+  </section>
+
+  {/* Liste calculateurs */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      {calculs.map((c, i) => (
+        <section style={`padding:${i === 0 ? '0' : '48px'} 0 48px;${i > 0 ? 'border-top:1px solid var(--color-border)' : ''}`} data-calc={c.id}>
+          <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:8px">
+            <span style="font-size:32px;line-height:1">{c.emoji}</span>
+            <h2 class="serif" style="font-size:clamp(24px, 2.5vw, 32px);line-height:1.15;font-weight:400;letter-spacing:-.3px">{c.label}</h2>
+          </div>
+          <p style="font-size:14px;color:var(--color-text-muted);line-height:1.7;margin-bottom:32px;max-width:680px">{c.explain}</p>
+          <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:32px;margin-bottom:32px" class="calc-vars">
+            {c.vars.map((v) => (
+              <label style="display:block">
+                <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">{v.label} {v.unit && <span style="color:var(--color-text-muted)">({v.unit})</span>}</span>
+                <input
+                  type="number"
+                  step="any"
+                  data-key={v.key}
+                  value={v.default}
+                  style="width:100%;padding:12px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--color-ink);outline:none"
+                />
+              </label>
+            ))}
+          </div>
+          <div style="padding:24px 0;border-top:2px solid var(--color-ink)" data-formula={c.formula} data-unit={c.result}>
+            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:8px;font-weight:600">Résultat</div>
+            <div class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;font-style:italic;color:var(--color-accent)" data-result>—</div>
+          </div>
+        </section>
+      ))}
+    </div>
+  </section>
+</Base>
+<style>
+@media (max-width: 700px) {
+  .calc-vars { grid-template-columns: 1fr !important; gap: 20px !important; }
+}
+</style>
+
+<script>
+  document.querySelectorAll('[data-calc]').forEach((card) => {
+    const formula = card.querySelector('[data-formula]');
+    const unit = formula.dataset.unit;
+    const out = formula.querySelector('[data-result]');
+    const inputs = card.querySelectorAll('input[data-key]');
+
+    function compute() {
+      const vars = {};
+      inputs.forEach((i) => { vars[i.dataset.key] = parseFloat(i.value) || 0; });
+      try {
+        // sandbox eval — only math
+        const fn = new Function(...Object.keys(vars), `return ${formula.dataset.formula};`);
+        const v = fn(...Object.values(vars));
+        const fmt = isNaN(v) || !isFinite(v) ? '—' : (v >= 100 ? Math.round(v) : v.toFixed(2));
+        out.textContent = `${fmt} ${unit}`;
+      } catch (e) {
+        out.textContent = '—';
+      }
+    }
+    inputs.forEach((i) => i.addEventListener('input', compute));
+    compute();
+  });
+</script>

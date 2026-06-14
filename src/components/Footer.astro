@@ -1,79 +1,136 @@
 ---
+import { SITE_CONFIG } from '../lib/site-config';
 import { getCollection } from 'astro:content';
-import { SITE, PERSONA, PILLARS } from '../consts';
-import NewsletterCapture from './NewsletterCapture.astro';
-
 const year = new Date().getFullYear();
+const profile = SITE_CONFIG.profile;
+const tools = profile?.tools ?? [];
+const categories = profile?.categories ?? [];
 
-const recentArticles = (await getCollection('blog'))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
-  .slice(0, 5);
+// Boutique (pattern objetrama : footer = silos catégories produit, maillage sitewide
+// vers les pages money). Gated : sites sans collection produits → bloc absent.
+const _fProduits = await getCollection('produits').catch(() => []);
+const _fByCat = new Map<string, { label: string; count: number }>();
+for (const p of _fProduits as any[]) {
+  const c = p.data.category;
+  if (!_fByCat.has(c)) _fByCat.set(c, { label: p.data.categoryLabel ?? c, count: 0 });
+  _fByCat.get(c)!.count++;
+}
+const fShopCats = [..._fByCat.entries()].map(([slug, v]) => ({ slug, ...v })).sort((a, b) => b.count - a.count);
+const fDeals = (_fProduits as any[]).filter((p) => typeof p.data.oldPrice === 'number' && typeof p.data.price === 'number' && p.data.oldPrice > p.data.price).length;
 ---
-<footer class="border-t border-cream-200 bg-ink-900 text-cream-100 mt-24">
-  <div class="mx-auto max-w-7xl px-6 py-14 grid gap-10 md:grid-cols-6">
-    <div class="md:col-span-2">
-      <div class="font-serif text-2xl font-semibold text-cream-50">{SITE.name}</div>
-      <p class="mt-3 text-sm text-cream-200/80 max-w-md leading-relaxed">{SITE.shortDescription}</p>
-      <p class="mt-4 text-xs text-cream-200/60 mb-4">
-        Un média éditorial fondé par <a href="/a-propos" class="text-terra-300 hover:text-terra-100 underline-offset-2">{PERSONA.fullName}</a>.
-      </p>
-      <NewsletterCapture variant="compact" />
+<footer class="site-footer">
+  <div class="site-container">
+    {/* Bande BOUTIQUE — silos catégories produit (objetrama-style) */}
+    {fShopCats.length > 0 && (
+      <div class="footer-shop">
+        <div class="footer-shop-head">
+          <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin:0;font-weight:600">🛒 La boutique — nos sélections testées</h4>
+          <a href="/boutique/" style="color:var(--color-accent);text-decoration:none;font-size:13px;font-weight:600">Toute la boutique →</a>
+        </div>
+        <ul class="footer-shop-links">
+          {fShopCats.map((c) => (
+            <li><a href={`/categorie-produit/${c.slug}/`}>{c.label} <span class="footer-shop-n">({c.count})</span></a></li>
+          ))}
+          {fDeals > 0 && <li><a href="/bons-plans/" class="footer-shop-deal">🔥 Bons plans ({fDeals})</a></li>}
+        </ul>
+      </div>
+    )}
+    <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;gap:48px;margin-bottom:64px" class="footer-grid">
+      <div>
+        <span class="serif" style="font-size:36px;font-weight:500;letter-spacing:1px;color:var(--color-ink);display:block;margin-bottom:8px">
+          {SITE_CONFIG.siteName}
+        </span>
+        <p style="font-size:13px;color:var(--color-text-muted);line-height:1.6;max-width:280px;margin-bottom:24px">
+          {profile?.mission ?? SITE_CONFIG.tagline}
+        </p>
+        {profile?.author && (
+          <div style="font-size:12px;color:var(--color-text-subtle);font-style:italic" class="serif">
+            Rédaction : <strong style="font-weight:600;color:var(--color-ink);font-style:normal;font-family:'Inter',sans-serif">{profile.author.name}</strong>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin-bottom:24px;font-weight:600">
+          {categories.length > 0 ? 'Rubriques' : 'Explorer'}
+        </h4>
+        <ul style="list-style:none;margin:0;padding:0">
+          {categories.length > 0 && categories.slice(0, 6).map((c) => (
+            <li style="margin-bottom:14px"><a href={`/categorie/${c.slug}/`} style="color:var(--color-text-muted);text-decoration:none;font-size:13px;transition:color .2s">{c.name}</a></li>
+          ))}
+          <li style="margin-bottom:14px"><a href="/articles/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px;font-weight:500">Tous les articles</a></li>
+          <li style="margin-bottom:14px"><a href="/recherche/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Recherche</a></li>
+          <li style="margin-bottom:14px"><a href="/index-thematique/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Index thématique</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin-bottom:24px;font-weight:600">Outils</h4>
+        <ul style="list-style:none;margin:0;padding:0">
+          {tools.slice(0, 6).map((t) => (
+            <li style="margin-bottom:14px"><a href={t.href ?? `/outils/${t.slug}/`} style="color:var(--color-text-muted);text-decoration:none;font-size:13px">{t.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin-bottom:24px;font-weight:600">Magazine</h4>
+        <ul style="list-style:none;margin:0;padding:0">
+          <li style="margin-bottom:14px"><a href="/a-propos/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">À propos</a></li>
+          <li style="margin-bottom:14px"><a href="/equipe-editoriale/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Équipe</a></li>
+          <li style="margin-bottom:14px"><a href="/charte-editoriale/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Charte éditoriale</a></li>
+          <li style="margin-bottom:14px"><a href="/contact/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Contact</a></li>
+          <li style="margin-bottom:14px"><a href="mailto:mael.guelou.commercial@gmail.com" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">mael.guelou.commercial@gmail.com</a></li>
+          <li style="margin-bottom:14px"><a href="/annoncer-chez-nous/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Annonceurs</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin-bottom:24px;font-weight:600">Mentions</h4>
+        <ul style="list-style:none;margin:0;padding:0">
+          <li style="margin-bottom:14px"><a href="/mentions-legales/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Mentions légales</a></li>
+          <li style="margin-bottom:14px"><a href="/politique-de-confidentialite/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">RGPD</a></li>
+          <li style="margin-bottom:14px"><a href="/cgv/" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">CGV / CGU</a></li>
+          <li style="margin-bottom:14px"><a href="/sitemap-index.xml" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Plan du site</a></li>
+          <li style="margin-bottom:14px"><a href="/rss.xml" style="color:var(--color-text-muted);text-decoration:none;font-size:13px">Flux RSS</a></li>
+        </ul>
+      </div>
     </div>
 
-    <div>
-      <h3 class="font-serif text-base text-cream-50 mb-3">Explorer</h3>
-      <ul class="space-y-2 text-sm">
-        {PILLARS.map((p) => (
-          <li><a href={p.href} class="text-cream-200/80 hover:text-cream-50">{p.label}</a></li>
-        ))}
-        <li><a href="/blog" class="text-cream-200/80 hover:text-cream-50">Articles</a></li>
-      </ul>
-    </div>
+    {/* Liens externes autorité - boost trust signal */}
+    {profile?.authorityLinks && profile.authorityLinks.length > 0 && (
+      <div style="margin-top:32px;padding-top:32px;border-top:1px solid var(--color-border)">
+        <h4 style="font-size:11px;letter-spacing:3px;color:var(--color-ink);text-transform:uppercase;margin-bottom:16px;font-weight:600">Sources et références</h4>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px 28px">
+          {profile.authorityLinks.map((l) => (
+            <li>
+              <a href={l.url} target="_blank" rel={l.nofollow ? 'noopener nofollow' : 'noopener'}
+                 style="color:var(--color-text-muted);text-decoration:none;font-size:12px">
+                {l.label} <span style="font-size:10px;opacity:0.6">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
 
-    <div>
-      <h3 class="font-serif text-base text-cream-50 mb-3">Outils</h3>
-      <ul class="space-y-2 text-sm">
-        <li><a href="/outils/selecteur-huile" class="text-cream-200/80 hover:text-cream-50">Sélecteur d'huile</a></li>
-        <li><a href="/outils/timer-mantecatura" class="text-cream-200/80 hover:text-cream-50">Timer mantecatura</a></li>
-        <li><a href="/outils/quiz-regions" class="text-cream-200/80 hover:text-cream-50">Quiz régions</a></li>
-        <li><a href="/outils/carte-epiciers" class="text-cream-200/80 hover:text-cream-50">Carte épiciers</a></li>
-        <li><a href="/recherche" class="text-cream-200/80 hover:text-cream-50">Recherche</a></li>
-      </ul>
-    </div>
-
-    <div>
-      <h3 class="font-serif text-base text-cream-50 mb-3">Derniers articles</h3>
-      <ul class="space-y-2 text-sm">
-        {recentArticles.map((a) => (
-          <li><a href={`/blog/${a.id}`} class="text-cream-200/80 hover:text-cream-50 line-clamp-2 leading-snug">{a.data.title}</a></li>
-        ))}
-      </ul>
-    </div>
-
-    <div>
-      <h3 class="font-serif text-base text-cream-50 mb-3">Contact</h3>
-      <ul class="space-y-2 text-sm">
-        <li><a href={`mailto:${SITE.email}`} class="text-cream-200/80 hover:text-cream-50">{SITE.email}</a></li>
-        <li><a href="/devis" class="text-cream-200/80 hover:text-cream-50">Devis pro</a></li>
-        <li><a href="/contact" class="text-cream-200/80 hover:text-cream-50">Contact éditorial</a></li>
-        <li><a href="/annoncer-chez-nous" class="text-cream-200/80 hover:text-cream-50">Annoncer chez nous</a></li>
-        <li><a href="/pates-italiennes" class="text-cream-200/80 hover:text-cream-50">Guide pâtes</a></li>
-        <li><a href="/aop-dop-igp-italie" class="text-cream-200/80 hover:text-cream-50">Guide AOP DOP IGP</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="border-t border-cream-200/10">
-    <div class="mx-auto max-w-7xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
-      <div>© {year} {SITE.name}. Tous droits réservés.</div>
-      <nav class="flex items-center gap-5 flex-wrap">
-        <a href="/mentions-legales" class="hover:text-cream-50">Mentions légales</a>
-        <a href="/confidentialite" class="hover:text-cream-50">Confidentialité</a>
-        <a href="/cgv-pro" class="hover:text-cream-50">CGV pro</a>
-        <a href="/contact" class="hover:text-cream-50">Contact</a>
-        <a href="/annoncer-chez-nous" class="hover:text-cream-50">Annoncer chez nous</a>
-      </nav>
+    <div style="border-top:1px solid var(--color-border);padding-top:32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--color-text-subtle);letter-spacing:2px;text-transform:uppercase">
+      <span>© {year} {SITE_CONFIG.siteName}</span>
+      <span>Cookie-less · Site indépendant · CDN global</span>
     </div>
   </div>
 </footer>
+<style>
+.footer-grid a:hover { color: var(--color-ink) !important; }
+.footer-shop { border: 1px solid var(--color-border); border-radius: 16px; padding: 22px 26px; margin-bottom: 48px; background: var(--color-bg-card, #fff); }
+.footer-shop-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.footer-shop-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.footer-shop-links a { display: inline-block; background: var(--color-bg-2, #f1ece4); color: var(--color-text-muted); border-radius: 999px; padding: 7px 15px; font-size: 13px; text-decoration: none; transition: background .15s, color .15s; }
+.footer-shop-links a:hover { background: var(--color-ink); color: var(--color-bg-base) !important; }
+.footer-shop-n { opacity: .65; font-size: 11px; }
+.footer-shop-deal { font-weight: 700; color: var(--color-accent) !important; }
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+  .footer-grid > div:first-child { grid-column: span 2; }
+}
+</style>

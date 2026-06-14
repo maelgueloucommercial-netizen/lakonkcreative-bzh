@@ -2,60 +2,313 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import SEOHead from '../components/SEOHead.astro';
-import { SITE } from '../consts';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
 
 interface Props {
   title: string;
   description?: string;
-  image?: string;
+  ogImage?: string;
+  canonical?: string;
+  pubDate?: Date;
+  modifiedDate?: Date;
   type?: 'website' | 'article';
-  publishedAt?: Date;
-  updatedAt?: Date;
-  schema?: Record<string, unknown> | Record<string, unknown>[];
+  jsonLd?: Record<string, unknown>[];
   noindex?: boolean;
-  bodyClass?: string;
-  /** Préchargement de l'image LCP (item #49) — passe le src de l'image hero. */
-  preloadImage?: string;
 }
 
-const props = Astro.props;
+const {
+  title,
+  description = SITE_CONFIG.tagline,
+  ogImage,
+  canonical,
+  pubDate,
+  modifiedDate,
+  type = 'website',
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+// Canonical = URL telle qu'elle EST servie (avec / final, conforme trailingSlash:'always')
+const path = Astro.url.pathname;
+const pathWithSlash = path === '/' ? '/' : (path.endsWith('/') ? path : path + '/');
+const canonicalUrl = canonical ?? new URL(pathWithSlash, SITE_CONFIG.siteUrl).toString();
+
+const fullTitle = title === SITE_CONFIG.siteName ? title : `${title} — ${SITE_CONFIG.siteName}`;
+
+// OG image fallback : 1) prop explicit, 2) defaultOgImage SITE_CONFIG, 3) première image Wikipedia disponible
+// (loop sur tous les wikiImageSubjects au cas où le premier n'a pas été trouvé sur Wikipedia)
+const profile = SITE_CONFIG.profile;
+let fallbackWikiImage: string | null = null;
+for (const subject of profile?.wikiImageSubjects ?? []) {
+  if (WIKI_IMAGES[subject]) {
+    fallbackWikiImage = WIKI_IMAGES[subject];
+    break;
+  }
+}
+const ogImageRaw = ogImage ?? SITE_CONFIG.defaultOgImage ?? fallbackWikiImage;
+// Toujours absolutiser l'URL OG (Facebook/Google n'aiment pas les URL relatives)
+const ogImageUrl = ogImageRaw
+  ? (ogImageRaw.startsWith('http') ? ogImageRaw : new URL(ogImageRaw, SITE_CONFIG.siteUrl).toString())
+  : undefined;
+
+// JSON-LD globaux : WebSite + Organization + Place (si geo défini)
+// Apparaissent sur TOUTES les pages, complètent les schemas spécifiques
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_CONFIG.siteName,
+  url: SITE_CONFIG.siteUrl,
+  description: SITE_CONFIG.tagline,
+  inLanguage: 'fr-FR',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE_CONFIG.siteUrl}/recherche/?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+};
+// Person schema enrichi pour l'auteur principal (E-E-A-T)
+const authorPerson = profile?.author?.name ? {
+  '@type': 'Person',
+  '@id': `${SITE_CONFIG.siteUrl}#author-${profile.author.name.toLowerCase().replace(/\s+/g, '-')}`,
+  name: profile.author.name,
+  ...(profile.author.role && { jobTitle: profile.author.role }),
+  ...(profile.author.bio && { description: profile.author.bio }),
+  ...(profile.author.credentials && { award: profile.author.credentials, alumniOf: profile.author.credentials }),
+  url: `${SITE_CONFIG.siteUrl}/equipe-editoriale/`,
+  ...(profile.authorSameAs?.length && { sameAs: profile.authorSameAs }),
+  worksFor: { '@type': 'Organization', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+} : null;
+// #53 NAP (Name/Address/Phone) — adresse postale cohérente cross-site si geo défini.
+// Renforce signal local SEO + cohérence cross-channel pour citations futures.
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE_CONFIG.siteUrl}#organization`,
+  name: SITE_CONFIG.siteName,
+  url: SITE_CONFIG.siteUrl,
+  logo: SITE_CONFIG.siteUrl + '/favicon.svg',
+  ...(authorPerson && { founder: authorPerson, employee: [authorPerson] }),
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'editorial',
+    email: `mael.guelou.commercial@gmail.com`,
+    availableLanguage: ['fr'],
+  },
+  ...(profile?.geo && {
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: profile.geo.placename,
+      addressRegion: profile.geo.region,
+      addressCountry: 'FR',
+    },
+  }),
+  sameAs: [
+    `https://${SITE_CONFIG.domain}`,
+    ...(profile?.author?.sameAs ?? []),
+  ].filter(Boolean),
+  ...(profile?.geo?.parentEntities?.length && {
+    knowsAbout: profile.geo.parentEntities.map((e) => ({
+      '@type': 'Thing',
+      name: e.name,
+      ...(e.wikidataId && { sameAs: [`https://www.wikidata.org/wiki/${e.wikidataId}`, ...(e.url ? [e.url] : [])] }),
+    })),
+  }),
+};
+// Place schema (commune principale) — uniquement si geo défini
+const placeSchema = profile?.geo ? {
+  '@context': 'https://schema.org',
+  '@type': 'Place',
+  '@id': `${SITE_CONFIG.siteUrl}#place`,
+  name: profile.geo.placename,
+  ...(profile.geo.wikidataId && { sameAs: `https://www.wikidata.org/wiki/${profile.geo.wikidataId}` }),
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: profile.geo.lat,
+    longitude: profile.geo.lng,
+  },
+  containedInPlace: {
+    '@type': 'AdministrativeArea',
+    name: 'Dordogne',
+    addressRegion: profile.geo.region,
+    addressCountry: 'FR',
+  },
+} : null;
+const globalSchemas = [
+  websiteSchema,
+  organizationSchema,
+  ...(placeSchema ? [placeSchema] : []),
+  ...jsonLd,
+];
 ---
-<!doctype html>
-<html lang={SITE.language}>
+<!DOCTYPE html>
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    {/* Fonts auto-hébergées (item LCP) — preload pour libérer le critical path.
-        Le @font-face est dans global.css, qui est inliné via inlineStylesheets:'always'. */}
-    <link rel="preload" href="/fonts/cormorant-garamond-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <SEOHead
-      title={props.title}
-      description={props.description}
-      image={props.image}
-      type={props.type}
-      publishedAt={props.publishedAt}
-      updatedAt={props.updatedAt}
-      schema={props.schema}
-      noindex={props.noindex}
-      preloadImage={props.preloadImage}
-    />
-  </head>
-  <body class:list={['min-h-screen flex flex-col', props.bodyClass]}>
-    <Header />
-    <main class="flex-1" data-pagefind-body><slot /></main>
-    <Footer />
-    {/* Cloudflare Web Analytics — tag chargé uniquement si PUBLIC_CF_BEACON est
-        défini (free, RGPD-clean, sans cookie). Item #76 roadmap. */}
-    {import.meta.env.PUBLIC_CF_BEACON && (
-      <script
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_BEACON}"}`}
-      ></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,follow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    {/* #29 hreflang alternates — émis uniquement si i18n activé (ENABLE_EN=1) */}
+    {import.meta.env.ENABLE_EN === '1' && (
+      <>
+        <link rel="alternate" hreflang="fr" href={new URL(pathWithSlash.replace(/^\/en\//, '/').replace(/^\/en$/, '/'), SITE_CONFIG.siteUrl).toString()} />
+        <link rel="alternate" hreflang="en" href={new URL(pathWithSlash.startsWith('/en/') ? pathWithSlash : (pathWithSlash === '/' ? '/en/' : `/en${pathWithSlash}`), SITE_CONFIG.siteUrl).toString()} />
+        <link rel="alternate" hreflang="x-default" href={new URL(pathWithSlash.replace(/^\/en\//, '/').replace(/^\/en$/, '/'), SITE_CONFIG.siteUrl).toString()} />
+      </>
     )}
+
+    {/* Vérification Search Console / Bing — uniquement si configurées dans site-profile */}
+    {SITE_CONFIG.profile?.gscVerification && (
+      <meta name="google-site-verification" content={SITE_CONFIG.profile.gscVerification} />
+    )}
+    {SITE_CONFIG.profile?.bingVerification && (
+      <meta name="msvalidate.01" content={SITE_CONFIG.profile.bingVerification} />
+    )}
+
+    {/* Geo meta tags pour ranking local — uniquement si configurées */}
+    {SITE_CONFIG.profile?.geo && (
+      <>
+        <meta name="geo.region" content={SITE_CONFIG.profile.geo.region} />
+        <meta name="geo.placename" content={SITE_CONFIG.profile.geo.placename} />
+        <meta name="geo.position" content={`${SITE_CONFIG.profile.geo.lat};${SITE_CONFIG.profile.geo.lng}`} />
+        <meta name="ICBM" content={`${SITE_CONFIG.profile.geo.lat}, ${SITE_CONFIG.profile.geo.lng}`} />
+      </>
+    )}
+
+    {/* Google Fonts — preconnect + display=swap pour CLS minimal */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    {/* Wikipedia images = source primaire d'illustrations — preconnect pour LCP plus rapide */}
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin />
+    <link rel="dns-prefetch" href="https://upload.wikimedia.org" />
+
+    {/* Preload du hero LCP si og:image est une image Wikipedia (élimine le délai de discovery) */}
+    {ogImageUrl && ogImageUrl.includes('upload.wikimedia.org') && (
+      <link rel="preload" as="image" href={ogImageUrl} fetchpriority="high" />
+    )}
+
+    {/* Theme variables — injection des couleurs depuis SITE_CONFIG (style Lelo) */}
+    <style is:global define:vars={{
+      "site-primary": SITE_CONFIG.theme.colors.primary,
+      "site-secondary": SITE_CONFIG.theme.colors.secondary,
+      "site-bg-base": SITE_CONFIG.theme.colors.bgBase,
+      "site-bg-card": SITE_CONFIG.theme.colors.bgCard,
+      "site-bg-2": SITE_CONFIG.theme.colors.sponsored,
+      "site-text": SITE_CONFIG.theme.colors.text,
+      "site-text-muted": SITE_CONFIG.theme.colors.textMuted,
+      "site-text-subtle": SITE_CONFIG.theme.colors.textMuted,
+      "site-border": SITE_CONFIG.theme.colors.border,
+      "site-sponsored": SITE_CONFIG.theme.colors.sponsored,
+      "site-ink": SITE_CONFIG.theme.colors.text,
+      "site-accent": SITE_CONFIG.theme.colors.primary,
+    }}>
+      :root { color-scheme: light; }
+    </style>
+
+    {/* Open Graph */}
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={SITE_CONFIG.siteName} />
+    {ogImageUrl && (
+      <>
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:alt" content={fullTitle} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+      </>
+    )}
+    <meta property="og:locale" content="fr_FR" />
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && (
+      <>
+        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image:alt" content={fullTitle} />
+      </>
+    )}
+
+    {/* Article specific */}
+    {type === 'article' && pubDate && (
+      <meta property="article:published_time" content={pubDate.toISOString()} />
+    )}
+    {type === 'article' && modifiedDate && (
+      <meta property="article:modified_time" content={modifiedDate.toISOString()} />
+    )}
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" title={SITE_CONFIG.siteName} />
+    <link rel="alternate" type="application/feed+json" href="/feed.json" title={SITE_CONFIG.siteName} />
+
+    {/* hreflang — fr-FR par défaut, prêt à étendre vers en/es/de via setting */}
+    <link rel="alternate" hreflang="fr-FR" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+
+    {/* JSON-LD Schema.org — WebSite + Organization globaux + schemas spécifiques de page */}
+    {globalSchemas.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    {/* CF Web Analytics — cookie-less, RGPD-friendly. Token injecté via build env. */}
+    {import.meta.env.PUBLIC_CF_BEACON && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+              data-cf-beacon={`{"token": "${import.meta.env.PUBLIC_CF_BEACON}"}`}></script>
+    )}
+
+    {/* Plausible Analytics — cookie-less, RGPD-friendly. Pour mesurer dwell time
+        + CTR + sources de trafic. Activé si PUBLIC_PLAUSIBLE_DOMAIN défini. */}
+    {import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN && (
+      <script defer data-domain={import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN}
+              src={import.meta.env.PUBLIC_PLAUSIBLE_SRC ?? 'https://plausible.io/js/script.js'}></script>
+    )}
+
+    {/* RUM Core Web Vitals — beacon léger, post à cron.felleries.fr/cwv.
+        Collecte LCP, CLS, INP, FCP, TTFB pour mesurer page experience et
+        détecter régressions par page. Cookie-less. */}
+    {import.meta.env.PUBLIC_CWV_ENDPOINT && (
+      <script type="module" set:html={`
+import {onLCP,onCLS,onINP,onFCP,onTTFB} from 'https://unpkg.com/web-vitals@4?module';
+const u=${JSON.stringify(import.meta.env.PUBLIC_CWV_ENDPOINT)};
+const s=${JSON.stringify(SITE_CONFIG.domain)};
+const send=m=>{try{navigator.sendBeacon(u,JSON.stringify({site:s,path:location.pathname,...m}))}catch(e){}};
+onLCP(send);onCLS(send);onINP(send);onFCP(send);onTTFB(send);
+      `} />
+    )}
+
+    {/* Self-hosted analytics (alternative Plausible, gratuit, RGPD).
+        Beacon léger vers cron.felleries.fr/analytics/track. Active SAUF si
+        PUBLIC_DISABLE_ANALYTICS=1. IP hashée (pas de PII), cookie-less. */}
+    {!import.meta.env.PUBLIC_DISABLE_ANALYTICS && (
+      <script set:html={`
+(function(){try{
+var d=${JSON.stringify(SITE_CONFIG.domain)};
+var ep=(${JSON.stringify(import.meta.env.PUBLIC_ANALYTICS_ENDPOINT ?? '')})||'https://cron.felleries.fr/analytics/track';
+function s(){var b=JSON.stringify({u:location.pathname,r:document.referrer||'',d:d,vp:innerWidth+'x'+innerHeight,ev:'pageview'});
+if(navigator.sendBeacon)navigator.sendBeacon(ep,b);else fetch(ep,{method:'POST',body:b,keepalive:true}).catch(function(){});}
+if(document.readyState==='complete')s();else addEventListener('load',s,{once:true});
+}catch(e){}})();
+      `} />
+    )}
+
+    {/* Google AdSense — script global, Google place automatiquement les annonces */}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6150167828140567" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>

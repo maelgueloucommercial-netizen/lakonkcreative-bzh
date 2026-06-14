@@ -1,0 +1,59 @@
+---
+/**
+ * Méga-menu Rubriques (blog) — item de nav déroulant, met les catégories de blog en avant.
+ * Pendant éditorial de BoutiqueMega. Utilisé dans Header.astro (4 variants).
+ * Caché < 900px (les rubriques passent dans le menu mobile). Tokens --color-* du thème.
+ */
+interface Cat { slug: string; name: string; emoji?: string; count: number; }
+const { cats = [], label = 'Rubriques' } = Astro.props as { cats: Cat[]; label?: string };
+const total = cats.reduce((n, c) => n + c.count, 0);
+---
+{cats.length > 0 && (
+  <div class="cmega">
+    <a href="/articles/" class="cmega-trigger" aria-haspopup="true">
+      {label}
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </a>
+    <div class="cmega-panel" role="menu">
+      <div class="cmega-head"><strong>Le blog par rubrique</strong><span>{total} article{total > 1 ? 's' : ''} classé{total > 1 ? 's' : ''} en {cats.length} rubrique{cats.length > 1 ? 's' : ''}</span></div>
+      <div class="cmega-grid">
+        {cats.map((c) => (
+          <a href={`/categorie/${c.slug}/`} class="cmega-item" role="menuitem">
+            <span class="cmega-ico">{c.emoji ?? '›'}</span>
+            <span class="cmega-txt"><strong>{c.name}</strong><small>{c.count > 0 ? `${c.count} article${c.count > 1 ? 's' : ''}` : 'à découvrir'}</small></span>
+          </a>
+        ))}
+      </div>
+      <a href="/articles/" class="cmega-all">Tous les articles →</a>
+    </div>
+  </div>
+)}
+
+<style>
+  .cmega { position: relative; display: inline-flex; }
+  .cmega-trigger { display: inline-flex; align-items: center; gap: 5px; color: inherit; text-decoration: none; cursor: pointer; font: inherit; letter-spacing: inherit; }
+  .cmega-trigger svg { opacity: .6; transition: transform .15s; }
+  .cmega:hover .cmega-trigger svg, .cmega:focus-within .cmega-trigger svg { transform: rotate(180deg); }
+  .cmega-panel {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+    min-width: 540px; max-width: 92vw; background: var(--color-bg-base, #fff);
+    border: 1px solid var(--color-border, #e7e1d8); border-radius: 14px;
+    box-shadow: 0 22px 60px rgba(0,0,0,.17); padding: 14px; z-index: 90;
+    opacity: 0; visibility: hidden; transition: opacity .16s, transform .16s, visibility .16s;
+    text-transform: none; letter-spacing: normal;
+  }
+  .cmega:hover .cmega-panel, .cmega:focus-within .cmega-panel { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(5px); }
+  .cmega-head { display: flex; flex-direction: column; padding: 4px 8px 12px; border-bottom: 1px solid var(--color-border, #eee); margin-bottom: 8px; }
+  .cmega-head strong { font-size: 15px; color: var(--color-ink, #1b120e); }
+  .cmega-head span { font-size: 12px; color: var(--color-text-muted, #8a7d70); margin-top: 2px; }
+  .cmega-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .cmega-item { display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 10px; text-decoration: none; color: var(--color-ink, #1b120e); transition: background .12s; }
+  .cmega-item:hover { background: var(--color-bg-2, #f6f3ee); }
+  .cmega-ico { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 19px; background: var(--color-bg-2, #f6f3ee); border: 1px solid var(--color-border, #eee); border-radius: 9px; flex-shrink: 0; }
+  .cmega-txt { display: flex; flex-direction: column; line-height: 1.25; }
+  .cmega-txt strong { font-size: 14px; font-weight: 600; }
+  .cmega-txt small { font-size: 11.5px; color: var(--color-text-muted, #8a7d70); }
+  .cmega-all { display: block; text-align: center; margin-top: 8px; padding-top: 11px; border-top: 1px solid var(--color-border, #eee); font-weight: 700; font-size: 13px; color: var(--color-accent, var(--color-ink)); text-decoration: none; }
+  .cmega-all:hover { opacity: .8; }
+  @media (max-width: 900px) { .cmega { display: none !important; } }
+</style>

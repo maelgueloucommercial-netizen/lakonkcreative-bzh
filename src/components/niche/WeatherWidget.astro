@@ -1,0 +1,105 @@
+---
+/**
+ * WeatherWidget — météo locale pour les sites VILLAGE.
+ * API : Open-Meteo (gratuit, sans clé). Coordonnées hardcodées par site
+ * dans site-config (à enrichir).
+ */
+import { SITE_CONFIG } from '../../lib/site-config';
+
+// Coordonnées par défaut selon archétype/site (à enrichir depuis SITE_CONFIG)
+const COORDS_BY_DOMAIN: Record<string, { lat: number; lon: number; cityLabel: string }> = {
+  'sognolles-en-montois.fr': { lat: 48.5217, lon: 3.2750, cityLabel: 'Sognolles-en-Montois' },
+  'carces.fr': { lat: 43.4778, lon: 6.1822, cityLabel: 'Carcès (Var)' },
+  'gardonne.fr': { lat: 44.8425, lon: 0.3500, cityLabel: 'Gardonne (Dordogne)' },
+  'merenslesvals.fr': { lat: 42.6592, lon: 1.8358, cityLabel: 'Mérens-les-Vals (Ariège)' },
+  'montredon-labessonnie.fr': { lat: 43.7158, lon: 2.3708, cityLabel: 'Montredon-Labessonnié (Tarn)' },
+  'ville-bruyereslechatel.fr': { lat: 48.5742, lon: 2.2436, cityLabel: 'Bruyères-le-Châtel (Essonne)' },
+};
+
+const coords = COORDS_BY_DOMAIN[SITE_CONFIG.domain];
+if (!coords) return null;
+
+// Fetch SSR (cached at build time, refresh on rebuild)
+let weather: {
+  temperature: number;
+  weathercode: number;
+  windspeed: number;
+  daily: Array<{ date: string; tmin: number; tmax: number; code: number }>;
+} | null = null;
+
+try {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true&daily=temperature_2m_min,temperature_2m_max,weathercode&timezone=Europe/Paris`;
+  const r = await fetch(url);
+  if (r.ok) {
+    const d = await r.json() as {
+      current_weather: { temperature: number; weathercode: number; windspeed: number };
+      daily: { time: string[]; temperature_2m_min: number[]; temperature_2m_max: number[]; weathercode: number[] };
+    };
+    weather = {
+      temperature: d.current_weather.temperature,
+      weathercode: d.current_weather.weathercode,
+      windspeed: d.current_weather.windspeed,
+      daily: d.daily.time.slice(0, 5).map((t, i) => ({
+        date: t,
+        tmin: d.daily.temperature_2m_min[i],
+        tmax: d.daily.temperature_2m_max[i],
+        code: d.daily.weathercode[i],
+      })),
+    };
+  }
+} catch (e) {
+  // Silent fail
+}
+
+// WMO weather codes → emoji
+function codeToEmoji(code: number): string {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '🌤';
+  if (code === 3) return '☁️';
+  if (code >= 45 && code <= 48) return '🌫';
+  if (code >= 51 && code <= 67) return '🌦';
+  if (code >= 71 && code <= 77) return '❄️';
+  if (code >= 80 && code <= 86) return '🌧';
+  if (code >= 95) return '⛈';
+  return '🌥';
+}
+
+const dayLabel = (iso: string) => {
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 3);
+};
+---
+{weather && (
+  <aside class="weather-widget not-prose" style="background:var(--color-bg-card);border:1px solid var(--color-border);padding:24px" aria-label={`Météo ${coords.cityLabel}`}>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+      <h3 style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600;margin:0">
+        Météo · {coords.cityLabel}
+      </h3>
+      <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);font-weight:500">Open-Meteo</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--color-border)">
+      <div style="font-size:56px;line-height:1">{codeToEmoji(weather.weathercode)}</div>
+      <div>
+        <div class="serif" style="font-size:48px;line-height:1;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-1px">{Math.round(weather.temperature)}°</div>
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);margin-top:6px;font-weight:500">
+          Vent {Math.round(weather.windspeed)} km/h
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)">
+      {weather.daily.map((d) => (
+        <div style="text-align:center;padding:14px 6px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border)">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:8px">
+            {dayLabel(d.date)}
+          </div>
+          <div style="font-size:24px;line-height:1;margin-bottom:8px">{codeToEmoji(d.code)}</div>
+          <div class="serif" style="font-size:16px;line-height:1.1;color:var(--color-ink);font-feature-settings:'tnum'">
+            <strong style="font-style:italic;font-weight:400;color:var(--color-accent)">{Math.round(d.tmax)}°</strong> <span style="color:var(--color-text-muted);font-size:13px">{Math.round(d.tmin)}°</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </aside>
+)}

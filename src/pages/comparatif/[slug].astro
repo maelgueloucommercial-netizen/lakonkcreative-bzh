@@ -1,0 +1,173 @@
+---
+/**
+ * Type de page : comparatif (X vs Y) — DESIGN v2 (templates.css), collection-driven.
+ * Patterns concurrents (clubic/phoneinfo/onliz/pixmania) : hero 2 colonnes A|VS|B
+ * (image, score, ruban vainqueur), verdict express, tableau côte-à-côte (gagnant
+ * surligné/ligne + score total), sections par critère (avantage A/B), "pour qui",
+ * pros/cons, prix multi-marchand, FAQ, autres comparatifs.
+ * URL : /comparatif/{slug}/. Schemas Product×2 (Offer/AggregateRating) + FAQPage + Breadcrumb.
+ * NB : remplace l'ancienne version profile.matchups → migrer les matchups en /content/comparatifs/.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection, type CollectionEntry } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('comparatifs');
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: CollectionEntry<'comparatifs'> };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const A = d.a, B = d.b;
+const fmtScore = (c: typeof A) => (typeof c.score === 'number' ? `${c.score}/${c.scoreMax ?? 10}` : '');
+const priceText = (c: typeof A) => (typeof c.priceLow === 'number' && typeof c.priceHigh === 'number') ? `${c.priceLow} – ${c.priceHigh} €` : '';
+const maj = new Date(d.modifiedDate ?? d.pubDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+const winName = d.winner === 'a' ? A.name : d.winner === 'b' ? B.name : null;
+
+const productNode = (c: typeof A) => ({ '@type': 'Product', name: c.name, ...(c.image ? { image: c.image } : {}), ...(c.brand ? { brand: { '@type': 'Brand', name: c.brand } } : {}),
+  ...(typeof c.priceLow === 'number' ? { offers: { '@type': 'AggregateOffer', lowPrice: c.priceLow, ...(typeof c.priceHigh === 'number' ? { highPrice: c.priceHigh } : {}), priceCurrency: c.currency ?? 'EUR', offerCount: Math.max(c.merchants?.length ?? 1, 1) } } : {}),
+  ...(typeof c.score === 'number' ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: c.score, bestRating: c.scoreMax ?? 10, ratingCount: 1 } } : {}) });
+const graph: Record<string, unknown>[] = [productNode(A), productNode(B),
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Comparatifs', item: new URL('/comparatif/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] }];
+if (d.faq && d.faq.length) graph.push({ '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+const jsonLd = [{ '@context': 'https://schema.org', '@graph': graph }];
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} ogImage={d.heroImage ?? A.image} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="vs">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/comparatif/">Comparatifs</a> › <span>{d.title}</span></nav></div>
+
+    {/* HERO 2 colonnes */}
+    <header class="tpl-band tpl-band--dark"><div class="tpl-wrap">
+      <span class="tpl-eyebrow tpl-eyebrow--light">Comparatif · Mis à jour en {maj}</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      <div class="vs-hero">
+        <div class={`vs-side vs-a${d.winner === 'a' ? ' vs-win' : ''}`}>
+          {A.image && <img src={A.image} alt={A.imageAlt ?? A.name} loading="eager" width="240" height="180" />}
+          <strong>{A.name}</strong>{A.tagline && <span class="vs-tag">{A.tagline}</span>}{fmtScore(A) && <span class="vs-score">{fmtScore(A)}</span>}
+          {d.winner === 'a' && <span class="vs-ribbon">Vainqueur</span>}
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class={`vs-side vs-b${d.winner === 'b' ? ' vs-win' : ''}`}>
+          {B.image && <img src={B.image} alt={B.imageAlt ?? B.name} loading="eager" width="240" height="180" />}
+          <strong>{B.name}</strong>{B.tagline && <span class="vs-tag">{B.tagline}</span>}{fmtScore(B) && <span class="vs-score">{fmtScore(B)}</span>}
+          {d.winner === 'b' && <span class="vs-ribbon">Vainqueur</span>}
+        </div>
+      </div>
+    </div></header>
+
+    {/* VERDICT express */}
+    {(d.verdict || winName) && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">En bref</span><h2 class="tpl-h2">Le verdict</h2>
+        {d.verdict && <p class="tpl-lead">{d.verdict}</p>}
+        {winName && <p class="vs-choice">Notre choix : <strong>{winName}</strong></p>}
+        <div class="tpl-ctarow">{A.ctaUrl && <a href={A.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-primary">Voir {A.name}</a>}{B.ctaUrl && <a href={B.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber">Voir {B.name}</a>}</div>
+      </div></section>
+    )}
+
+    {/* TABLEAU côte-à-côte */}
+    {d.criteria.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">Face-à-face</span><h2 class="tpl-h2">{A.name} vs {B.name} : critère par critère</h2>
+        <div class="tpl-tablewrap"><table class="tpl-table vs-table">
+          <thead><tr><th>Critère</th><th>{A.name}</th><th>{B.name}</th></tr></thead>
+          <tbody>{d.criteria.map((c) => (<tr>
+            <td class="vs-crit">{c.label}</td>
+            <td class={c.winner === 'a' ? 'vs-cellwin' : ''}>{c.a}{c.winner === 'a' && ' ✓'}</td>
+            <td class={c.winner === 'b' ? 'vs-cellwin' : ''}>{c.b}{c.winner === 'b' && ' ✓'}</td>
+          </tr>))}
+          {(typeof A.score === 'number' || typeof B.score === 'number') && (
+            <tr class="vs-total"><td><strong>Note globale</strong></td><td><strong>{fmtScore(A)}</strong></td><td><strong>{fmtScore(B)}</strong></td></tr>
+          )}</tbody>
+        </table></div>
+      </div></section>
+    )}
+
+    {/* SECTIONS par critère */}
+    {d.sections.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">Le détail</span><h2 class="tpl-h2">Notre analyse point par point</h2>
+        {d.sections.map((s) => (<div class="vs-sec"><h3>{s.titre}{s.winner && s.winner !== 'tie' && <span class="vs-adv">Avantage {s.winner === 'a' ? A.name : B.name}</span>}</h3><p>{s.desc}</p></div>))}
+      </div></section>
+    )}
+
+    {/* PROS/CONS + POUR QUI */}
+    <section class="tpl-band"><div class="tpl-wrap">
+      <span class="tpl-eyebrow">Forces & faiblesses</span><h2 class="tpl-h2">Pour qui ?</h2>
+      <div class="vs-cards">
+        {[A, B].map((c) => (
+          <div class="tpl-card vs-card">
+            {c.image && <img src={c.image} alt={c.imageAlt ?? c.name} loading="lazy" width="120" height="90" />}
+            <strong>{c.name}</strong>
+            {c.pros.length > 0 && <div class="vs-pros"><strong>Les plus</strong><ul>{c.pros.map((p) => <li>{p}</li>)}</ul></div>}
+            {c.cons.length > 0 && <div class="vs-cons"><strong>Les moins</strong><ul>{c.cons.map((x) => <li>{x}</li>)}</ul></div>}
+            {c.bestFor && <p class="vs-bestfor">✔ Choisissez-le si : {c.bestFor}</p>}
+            {priceText(c) && <p class="vs-price">{priceText(c)}</p>}
+            {c.merchants.length > 0
+              ? <div class="vs-buy">{c.merchants.map((m) => <a href={m.url} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm">{m.name}{m.price ? ` · ${m.price}` : ''}</a>)}</div>
+              : (c.ctaUrl && <a href={c.ctaUrl} rel="sponsored nofollow" class="tpl-btn tpl-btn-amber tpl-btn-sm">{c.ctaLabel}</a>)}
+          </div>
+        ))}
+      </div>
+    </div></section>
+
+    {/* CONTENU */}
+    <section class="tpl-band tpl-band--tint"><div class="tpl-wrap tpl-wrap--narrow tpl-prose"><Content /></div></section>
+
+    {/* FAQ */}
+    {d.faq && d.faq.length > 0 && (
+      <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+        <span class="tpl-eyebrow">FAQ</span><h2 class="tpl-h2">Questions fréquentes</h2>
+        <div class="tpl-faq">{d.faq.map((f) => (<details><summary>{f.question}</summary><p>{f.answer}</p></details>))}</div>
+      </div></section>
+    )}
+
+    {/* AUTRES COMPARATIFS */}
+    {d.relatedGuides.length > 0 && (
+      <section class="tpl-band tpl-band--tint"><div class="tpl-wrap">
+        <span class="tpl-eyebrow">À lire aussi</span><h2 class="tpl-h2">Autres comparatifs</h2>
+        <ul class="vs-related">{d.relatedGuides.map((g) => <li><a href={g.url}>{g.title}</a></li>)}</ul>
+      </div></section>
+    )}
+  </div>
+</Base>
+
+<style>
+  .vs { --vs-a: var(--site-primary); --vs-b: var(--site-secondary); }
+  .vs-hero { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: stretch; margin-top: 1rem; }
+  .vs-side { position: relative; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 16px; padding: 1.2rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+  .vs-side img { border-radius: 12px; object-fit: contain; background: #fff; padding: .3rem; }
+  .vs-side strong { font-size: 1.15rem; }
+  .vs-tag { font-size: .85rem; opacity: .85; }
+  .vs-score { font-weight: 800; color: #ffd9a3; font-size: 1.1rem; }
+  .vs-win { border-color: var(--site-secondary); box-shadow: 0 0 0 2px var(--site-secondary); }
+  .vs-ribbon { position: absolute; top: -10px; right: 12px; background: var(--site-secondary); color: #2a1a00; font-weight: 800; font-size: .72rem; padding: .2rem .7rem; border-radius: 999px; }
+  .vs-badge { align-self: center; width: 52px; height: 52px; border-radius: 50%; background: var(--site-secondary); color: #2a1a00; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .vs-choice { font-size: 1.1rem; margin: .5rem 0; }
+  .vs-table .vs-crit { font-weight: 600; }
+  .vs-cellwin { background: color-mix(in srgb, var(--site-secondary) 18%, transparent); font-weight: 700; }
+  .vs-total td { border-top: 2px solid var(--site-primary); }
+  .vs-sec { background: var(--site-bg-card); border: 1px solid var(--site-border); border-radius: 12px; padding: 1rem 1.2rem; margin: .6rem 0; }
+  .vs-sec h3 { margin: 0 0 .3rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .vs-adv { background: var(--site-bg-2); color: var(--site-primary); font-size: .75rem; font-weight: 800; padding: .15rem .6rem; border-radius: 999px; }
+  .vs-sec p { margin: 0; color: var(--site-text-muted); }
+  .vs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .vs-card { text-align: center; }
+  .vs-card img { border-radius: 10px; object-fit: contain; background: #fff; }
+  .vs-card strong { display: block; margin: .4rem 0; }
+  .vs-pros, .vs-cons { text-align: left; font-size: .85rem; margin-top: .4rem; } .vs-pros ul, .vs-cons ul { margin: .2rem 0; padding-left: 1.1rem; }
+  .vs-pros strong { color: #1b6b3e; } .vs-cons strong { color: #9a3528; }
+  .vs-bestfor { font-size: .85rem; background: var(--site-bg-2); border-radius: 8px; padding: .5rem; text-align: left; }
+  .vs-price { font-weight: 800; color: var(--site-primary); }
+  .vs-buy { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; }
+  .vs-related { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .vs-related a { background: var(--site-bg-card); border: 1px solid var(--site-border); color: var(--site-primary); border-radius: 999px; padding: .45rem 1.1rem; font-weight: 700; font-size: .9rem; text-decoration: none; }
+  @media (max-width: 640px) { .vs-hero { grid-template-columns: 1fr; } .vs-badge { margin: -.3rem auto; } .vs-cards { grid-template-columns: 1fr; } }
+</style>

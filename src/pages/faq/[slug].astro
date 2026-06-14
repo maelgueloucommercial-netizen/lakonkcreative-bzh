@@ -1,0 +1,47 @@
+---
+/**
+ * Type de page : faq (page FAQ thématique) — DESIGN v2 (templates.css).
+ * Lue depuis `articles` filtrés pageType==='faq'. Le champ faq[] porte les Q/R.
+ * URL : /faq/{slug}/. Schemas FAQPage + BreadcrumbList.
+ */
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+import { render, getCollection } from 'astro:content';
+import '../../styles/templates.css';
+
+export async function getStaticPaths() {
+  const arts = await getCollection('articles');
+  const faqs = arts.filter((a) => a.data.pageType === 'faq');
+  return faqs.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const d = entry.data;
+const { Content } = await render(entry);
+const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
+const items: { question: string; answer: string }[] = d.faq ?? [];
+
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'FAQ', item: new URL('/faq/', SITE_CONFIG.siteUrl).toString() },
+    { '@type': 'ListItem', position: 3, name: d.title, item: pageUrl } ] },
+];
+---
+<Base title={d.title} description={d.description} canonical={pageUrl} type="article" jsonLd={jsonLd} noindex={d.noindex} pubDate={d.pubDate} modifiedDate={d.modifiedDate}>
+  <div class="fq">
+    <div class="tpl-bcband"><nav class="tpl-wrap tpl-bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › <a href="/faq/">FAQ</a> › <span>{d.title}</span></nav></div>
+
+    <header class="tpl-band tpl-band--dark"><div class="tpl-wrap tpl-wrap--narrow">
+      <span class="tpl-eyebrow tpl-eyebrow--light">FAQ</span>
+      <h1 class="tpl-h1">{d.title}</h1>
+      {d.description && <p class="tpl-lead">{d.description}</p>}
+    </div></header>
+
+    <section class="tpl-band"><div class="tpl-wrap tpl-wrap--narrow">
+      <div class="tpl-prose"><Content /></div>
+      <div class="tpl-faq" style="margin-top:1.4rem">{items.map((f) => (<details><summary>{f.question}</summary><div><p>{f.answer}</p></div></details>))}</div>
+    </div></section>
+  </div>
+</Base>

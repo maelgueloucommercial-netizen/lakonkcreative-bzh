@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const COORDS: Record<string, { lat: number; lon: number; label: string; zoom: number }> = {
+  'sognolles-en-montois.fr': { lat: 48.4264, lon: 3.2356, label: 'Sognolles-en-Montois', zoom: 14 },
+  'carces.fr': { lat: 43.4773, lon: 6.1843, label: 'Carcès', zoom: 14 },
+  'gardonne.fr': { lat: 44.8413, lon: 0.4283, label: 'Gardonne', zoom: 14 },
+  'merenslesvals.fr': { lat: 42.6500, lon: 1.8333, label: 'Mérens-les-Vals', zoom: 13 },
+  'montredon-labessonnie.fr': { lat: 43.7172, lon: 2.2972, label: 'Montredon-Labessonnié', zoom: 13 },
+  'ville-bruyereslechatel.fr': { lat: 48.5667, lon: 2.1833, label: 'Bruyères-le-Châtel', zoom: 14 },
+};
+const fallback = { lat: 46.603354, lon: 1.888334, label: 'France', zoom: 6 };
+const c = COORDS[SITE_CONFIG.domain] ?? fallback;
+const archetype = SITE_CONFIG.theme.archetype;
+---
+<Base
+  title={`Carte interactive — ${c.label}`}
+  description={`Carte interactive de ${c.label} : commerces, services, points d'intérêt. Données OpenStreetMap.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Carte interactive</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        {c.label}, à <em style="font-style:italic">explorer</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:620px">
+        Carte zoomable basée sur OpenStreetMap. Données libres et collaboratives.
+      </p>
+    </div>
+  </section>
+
+  {/* Carte */}
+  <section style="padding:0;background:var(--color-bg-base)">
+    <div id="map" style="height:600px;width:100%;border:0;border-bottom:1px solid var(--color-border)"></div>
+  </section>
+
+  {/* Légende + données */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="map-grid">
+        <div style="padding:48px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card)">
+          <div class="eyebrow" style="margin-bottom:14px">Légende</div>
+          <h3 class="serif" style="font-size:24px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:24px">
+            Lire la <em style="font-style:italic">carte</em>.
+          </h3>
+          <ul style="list-style:none;padding:0;margin:0;display:grid;gap:14px">
+            <li style="font-size:15px;color:var(--color-ink);display:flex;gap:14px;align-items:center"><span style="font-size:20px">🏛️</span>Mairie / services publics</li>
+            <li style="font-size:15px;color:var(--color-ink);display:flex;gap:14px;align-items:center"><span style="font-size:20px">🛒</span>Commerces de proximité</li>
+            <li style="font-size:15px;color:var(--color-ink);display:flex;gap:14px;align-items:center"><span style="font-size:20px">🍽️</span>Restaurants et cafés</li>
+            <li style="font-size:15px;color:var(--color-ink);display:flex;gap:14px;align-items:center"><span style="font-size:20px">🏥</span>Santé (médecins, pharmacie)</li>
+            <li style="font-size:15px;color:var(--color-ink);display:flex;gap:14px;align-items:center"><span style="font-size:20px">🎒</span>Écoles</li>
+          </ul>
+        </div>
+        <div style="padding:48px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card)">
+          <div class="eyebrow" style="margin-bottom:14px">Source des données</div>
+          <h3 class="serif" style="font-size:24px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:24px">
+            <em style="font-style:italic">OpenStreetMap</em>.
+          </h3>
+          <p style="font-size:15px;line-height:1.75;color:var(--color-text-muted)">
+            Données fournies par <a href="https://www.openstreetmap.org/" rel="noopener" class="link-underline">OpenStreetMap</a>, contributeurs bénévoles. Pour signaler une erreur, vous pouvez éditer la carte directement sur OSM.
+          </p>
+        </div>
+      </div>
+
+      {archetype === 'village' && (
+        <article style="margin-top:80px;padding-top:48px;border-top:1px solid var(--color-border)">
+          <div class="eyebrow" style="margin-bottom:14px">Comment utiliser cette carte ?</div>
+          <h2 class="serif" style="font-size:clamp(24px, 2.6vw, 32px);line-height:1.15;font-weight:400;letter-spacing:-.3px;margin-bottom:24px">
+            Trois <em style="font-style:italic">gestes</em> simples.
+          </h2>
+          <ul style="list-style:none;padding:0;margin:0 0 32px;display:grid;gap:14px">
+            <li style="font-size:16px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative"><span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>Zoomez avec la molette de souris ou le pincement tactile.</li>
+            <li style="font-size:16px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative"><span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>Déplacez-vous en glissant la carte.</li>
+            <li style="font-size:16px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative"><span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>Cliquez sur un marqueur pour afficher les détails.</li>
+          </ul>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);max-width:680px">
+            Si vous repérez un commerce ou un service manquant, signalez-le-nous via la <a href="/contact/" class="link-underline">page contact</a>, nous le transmettons à OpenStreetMap.
+          </p>
+        </article>
+      )}
+    </div>
+  </section>
+</Base>
+<style>
+@media (max-width: 700px) { .map-grid { grid-template-columns: 1fr !important; } }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous" is:inline></script>
+
+<script define:vars={{ lat: c.lat, lon: c.lon, zoom: c.zoom, label: c.label }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof L === 'undefined') return;
+    const map = L.map('map').setView([lat, lon], zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(map);
+    L.marker([lat, lon]).addTo(map).bindPopup(`<b>${label}</b>`).openPopup();
+  });
+</script>

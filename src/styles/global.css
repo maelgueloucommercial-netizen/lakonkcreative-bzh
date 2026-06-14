@@ -1,115 +1,472 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
-/* Fonts auto-hébergées (variable woff2, range latin uniquement) — élimine
-   le render-blocking sur fonts.googleapis.com + gstatic.com (LCP). */
-@font-face {
-  font-family: 'Cormorant Garamond';
-  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
-  font-weight: 500 700;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
+/* #45 Web fonts self-hosted (subset latin) — pas de requête Google Fonts.
+   Les fichiers .woff2 sont déposés dans public/fonts/ via scripts/download-fonts.mjs.
+   font-display: swap pour ne pas bloquer le LCP ; system-ui en fallback. */
 @font-face {
   font-family: 'Inter';
-  src: url('/fonts/inter-latin.woff2') format('woff2');
-  font-weight: 400 600;
   font-style: normal;
+  font-weight: 100 900;
   font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url('/fonts/inter-variable-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* =============================================================================
-   Thème DaRocco — palette inspirée du Mezzogiorno : terracotta, vert olivier,
-   ivoire crème, encre profonde. Typographie : serif moderne pour le titrage,
-   sans humaniste pour le corps de texte.
-   ========================================================================== */
+/* ============================================================
+ * Sprint 13 — Style "Lelo / Lifestyle Luxury Magazine"
+ *
+ * Palette claire (cream/paper/ink) avec un seul accent par niche.
+ * Typo serif Cormorant Garamond + sans-serif Inter (chargés via Base.astro).
+ * Hairlines 1px, beaucoup de whitespace, rounded zéro pour boutons.
+ * Photos full-bleed dominantes.
+ * ============================================================ */
 
 @theme {
-  /* Couleurs */
-  --color-cream-50:  #faf6ef;
-  --color-cream-100: #f3ecdf;
-  --color-cream-200: #e8dcc4;
-
-  --color-terra-50:  #fbeee8;
-  --color-terra-100: #f3d3c2;
-  --color-terra-300: #e09075;
-  --color-terra-500: #c4543a;
-  --color-terra-600: #a33d28;
-  --color-terra-700: #7e2e1f;
-
-  --color-olive-50:  #f1f3ea;
-  --color-olive-200: #cdd5b1;
-  --color-olive-500: #6f7d3f;
-  --color-olive-600: #586733;
-  --color-olive-700: #424d27;
-
-  --color-ink-700: #2b2118;
-  --color-ink-900: #1a1411;
-
-  /* Typographie */
-  --font-serif: "Cormorant Garamond", "EB Garamond", ui-serif, Georgia, serif;
-  --font-sans:  "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono:  ui-monospace, "Courier New", monospace;
-
-  /* Layout */
-  --tracking-tight: -0.02em;
+  /* Couleurs primaires héritées du SiteTheme (palette par site) */
+  --color-primary: var(--site-primary, hsl(0 65% 25%));
+  --color-secondary: var(--site-secondary, hsl(35 45% 50%));
+  --color-bg-base: var(--site-bg-base, hsl(36 33% 94%));
+  --color-bg-card: var(--site-bg-card, hsl(0 0% 100%));
+  --color-bg-2: var(--site-bg-2, hsl(36 30% 90%));
+  --color-text: var(--site-text, hsl(20 25% 9%));
+  --color-text-muted: var(--site-text-muted, hsl(20 8% 35%));
+  --color-text-subtle: var(--site-text-subtle, hsl(20 5% 60%));
+  --color-border: var(--site-border, hsl(36 18% 84%));
+  --color-sponsored: var(--site-sponsored, hsl(35 45% 95%));
+  --color-ink: var(--site-ink, hsl(20 30% 8%));
+  --color-accent: var(--site-accent, hsl(0 65% 30%));
 }
 
-@layer base {
-  html {
-    background-color: var(--color-cream-50);
-    color: var(--color-ink-900);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+/* Base */
+:root { color-scheme: light; }
+*{box-sizing:border-box}
+body {
+  background: var(--color-bg-base);
+  color: var(--color-text);
+  font-family: 'Inter', -apple-system, system-ui, 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings tous en serif */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -.5px;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+/* Utility classes */
+.serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+.sans { font-family: 'Inter', sans-serif; }
+.italic { font-style: italic; }
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+.eyebrow-light {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
+}
+
+/* Container */
+.site-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.site-container--narrow {
+  max-width: 880px;
+}
+
+/* Header & Footer styling */
+.site-header {
+  background: var(--color-bg-base);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.site-footer {
+  background: var(--color-bg-base);
+  border-top: 1px solid var(--color-border);
+  padding: 96px 0 32px;
+  margin-top: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* Buttons (rectangulaires sobres comme Lelo) */
+.btn-fill, .btn-line, .btn-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 36px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all .25s;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.btn-fill {
+  background: var(--color-ink);
+  color: var(--color-bg-base);
+  border: 1px solid var(--color-ink);
+}
+.btn-fill:hover {
+  background: transparent;
+  color: var(--color-ink);
+}
+.btn-line {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+}
+.btn-line:hover {
+  background: var(--color-ink);
+  color: var(--color-bg-base);
+}
+.btn-dark {
+  background: var(--color-ink);
+  color: var(--color-bg-base);
+  border: 1px solid var(--color-ink);
+}
+.btn-dark:hover {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+/* Cards minimalistes (pas de rounded, juste hairline) */
+.lelo-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  transition: background .25s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.lelo-card:hover {
+  background: var(--color-bg-2);
+}
+
+/* Animated underline link (signature Lelo) */
+.link-underline {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.link-underline::after {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--color-ink);
+  transition: width .3s ease;
+}
+.link-underline:hover::after {
+  width: 64px;
+}
+.link-underline-light {
+  color: rgba(255,255,255,.95);
+}
+.link-underline-light::after {
+  background: rgba(255,255,255,.95);
+}
+
+/* Article prose (typo serif élégante pour le contenu) */
+.prose-article {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+  max-width: 720px;
+  margin: 0 auto;
+}
+.prose-article h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -.5px;
+  margin-top: 56px;
+  margin-bottom: 18px;
+  color: var(--color-ink);
+}
+.prose-article h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 500;
+  margin-top: 36px;
+  margin-bottom: 14px;
+  color: var(--color-ink);
+}
+.prose-article h2 em, .prose-article h3 em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+.prose-article p {
+  margin: 1.2rem 0;
+}
+.prose-article ul, .prose-article ol {
+  margin: 1.2rem 0;
+  padding-left: 1.5rem;
+}
+.prose-article li {
+  margin: .5rem 0;
+}
+.prose-article a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-thickness .15s;
+}
+.prose-article a:hover {
+  text-decoration-thickness: 2px;
+}
+.prose-article img {
+  margin: 2.5rem 0;
+  border: 1px solid var(--color-border);
+}
+.prose-article blockquote {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  border-left: 1px solid var(--color-accent);
+  padding: 8px 0 8px 28px;
+  margin: 32px 0;
+}
+
+/* Site-card legacy — restylé en Lelo (hairline + cream bg) */
+.site-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  padding: 0;
+}
+.site-card.p-3 { padding: 18px; }
+.site-card.p-4 { padding: 24px; }
+.site-card.p-5 { padding: 32px; }
+.site-card.p-6 { padding: 40px; }
+.site-card.p-8 { padding: 56px; }
+.site-card h2, .site-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  letter-spacing: -.3px;
+  color: var(--color-ink);
+}
+
+/* Sponsored block — préservation visuelle des liens vendus */
+.legacy-sponsored {
+  background: var(--color-sponsored);
+  border-left: 2px solid var(--color-accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  font-style: italic;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+.legacy-sponsored p { margin: 0; }
+.legacy-sponsored a {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* Autolinks — discret, pointillé olive */
+.prose-article a.autolink {
+  background: linear-gradient(transparent 92%, var(--color-accent) 92%);
+  background-size: 100% 100%;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-accent);
+  padding-bottom: 1px;
+}
+.prose-article a.autolink:hover {
+  background: linear-gradient(transparent 80%, var(--color-accent) 80%);
+  border-bottom-style: solid;
+}
+
+/* Pagefind UI theming */
+:root {
+  --pagefind-ui-scale: 0.85;
+  --pagefind-ui-primary: var(--color-accent);
+  --pagefind-ui-text: var(--color-text);
+  --pagefind-ui-background: var(--color-bg-base);
+  --pagefind-ui-border: var(--color-border);
+  --pagefind-ui-tag: var(--color-bg-2);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 0;
+  --pagefind-ui-image-border-radius: 0;
+  --pagefind-ui-image-box-ratio: 5 / 4;
+  --pagefind-ui-font: 'Inter', sans-serif;
+}
+
+/* ============================================================================
+ * RESPONSIVE — breakpoints harmonisés
+ *   --bp-mobile  : ≤ 639px   (smartphones portrait)
+ *   --bp-tablet  : 640-1023px (tablets, smartphones landscape)
+ *   --bp-desktop : ≥ 1024px  (desktop)
+ *
+ * Classes utilitaires :
+ *   .cols-2   → grid 2 cols → 1 col en mobile
+ *   .cols-3   → grid 3 cols → 2 en tablet → 1 en mobile
+ *   .cols-4   → grid 4 cols → 2 en tablet → 1 en mobile
+ *   .cols-2-eq → 2 cols égales avec gap responsive
+ *   .row-flex → flex row → column en mobile
+ *   .stack-on-mobile → empile colonnes en mobile
+ *   .hide-mobile → cache en mobile
+ *   .hide-desktop → cache en desktop
+ *   .text-responsive-h1/h2/h3 → tailles fluides clamp()
+ *   .padding-responsive → padding horizontal responsive (32px desktop, 16px mobile)
+ * ============================================================================ */
+
+.cols-2, .cols-3, .cols-4 { display: grid; gap: 32px; }
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1023px) {
+  .cols-3, .cols-4 { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+}
+@media (max-width: 639px) {
+  .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* Hero éditorial split (5fr 4fr) — utilisé partout */
+.hero-split-grid { display: grid; grid-template-columns: 5fr 4fr; align-items: stretch; }
+@media (max-width: 1023px) {
+  .hero-split-grid { grid-template-columns: 1fr; }
+}
+
+/* Container responsive */
+.site-container { padding-left: 32px; padding-right: 32px; }
+@media (max-width: 639px) {
+  .site-container { padding-left: 20px; padding-right: 20px; }
+  .site-container--narrow { max-width: 100%; }
+}
+
+/* Show/hide */
+.hide-mobile { display: block; }
+.hide-desktop { display: none; }
+@media (max-width: 639px) {
+  .hide-mobile { display: none !important; }
+  .hide-desktop { display: block !important; }
+}
+
+/* Tap targets : tous les <a> et <button> au moins 44x44px en mobile (WCAG AA) */
+@media (max-width: 639px) {
+  a, button { min-height: 44px; }
+}
+
+/* Article body : padding responsive */
+.prose-article {
+  padding-left: 0;
+  padding-right: 0;
+}
+@media (max-width: 639px) {
+  .prose-article {
+    font-size: 16px;
+    line-height: 1.7;
   }
+  .prose-article h2 { font-size: 26px !important; margin-top: 36px; }
+  .prose-article h3 { font-size: 20px !important; margin-top: 24px; }
+  .prose-article p { margin: 1rem 0; }
+  .prose-article img { margin: 1.5rem 0; }
+}
 
-  h1, h2, h3, h4, h5 {
-    font-family: var(--font-serif);
-    letter-spacing: var(--tracking-tight);
-    font-weight: 600;
-    color: var(--color-ink-900);
+/* Heroes : padding réduit en mobile */
+@media (max-width: 1023px) {
+  /* Tous les <section> avec hero éditorial split — padding interne réduit */
+  .hero-split-grid > div:not(:first-child) {
+    padding: 56px 32px !important;
   }
-
-  a { color: var(--color-terra-600); }
-  a:hover { color: var(--color-terra-700); }
-
-  /* Liens dans le texte courant : soulignement subtil */
-  .prose a {
-    text-decoration: underline;
-    text-decoration-color: var(--color-terra-300);
-    text-underline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .hero-split-grid > div:not(:first-child) {
+    padding: 40px 20px !important;
   }
-
-  /* Liens insérés automatiquement par le maillage interne (item #42).
-     Soulignement pointillé pour les distinguer des liens éditoriaux explicites
-     sans rompre l'unité graphique. */
-  .prose a.autolink {
-    text-decoration-style: dotted;
-    text-decoration-color: var(--color-olive-500);
+  .hero-split-grid > div:first-child {
+    min-height: 240px !important;
   }
 }
 
-/* Bouton primaire utilitaire */
-.btn-primary {
-  @apply inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium transition;
-  background-color: var(--color-terra-600);
-  color: var(--color-cream-50);
-}
-.btn-primary:hover {
-  background-color: var(--color-terra-700);
-  color: var(--color-cream-50);
+/* H1 fluide */
+@media (max-width: 639px) {
+  h1, .serif[style*="font-size:clamp"] {
+    font-size: clamp(28px, 8vw, 40px) !important;
+    line-height: 1.1 !important;
+  }
+  h2, h3 {
+    line-height: 1.2 !important;
+  }
 }
 
-.btn-secondary {
-  @apply inline-flex items-center justify-center rounded-md px-5 py-2.5 text-sm font-medium transition border;
-  background-color: transparent;
-  color: var(--color-ink-900);
-  border-color: var(--color-ink-700);
+/* Sections paddings */
+@media (max-width: 1023px) {
+  section[style*="padding:120px"] { padding-top: 80px !important; padding-bottom: 80px !important; }
+  section[style*="padding:96px"] { padding-top: 64px !important; padding-bottom: 64px !important; }
+  section[style*="padding:80px"] { padding-top: 56px !important; padding-bottom: 56px !important; }
 }
-.btn-secondary:hover {
-  background-color: var(--color-ink-900);
-  color: var(--color-cream-50);
+@media (max-width: 639px) {
+  section[style*="padding:120px"] { padding-top: 56px !important; padding-bottom: 56px !important; }
+  section[style*="padding:96px"] { padding-top: 48px !important; padding-bottom: 48px !important; }
+  section[style*="padding:80px"] { padding-top: 40px !important; padding-bottom: 40px !important; }
 }
+
+/* Tables : scrollables horizontalement en mobile */
+@media (max-width: 639px) {
+  table { font-size: 13px; }
+  div[style*="overflow-x:auto"] { -webkit-overflow-scrolling: touch; }
+}
+
+/* Newsletter form : column en mobile */
+@media (max-width: 639px) {
+  form[style*="border-bottom:2px solid"] {
+    flex-direction: column !important;
+    border-bottom: 0 !important;
+    gap: 12px !important;
+  }
+  form[style*="border-bottom:2px solid"] input {
+    border-bottom: 2px solid var(--color-ink) !important;
+  }
+}
+
+/* Images responsive : forcer max-width 100% (sécurité) */
+img { max-width: 100%; height: auto; }

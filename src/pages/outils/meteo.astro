@@ -1,0 +1,136 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+
+// Coordonnées par domaine — fallback Paris
+const COORDS: Record<string, { lat: number; lon: number; label: string }> = {
+  'sognolles-en-montois.fr': { lat: 48.4264, lon: 3.2356, label: 'Sognolles-en-Montois' },
+  'carces.fr': { lat: 43.4773, lon: 6.1843, label: 'Carcès' },
+  'gardonne.fr': { lat: 44.8413, lon: 0.4283, label: 'Gardonne' },
+  'merenslesvals.fr': { lat: 42.6500, lon: 1.8333, label: 'Mérens-les-Vals' },
+  'montredon-labessonnie.fr': { lat: 43.7172, lon: 2.2972, label: 'Montredon-Labessonnié' },
+  'requindusexe.com': { lat: 48.8566, lon: 2.3522, label: 'Région Île-de-France' },
+  'ville-bruyereslechatel.fr': { lat: 48.5667, lon: 2.1833, label: 'Bruyères-le-Châtel' },
+};
+const fallback = { lat: 48.8566, lon: 2.3522, label: 'France' };
+const coord = COORDS[SITE_CONFIG.domain] ?? fallback;
+---
+<Base
+  title={`Météo — ${coord.label}`}
+  description={`Prévisions météo à 7 jours pour ${coord.label}. Données Open-Meteo, sans inscription.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Météo locale</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        {coord.label}, à <em style="font-style:italic">7 jours</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:620px">
+        Prévisions actualisées en direct via Open-Meteo. Sans inscription, sans cookie.
+      </p>
+    </div>
+  </section>
+
+  {/* Contenu météo */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+
+      <div id="meteo-loading" style="text-align:center;padding:96px 0;font-size:16px;color:var(--color-text-muted)">
+        Chargement de la météo…
+      </div>
+
+      <div id="meteo-content" style="display:none">
+        <div id="meteo-current" style="text-align:center;padding:48px 0;border-bottom:2px solid var(--color-ink);margin-bottom:48px"></div>
+        <div class="eyebrow" style="margin-bottom:24px">Prévisions 7 jours</div>
+        <div id="meteo-week" style="display:grid;grid-template-columns:repeat(7, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="meteo-week"></div>
+        <p style="font-size:13px;color:var(--color-text-muted);margin-top:32px;line-height:1.6">
+          Source : <a href="https://open-meteo.com/" rel="noopener" class="link-underline">Open-Meteo</a>. Latitude {coord.lat}, longitude {coord.lon}.
+        </p>
+      </div>
+
+      <article style="margin-top:96px;padding-top:48px;border-top:1px solid var(--color-border)">
+        <div class="eyebrow" style="margin-bottom:14px">Comprendre la météo locale</div>
+        <h2 class="serif" style="font-size:clamp(24px, 2.6vw, 32px);line-height:1.15;font-weight:400;letter-spacing:-.3px;margin-bottom:18px">
+          Le climat de <em style="font-style:italic">{coord.label}</em>.
+        </h2>
+        <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px;max-width:680px">
+          La région de {coord.label} bénéficie d'un climat caractéristique de sa zone géographique. Les prévisions ci-dessus sont actualisées plusieurs fois par jour à partir des modèles météorologiques de référence européens.
+        </p>
+        <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);max-width:680px">
+          Pour les <strong style="color:var(--color-ink);font-weight:500">prévisions horaires</strong>, les <strong style="color:var(--color-ink);font-weight:500">alertes orage</strong> ou la <strong style="color:var(--color-ink);font-weight:500">qualité de l'air</strong>, consultez Météo-France ou un service spécialisé.
+        </p>
+      </article>
+    </div>
+  </section>
+</Base>
+<style>
+@media (max-width: 900px) { .meteo-week { grid-template-columns: repeat(4, 1fr) !important; } }
+@media (max-width: 600px) { .meteo-week { grid-template-columns: repeat(2, 1fr) !important; } }
+</style>
+
+<script define:vars={{ lat: coord.lat, lon: coord.lon }}>
+  const WMO = {
+    0: { label: 'Ensoleillé', emoji: '☀️' },
+    1: { label: 'Plutôt clair', emoji: '🌤️' },
+    2: { label: 'Partiellement nuageux', emoji: '⛅' },
+    3: { label: 'Couvert', emoji: '☁️' },
+    45: { label: 'Brouillard', emoji: '🌫️' },
+    48: { label: 'Brouillard givrant', emoji: '🌫️' },
+    51: { label: 'Bruine légère', emoji: '🌦️' },
+    53: { label: 'Bruine modérée', emoji: '🌦️' },
+    55: { label: 'Bruine dense', emoji: '🌧️' },
+    61: { label: 'Pluie légère', emoji: '🌦️' },
+    63: { label: 'Pluie modérée', emoji: '🌧️' },
+    65: { label: 'Pluie forte', emoji: '🌧️' },
+    71: { label: 'Neige légère', emoji: '🌨️' },
+    73: { label: 'Neige modérée', emoji: '❄️' },
+    75: { label: 'Neige forte', emoji: '❄️' },
+    80: { label: 'Averses légères', emoji: '🌦️' },
+    81: { label: 'Averses modérées', emoji: '🌧️' },
+    82: { label: 'Averses violentes', emoji: '⛈️' },
+    95: { label: 'Orage', emoji: '⛈️' },
+    96: { label: 'Orage avec grêle', emoji: '⛈️' },
+    99: { label: 'Orage violent', emoji: '⛈️' },
+  };
+
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&current=temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m` +
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FParis&forecast_days=7`;
+
+  fetch(url).then(r => r.json()).then((d) => {
+    const loading = document.getElementById('meteo-loading');
+    const content = document.getElementById('meteo-content');
+    const cur = d.current;
+    const w = WMO[cur.weather_code] ?? { label: '—', emoji: '🌡️' };
+    document.getElementById('meteo-current').innerHTML = `
+      <div style="font-size:80px;line-height:1;margin-bottom:16px">${w.emoji}</div>
+      <div class="serif" style="font-size:clamp(96px, 14vw, 160px);line-height:.9;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-4px;margin-bottom:8px">${Math.round(cur.temperature_2m)}°</div>
+      <div class="serif" style="font-size:24px;line-height:1.2;font-weight:400;letter-spacing:-.2px;margin-bottom:14px">${w.label}</div>
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">
+        Vent ${Math.round(cur.wind_speed_10m)} km/h · Humidité ${cur.relative_humidity_2m}%
+      </div>
+    `;
+    const week = d.daily;
+    const html = week.time.map((iso, i) => {
+      const date = new Date(iso);
+      const day = date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
+      const ww = WMO[week.weather_code[i]] ?? { label: '—', emoji: '🌡️' };
+      const max = Math.round(week.temperature_2m_max[i]);
+      const min = Math.round(week.temperature_2m_min[i]);
+      const rain = week.precipitation_sum[i] || 0;
+      return `<div style="text-align:center;padding:24px 12px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card)">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:14px">${day}</div>
+        <div style="font-size:36px;line-height:1;margin-bottom:14px">${ww.emoji}</div>
+        <div class="serif" style="font-size:22px;line-height:1.1;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-.3px"><strong style="font-style:normal;font-weight:400;color:var(--color-ink)">${max}°</strong> <span style="color:var(--color-text-muted);font-size:16px">${min}°</span></div>
+        <div style="font-size:11px;color:var(--color-text-muted);margin-top:10px;font-weight:500">${rain.toFixed(1)} mm</div>
+      </div>`;
+    }).join('');
+    document.getElementById('meteo-week').innerHTML = html;
+    loading.style.display = 'none';
+    content.style.display = 'block';
+  }).catch(() => {
+    document.getElementById('meteo-loading').textContent = 'Impossible de charger la météo. Réessayez plus tard.';
+  });
+</script>

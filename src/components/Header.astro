@@ -1,38 +1,250 @@
 ---
-import { SITE, PILLARS } from '../consts';
+/**
+ * Header avec 4 variants — anti-footprint Google.
+ * Sélectionné via SITE_CONFIG.profile.layoutVariant.
+ *
+ *  - luxe : 3-col (nav left + logo center + nav right) — Lelo
+ *  - magazine : logo top center large + nav full-width sous (NYTimes)
+ *  - tech : logo left + nav inline + CTA pill droite (Stripe)
+ *  - lifestyle : nav left + logo right (Manufactum) ou full-width burger
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+import { getCollection } from 'astro:content';
+import BoutiqueMega from './BoutiqueMega.astro';
+import BlogMega from './BlogMega.astro';
+import { buildBlogCategories } from '../lib/blog-categories';
 
-const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const archetype = SITE_CONFIG.theme.archetype;
+const profile = SITE_CONFIG.profile;
+const _validVariants = ['luxe', 'magazine', 'tech', 'lifestyle'];
+const _lv = profile?.layoutVariant ?? 'magazine';
+const variant = _validVariants.includes(_lv) ? _lv : 'magazine'; // garde-fou : layoutVariant invalide (ex 'village') → magazine
+
+const NAV: Record<string, { left: Array<{ label: string; href: string }>; right: Array<{ label: string; href: string }> }> = {
+  village: {
+    left: [
+      { label: 'Rubriques', href: '/categorie/' },
+      { label: 'Annuaire', href: '/annuaire/' },
+      { label: 'Articles', href: '/articles/' },
+    ],
+    right: [
+      { label: 'Outils', href: '/outils/' },
+      { label: 'Index', href: '/index-thematique/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+  bricolage: {
+    left: [
+      { label: 'Comparatifs', href: '/comparatifs/' },
+      { label: 'Tests', href: '/avis/' },
+      { label: 'Guides', href: '/articles/' },
+    ],
+    right: [
+      { label: 'Outils', href: '/outils/' },
+      { label: 'Glossaire', href: '/glossaire/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+  tech: {
+    left: [
+      { label: 'Tests', href: '/avis/' },
+      { label: 'Comparatifs', href: '/comparatifs/' },
+      { label: 'Guides', href: '/articles/' },
+    ],
+    right: [
+      { label: 'Outils', href: '/outils/' },
+      { label: 'Glossaire', href: '/glossaire/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+  adulte: {
+    left: [
+      { label: 'Articles', href: '/articles/' },
+      { label: 'Comparatifs', href: '/comparatifs/' },
+      { label: 'Lexique', href: '/glossaire/' },
+    ],
+    right: [
+      { label: 'Outils', href: '/outils/' },
+      { label: 'Contact', href: '/contact/' },
+    ],
+  },
+};
+
+const nav = NAV[archetype] ?? NAV.village;
+const allNav = [...nav.left, ...nav.right];
+const logoMain = SITE_CONFIG.siteName;
+const logoSub = SITE_CONFIG.tagline.length > 50 ? 'magazine indépendant' : SITE_CONFIG.tagline.toLowerCase();
+
+// Méga-menu Boutique (catégories + vignette) — affiché seulement si la collection produits existe.
+const _produits = await getCollection('produits').catch(() => []);
+const _bcat = new Map<string, { slug: string; label: string; image: string | null; count: number }>();
+for (const p of _produits as any[]) {
+  const s = p.data.category;
+  if (!_bcat.has(s)) _bcat.set(s, { slug: s, label: p.data.categoryLabel ?? s, image: p.data.images?.[0] ?? p.data.image ?? null, count: 0 });
+  _bcat.get(s)!.count++;
+}
+const boutiqueCats = [...(_bcat.values())].sort((a, b) => b.count - a.count);
+
+// Méga-menu Rubriques (blog) — catégories d'articles mises en avant (style ionomat).
+const _articles = await getCollection('articles').catch(() => []);
+const _built = buildBlogCategories(_articles as any, profile?.categories as any)
+  .map((c) => ({ slug: c.slug, name: c.name, emoji: c.emoji, count: c.articles.length }));
+const _bySlug = new Map(_built.map((c) => [c.slug, c]));
+// Méga-menu TOUJOURS riche : on montre la structure complète des rubriques du profil
+// (même celles à 0 article — leurs pages existent, noindex tant que <3). Évite un
+// méga-menu vide/absent sur les sites encore maigres en contenu.
+const blogCats = [
+  ..._built,
+  ...((profile?.categories ?? []) as any[])
+    .filter((pc) => !_bySlug.has(pc.slug))
+    .map((pc) => ({ slug: pc.slug, name: pc.name, emoji: pc.emoji, count: 0 })),
+].sort((a, b) => b.count - a.count);
 ---
-<header class="border-b border-cream-200 bg-cream-50 sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-cream-50/85">
-  <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-6">
-    <a href="/" class="flex items-center gap-3">
-      <span class="font-serif text-2xl font-semibold tracking-tight text-ink-900">{SITE.name}</span>
-      <span class="hidden sm:block text-xs text-olive-700 italic uppercase tracking-widest">authentique</span>
-    </a>
 
-    <nav class="hidden lg:flex items-center gap-8 text-sm">
-      {PILLARS.map((p) => (
-        <a
-          href={p.href}
-          class:list={[
-            'hover:text-terra-700 transition',
-            isActive(p.href) ? 'text-terra-700 font-medium' : 'text-ink-700',
-          ]}
-        >{p.label}</a>
-      ))}
-      <a href="/blog" class:list={['hover:text-terra-700 transition', isActive('/blog') ? 'text-terra-700 font-medium' : 'text-ink-700']}>Articles</a>
-      <a href="/a-propos" class:list={['hover:text-terra-700 transition', isActive('/a-propos') ? 'text-terra-700 font-medium' : 'text-ink-700']}>À propos</a>
-    </nav>
-
-    <div class="flex items-center gap-3">
-      <a href="/recherche" aria-label="Rechercher" class="text-ink-700 hover:text-terra-700 transition" title="Rechercher dans l'encyclopédie">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7"></circle>
-          <path d="m21 21-4.3-4.3"></path>
-        </svg>
-      </a>
-      <a href="/devis" class="btn-primary text-xs sm:text-sm whitespace-nowrap">Demander un devis</a>
+{/* === LUXE — 3-col Lelo style === */}
+{variant === 'luxe' && (
+  <header class="site-header" style="position:sticky;top:0;z-index:50;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:24px 0;gap:24px" class="header-grid">
+        <nav style="display:flex;gap:32px;font-size:13px;letter-spacing:.5px;align-items:center" class="nav-left">
+          {blogCats.length > 0 && <BlogMega cats={blogCats} />}
+          {boutiqueCats.length > 0 && <BoutiqueMega cats={boutiqueCats} />}
+          {nav.left.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+        </nav>
+        <a href="/" style="text-decoration:none;text-align:center;display:block">
+          <span class="serif" style="font-size:34px;font-weight:500;letter-spacing:1px;color:var(--color-ink);display:block">{logoMain}</span>
+          <span style="display:block;font-size:9px;letter-spacing:4px;font-weight:400;color:var(--color-text-subtle);margin-top:-4px;text-transform:uppercase">{logoSub}</span>
+        </a>
+        <div style="display:flex;justify-content:flex-end;gap:24px;font-size:13px;align-items:center" class="nav-right">
+          {nav.right.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+          <a href="/recherche/" aria-label="Recherche" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--color-border);color:var(--color-ink)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </a>
+        </div>
+        <button id="mobile-toggle" aria-label="Menu" style="display:none;background:transparent;border:1px solid var(--color-border);border-radius:50%;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
     </div>
+  </header>
+)}
+
+{/* === MAGAZINE — logo top center + nav full-width dessous === */}
+{variant === 'magazine' && (
+  <header class="site-header" style="position:sticky;top:0;z-index:50;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div style="text-align:center;padding:32px 0 16px;border-bottom:1px solid var(--color-border)" class="mag-top">
+        <a href="/" style="text-decoration:none;display:inline-block">
+          <span class="serif" style="font-size:48px;font-weight:500;letter-spacing:.5px;color:var(--color-ink);display:block;line-height:1">{logoMain}</span>
+          <span style="display:block;font-size:10px;letter-spacing:5px;font-weight:400;color:var(--color-text-subtle);margin-top:8px;text-transform:uppercase">— {logoSub} —</span>
+        </a>
+      </div>
+      <nav style="display:flex;gap:36px;justify-content:center;align-items:center;padding:14px 0;font-size:13px;letter-spacing:1px;text-transform:uppercase;font-weight:500" class="mag-nav">
+        {blogCats.length > 0 && <BlogMega cats={blogCats} />}
+        {boutiqueCats.length > 0 && <BoutiqueMega cats={boutiqueCats} />}
+        {allNav.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+        <a href="/recherche/" aria-label="Recherche" style="color:var(--color-ink);display:inline-flex;align-items:center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </a>
+      </nav>
+      <button id="mobile-toggle" aria-label="Menu" style="display:none;background:transparent;border:1px solid var(--color-border);width:48px;height:48px;align-items:center;justify-content:center;cursor:pointer;position:absolute;top:24px;right:24px;border-radius:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+)}
+
+{/* === TECH — logo left + nav inline + CTA droite === */}
+{variant === 'tech' && (
+  <header class="site-header" style="position:sticky;top:0;z-index:50;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;gap:32px" class="tech-row">
+        <a href="/" style="text-decoration:none;display:flex;align-items:baseline;gap:12px">
+          <span class="serif" style="font-size:28px;font-weight:600;letter-spacing:-.5px;color:var(--color-ink)">{logoMain}</span>
+          <span style="font-size:11px;letter-spacing:1.5px;font-weight:500;color:var(--color-text-muted);text-transform:uppercase">— mag.</span>
+        </a>
+        <nav style="display:flex;gap:28px;font-size:14px;font-weight:500;align-items:center" class="tech-nav">
+          {blogCats.length > 0 && <BlogMega cats={blogCats} />}
+          {boutiqueCats.length > 0 && <BoutiqueMega cats={boutiqueCats} />}
+          {allNav.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+        </nav>
+        <div style="display:flex;align-items:center;gap:14px">
+          <a href="/recherche/" aria-label="Recherche" style="color:var(--color-ink);display:inline-flex;align-items:center;width:36px;height:36px;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </a>
+          {profile?.tools?.[0] && (
+            <a href={profile.tools[0].href ?? `/outils/${profile.tools[0].slug}/`} style="display:inline-flex;align-items:center;background:var(--color-ink);color:var(--color-bg-base);padding:9px 18px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-decoration:none">
+              {profile.tools[0].label.length > 18 ? profile.tools[0].label.slice(0, 18) + '…' : profile.tools[0].label}
+            </a>
+          )}
+        </div>
+        <button id="mobile-toggle" aria-label="Menu" style="display:none;background:transparent;border:1px solid var(--color-border);width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+)}
+
+{/* === LIFESTYLE — nav left + logo right (asymétrique) === */}
+{variant === 'lifestyle' && (
+  <header class="site-header" style="position:sticky;top:0;z-index:50;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:24px 0;gap:48px" class="life-row">
+        <nav style="display:flex;gap:24px;font-size:13px;letter-spacing:1px;text-transform:uppercase;font-weight:500;align-items:center" class="life-nav">
+          {blogCats.length > 0 && <BlogMega cats={blogCats} />}
+          {boutiqueCats.length > 0 && <BoutiqueMega cats={boutiqueCats} />}
+          {allNav.slice(0, 3).map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+        </nav>
+        <span></span>
+        <a href="/" style="text-decoration:none;text-align:right">
+          <span class="serif" style="font-size:32px;font-weight:500;letter-spacing:1px;color:var(--color-ink);display:block;line-height:1">{logoMain}</span>
+          <span style="display:block;font-size:10px;letter-spacing:3px;font-weight:400;color:var(--color-text-subtle);margin-top:4px;text-transform:uppercase">{logoSub}</span>
+        </a>
+        <a href="/recherche/" aria-label="Recherche" style="position:absolute;top:24px;right:24px;color:var(--color-ink);width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid var(--color-border)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </a>
+        <button id="mobile-toggle" aria-label="Menu" style="display:none;background:transparent;border:1px solid var(--color-border);width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+)}
+
+{/* Mobile nav (commun aux 4 variants) */}
+<nav id="mobile-nav" style="display:none;border-top:1px solid var(--color-border);padding:20px 0;background:var(--color-bg-base)">
+  <div class="site-container" style="display:flex;flex-direction:column;gap:14px;font-size:14px">
+    {allNav.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none;padding:6px 0">{item.label}</a>)}
+    {blogCats.length > 0 && (
+      <>
+        <a href="/articles/" style="color:var(--color-ink);text-decoration:none;padding:10px 0 4px;font-weight:700;border-top:1px solid var(--color-border);margin-top:6px">📚 Rubriques du blog</a>
+        {blogCats.map((c) => <a href={`/categorie/${c.slug}/`} style="color:var(--color-text-muted,#8a7d70);text-decoration:none;padding:4px 0 4px 16px;font-size:13px">{c.emoji ? c.emoji + ' ' : ''}{c.name}</a>)}
+      </>
+    )}
+    {boutiqueCats.length > 0 && (
+      <>
+        <a href="/boutique/" style="color:var(--color-ink);text-decoration:none;padding:10px 0 4px;font-weight:700;border-top:1px solid var(--color-border);margin-top:6px">🛒 Boutique</a>
+        {boutiqueCats.map((c) => <a href={`/categorie-produit/${c.slug}/`} style="color:var(--color-text-muted,#8a7d70);text-decoration:none;padding:4px 0 4px 16px;font-size:13px">{c.label}</a>)}
+      </>
+    )}
+    <a href="/recherche/" style="color:var(--color-ink);text-decoration:none;padding:6px 0">Recherche</a>
   </div>
-</header>
+</nav>
+
+<style>
+.site-header a:hover { color: var(--color-accent) !important; }
+@media (max-width: 900px) {
+  .header-grid { grid-template-columns: 1fr auto auto !important; }
+  .nav-left, .nav-right, .mag-nav, .tech-nav, .life-nav { display: none !important; }
+  .life-row { grid-template-columns: 1fr auto !important; gap: 16px !important; }
+  .life-row > span { display: none; }
+  #mobile-toggle { display: flex !important; }
+}
+</style>
+<script is:inline>
+document.getElementById('mobile-toggle')?.addEventListener('click', () => {
+  const m = document.getElementById('mobile-nav');
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+});
+</script>

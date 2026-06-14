@@ -1,0 +1,128 @@
+---
+/**
+ * HeroDecoration — élément décoratif SVG en arrière-plan du hero homepage.
+ * Différent par archetype pour vraie identité visuelle :
+ *   - village → collines, soleil levant, oiseaux stylisés
+ *   - bricolage → engrenages, planches, mètre ruban
+ *   - tech → circuits, pixels, formes géométriques tech
+ *   - adulte → courbes sensuelles, pétales, lumière douce
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+---
+
+<div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+
+  {archetype === 'village' && (
+    <svg class="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="hero-vgrad" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="currentColor" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <circle cx="700" cy="80" r="55" fill="currentColor" opacity="0.4"/>
+      <circle cx="700" cy="80" r="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+      <path d="M0,300 Q150,250 300,290 T600,280 Q700,270 800,295 L800,400 L0,400 Z" fill="url(#hero-vgrad)"/>
+      <path d="M0,340 Q200,310 400,340 T800,330 L800,400 L0,400 Z" fill="currentColor" opacity="0.3"/>
+      {/* Maisons / clocher village */}
+      <path d="M150,300 L150,260 L165,245 L180,260 L180,300 Z" fill="currentColor" opacity="0.4"/>
+      <path d="M155,260 L155,240 L160,235 L165,240 L165,260 Z" fill="currentColor" opacity="0.5"/>
+      <path d="M450,310 L450,275 L470,260 L490,275 L490,310 Z" fill="currentColor" opacity="0.4"/>
+      <path d="M620,320 L620,290 L635,278 L650,290 L650,320 Z" fill="currentColor" opacity="0.4"/>
+      {/* Oiseaux */}
+      <path d="M250,100 Q260,95 270,100 Q280,95 290,100" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+      <path d="M450,140 Q460,135 470,140" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+      {/* Arbres */}
+      <ellipse cx="80" cy="280" rx="20" ry="35" fill="currentColor" opacity="0.4"/>
+      <rect x="76" y="295" width="8" height="20" fill="currentColor" opacity="0.5"/>
+    </svg>
+  )}
+
+  {archetype === 'bricolage' && (
+    <svg class="absolute inset-0 w-full h-full opacity-12" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="hero-grid-bric" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hero-grid-bric)"/>
+      {/* Engrenage gros */}
+      <g transform="translate(680, 100)" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
+        <circle r="60"/>
+        <circle r="40"/>
+        <circle r="15"/>
+        {Array.from({length: 12}).map((_, i) => (
+          <rect x="-4" y="-72" width="8" height="14" fill="currentColor" transform={`rotate(${i * 30})`}/>
+        ))}
+      </g>
+      {/* Engrenage petit */}
+      <g transform="translate(750, 200)" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <circle r="25"/>
+        <circle r="10"/>
+        {Array.from({length: 8}).map((_, i) => (
+          <rect x="-3" y="-32" width="6" height="8" fill="currentColor" transform={`rotate(${i * 45})`}/>
+        ))}
+      </g>
+      {/* Mètre ruban */}
+      <line x1="0" y1="380" x2="800" y2="380" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+      {Array.from({length: 16}).map((_, i) => (
+        <line x1={i * 50} y1="375" x2={i * 50} y2="380" stroke="currentColor" stroke-width="1" opacity="0.4"/>
+      ))}
+    </svg>
+  )}
+
+  {archetype === 'tech' && (
+    <svg class="absolute inset-0 w-full h-full opacity-12" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+      {/* Circuits */}
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.4">
+        <path d="M0,200 L150,200 L170,180 L300,180 L320,200 L500,200"/>
+        <path d="M0,250 L100,250 L120,230 L250,230"/>
+        <path d="M400,150 L600,150 L620,170 L800,170"/>
+        <path d="M500,300 L650,300 L670,280 L800,280"/>
+        {/* Nodes */}
+        <circle cx="170" cy="180" r="3" fill="currentColor"/>
+        <circle cx="320" cy="200" r="3" fill="currentColor"/>
+        <circle cx="120" cy="230" r="3" fill="currentColor"/>
+        <circle cx="620" cy="170" r="3" fill="currentColor"/>
+        <circle cx="670" cy="280" r="3" fill="currentColor"/>
+      </g>
+      {/* Hexagones tech */}
+      <g fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+        <polygon points="700,50 730,67 730,103 700,120 670,103 670,67"/>
+        <polygon points="100,80 130,97 130,133 100,150 70,133 70,97"/>
+      </g>
+      {/* Pixels grid */}
+      {Array.from({length: 8}).map((_, i) => (
+        <rect x={650 + i * 12} y="320" width="8" height="8" fill="currentColor" opacity={0.2 + (i * 0.05)}/>
+      ))}
+    </svg>
+  )}
+
+  {archetype === 'adulte' && (
+    <svg class="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="hero-glow" cx="80%" cy="20%" r="40%">
+          <stop offset="0%" stop-color="currentColor" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hero-glow)"/>
+      {/* Courbes sensuelles */}
+      <path d="M0,200 Q200,120 400,200 T800,200" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+      <path d="M0,250 Q200,170 400,250 T800,250" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+      <path d="M0,300 Q200,220 400,300 T800,300" fill="none" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+      {/* Pétales / formes douces */}
+      <ellipse cx="650" cy="100" rx="100" ry="40" fill="currentColor" opacity="0.15" transform="rotate(20 650 100)"/>
+      <ellipse cx="700" cy="80" rx="60" ry="25" fill="currentColor" opacity="0.2" transform="rotate(35 700 80)"/>
+      <ellipse cx="100" cy="100" rx="70" ry="30" fill="currentColor" opacity="0.18" transform="rotate(-25 100 100)"/>
+      {/* Petites étoiles luxe */}
+      <g fill="currentColor" opacity="0.5">
+        <path d="M150,250 L153,260 L163,260 L155,266 L158,276 L150,270 L142,276 L145,266 L137,260 L147,260 Z"/>
+        <path d="M580,300 L582,308 L590,308 L584,313 L586,321 L580,316 L574,321 L576,313 L570,308 L578,308 Z"/>
+      </g>
+    </svg>
+  )}
+
+</div>

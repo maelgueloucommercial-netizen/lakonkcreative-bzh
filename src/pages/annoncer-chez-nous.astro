@@ -1,190 +1,199 @@
 ---
 import Base from '../layouts/Base.astro';
-import Breadcrumb from '../components/Breadcrumb.astro';
-import { SITE, PERSONA } from '../consts';
+import { SITE_CONFIG } from '../lib/site-config';
+import { WIKI_IMAGES } from '../lib/site-wiki-images';
+import { getCollection } from 'astro:content';
 
-const SUBJECT = 'Sponsoring DaRocco — demande tarif';
-const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(SUBJECT)}`;
+const profile = SITE_CONFIG.profile;
+const heroSubject = profile?.wikiImageSubjects?.[1] ?? profile?.wikiImageSubjects?.[0];
+const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+
+const articles = await getCollection('articles');
+const articleCount = articles.length;
+const archetype = SITE_CONFIG.theme.archetype;
+
+const TARGET_AUDIENCE: Record<string, string> = {
+  village: `Une audience locale et régionale qualifiée : habitants, anciens résidents, touristes, candidats à l'installation, entreprises de proximité.`,
+  bricolage: `Une audience de bricoleurs amateurs et confirmés : particuliers en travaux, équipes BTP, distributeurs d'outillage, fabricants.`,
+  tech: `Une audience d'acheteurs en phase de comparaison : home cinema, audio, vidéoprojection, équipement domestique connecté.`,
+  adulte: `Une audience adulte avec un fort intérêt pour la thématique. Comparatifs, guides d'achat et avis structurent le parcours.`,
+};
+const audienceText = TARGET_AUDIENCE[archetype] ?? TARGET_AUDIENCE.village;
+
+const offerCatalogJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'OfferCatalog',
+  name: `Offres publicitaires — ${SITE_CONFIG.siteName}`,
+  itemListElement: [
+    { '@type': 'Offer', name: 'Article sponsorisé', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'EUR' } },
+    { '@type': 'Offer', name: 'Mention dans article existant', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'EUR' } },
+    { '@type': 'Offer', name: 'Partenariat éditorial long terme', priceSpecification: { '@type': 'PriceSpecification', priceCurrency: 'EUR' } },
+  ],
+};
+
+const FORMATS = [
+  {
+    eyebrow: 'Article complet',
+    title: 'Article sponsorisé',
+    body: `Un article (1 200 à 2 000 mots) rédigé par notre équipe sur un sujet de votre choix, avec un lien dofollow vers votre site.`,
+    bullets: ['Sujet validé en amont', 'Mention « sponsorisé » claire', 'Engagement de publication 24 mois', 'Indexation Google (IndexNow Bing/Yandex)'],
+  },
+  {
+    eyebrow: 'Insertion contextuelle',
+    title: 'Mention dans article existant',
+    body: `Insertion d'un lien et d'une mention contextuelle (1 phrase) dans un article existant pertinent. Le lien est intégré naturellement.`,
+    bullets: ['Pages avec trafic existant', 'Dofollow ou nofollow au choix', 'Engagement minimal 24 mois', 'Idéal pour SEO et autorité'],
+  },
+  {
+    eyebrow: 'Présence durable',
+    title: 'Partenariat éditorial long terme',
+    body: `Plusieurs articles par mois, série thématique, présence régulière. Tarif dégressif. Un brief stratégique est fait en amont.`,
+    bullets: ['3, 6 ou 12 mois', 'Tarif négocié sur volume', 'Briefs collaboratifs', 'Reporting mensuel'],
+  },
+  {
+    eyebrow: 'Notre ligne',
+    title: 'Ce que nous refusons',
+    body: `Pour préserver la confiance de nos lecteurs, nous refusons certains secteurs.`,
+    bullets: ['Sites de jeu d\'argent / paris', 'Crypto / NFT spéculatifs', 'Produits contrefaits', 'Médecines non encadrées', 'Adulte hors thématique cohérente'],
+  },
+];
 ---
 <Base
-  title="Annoncer chez nous — sponsoring éditorial"
-  description="Espaces sponsorisés sur DaRocco, l'encyclopédie francophone de la cuisine italienne authentique : articles dédiés, intégrations natives, mentions produits dans les fiches AOP/DOP. Contact direct, conditions claires."
-  type="website"
-  schema={[
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: 'Annoncer chez nous',
-      description: 'Annoncer chez DaRocco — sponsoring éditorial pour producteurs italiens, importateurs, marques AOP/DOP/IGP.',
-      url: `${SITE.url}/annoncer-chez-nous`,
-      isPartOf: { '@id': `${SITE.url}#website` },
-      primaryImageOfPage: `${SITE.url}/images/og-default.jpg`,
-      about: {
-        '@type': 'Service',
-        serviceType: 'Sponsoring éditorial',
-        provider: { '@id': `${SITE.url}#organization` },
-        areaServed: { '@type': 'Country', name: 'France' },
-      },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Service',
-      '@id': `${SITE.url}/annoncer-chez-nous#service`,
-      name: 'Sponsoring éditorial DaRocco',
-      provider: { '@id': `${SITE.url}#organization` },
-      serviceType: 'Article sponsorisé / mention produit / partenariat éditorial',
-      areaServed: { '@type': 'Country', name: 'France' },
-      audience: {
-        '@type': 'BusinessAudience',
-        audienceType: 'Producteurs italiens AOP/DOP/IGP, importateurs, distributeurs, marques alimentaires',
-      },
-      hasOfferCatalog: {
-        '@type': 'OfferCatalog',
-        name: 'Formats de sponsoring DaRocco',
-        itemListElement: [
-          {
-            '@type': 'Offer',
-            name: 'Article sponsorisé éditorial',
-            description: 'Article rédigé par notre équipe au ton du site, intégré dans une rubrique éditoriale, mention "En partenariat avec…" visible, lien rel="sponsored".',
-            availability: 'https://schema.org/InStock',
-          },
-          {
-            '@type': 'Offer',
-            name: 'Mention produit dans une fiche AOP/DOP',
-            description: 'Inclusion d\'un produit AOP/DOP/IGP italien authentique dans la fiche région, lexique ou base produits correspondante.',
-            availability: 'https://schema.org/InStock',
-          },
-          {
-            '@type': 'Offer',
-            name: 'Présence dans l\'annuaire des épiciers',
-            description: 'Listing détaillé d\'une épicerie italienne authentique en France. Gratuit pour les épiciers répondant aux critères ; mise en avant éditoriale sponsorisée possible.',
-            availability: 'https://schema.org/InStock',
-            price: '0',
-            priceCurrency: 'EUR',
-          },
-          {
-            '@type': 'Offer',
-            name: 'Partenariat éditorial long',
-            description: 'Série d\'articles thématiques, étude d\'appellation, reportage en région. Calendrier sur 6 mois minimum.',
-            availability: 'https://schema.org/InStock',
-          },
-        ],
-      },
-    },
-  ]}
+  title="Annoncer chez nous"
+  description={`Communiquez auprès des lecteurs de ${SITE_CONFIG.siteName} via un article sponsorisé, une mention ou un partenariat éditorial.`}
+  jsonLd={[offerCatalogJsonLd]}
 >
-  <section class="mx-auto max-w-3xl px-6 py-12">
-    <Breadcrumb items={[{ label: 'Annoncer chez nous' }]} />
 
-    <header class="mb-10">
-      <p class="text-xs uppercase tracking-widest text-olive-700 mb-3">Annoncer chez nous</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-ink-900 leading-tight mb-4">
-        Pour les marques italiennes qui veulent toucher un public éditorial qualifié
-      </h1>
-      <p class="text-xl text-ink-700 leading-relaxed">
-        DaRocco est un média éditorial spécialisé sur la cuisine italienne authentique.
-        Notre lectorat est principalement composé de <strong>professionnels de la restauration</strong>,
-        d'épiciers, de chefs et d'amateurs exigeants. Si votre produit s'inscrit dans cette logique
-        de qualité — <em>AOP</em>, <em>DOP</em>, <em>IGP</em>, savoir-faire artisanal — nous étudions volontiers
-        une collaboration.
+  {/* Hero éditorial */}
+  <section style="position:relative;padding:0;background:var(--color-bg-card)">
+    <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
+      <div style="padding:96px 64px;display:flex;flex-direction:column;justify-content:center">
+        <div class="eyebrow" style="margin-bottom:18px">Annonceurs</div>
+        <h1 class="serif" style="font-size:clamp(40px, 5vw, 76px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+          Communiquer auprès de notre <em style="font-style:italic">audience</em>.
+        </h1>
+        <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:520px">
+          {SITE_CONFIG.siteName} accueille un nombre limité d'annonceurs chaque mois pour préserver la qualité éditoriale.
+        </p>
+      </div>
+      <div style="position:relative;min-height:480px;overflow:hidden">
+        {heroImg ? (
+          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+        ) : (
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {/* Audience + chiffres */}
+  <section style="padding:96px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:14px">Notre audience</div>
+      <h2 class="serif" style="font-size:clamp(32px, 4vw, 52px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:36px">
+        Un lectorat <em style="font-style:italic">qualifié</em> et engagé.
+      </h2>
+      <p style="font-size:18px;line-height:1.75;color:var(--color-ink);margin-bottom:48px;max-width:780px">
+        {audienceText}
       </p>
-    </header>
-
-    <section class="rounded-lg border border-olive-200 bg-olive-50 p-6 mb-10">
-      <h2 class="font-serif text-xl text-ink-900 mb-3">Le profil du lectorat</h2>
-      <ul class="space-y-2 text-ink-700">
-        <li>· <strong>Restaurateurs et chefs</strong> à la recherche de produits authentiques pour leur carte</li>
-        <li>· <strong>Épiciers fins</strong> et caves à fromage souhaitant élargir leur sourcing italien</li>
-        <li>· <strong>Acheteurs hôteliers</strong> et traiteurs exigeants sur la traçabilité</li>
-        <li>· <strong>Amateurs cultivés</strong> attentifs aux marques de qualité (les plus prolifiques en bouche-à-oreille)</li>
-      </ul>
-      <p class="text-sm text-ink-700/70 mt-4">
-        Trafic : encyclopédie en croissance organique. Nous communiquons les chiffres réels de Search Console
-        et de la régie sur demande, dossier sous accord de confidentialité.
-      </p>
-    </section>
-
-    <section class="mb-10">
-      <h2 class="font-serif text-2xl text-ink-900 mb-4">Formats disponibles</h2>
-
-      <div class="space-y-4">
-        <div class="rounded-lg border border-cream-200 bg-white p-5">
-          <h3 class="font-serif text-lg text-ink-900 mb-2">Article sponsorisé éditorial</h3>
-          <p class="text-ink-700 text-sm leading-relaxed mb-2">
-            Article rédigé par notre équipe (ou validé par elle), au ton du site, intégré naturellement
-            dans une rubrique éditoriale (région, produit, technique). Mention <em>"En partenariat avec…"</em>
-            visible. Lien <code>rel="sponsored"</code> conforme aux guidelines Google.
-          </p>
-          <p class="text-xs text-ink-700/60">
-            Idéal pour : producteurs régionaux, importateurs spécialisés, fromageries, salaisons, distilleries.
-          </p>
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)" class="stats-row">
+        <div style="padding:36px 0;border-right:1px solid var(--color-border);text-align:center">
+          <div class="serif" style="font-size:56px;line-height:1;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-1px">{articleCount}</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-top:10px;font-weight:600">Articles publiés</div>
         </div>
-
-        <div class="rounded-lg border border-cream-200 bg-white p-5">
-          <h3 class="font-serif text-lg text-ink-900 mb-2">Mention produit dans une fiche AOP/DOP</h3>
-          <p class="text-ink-700 text-sm leading-relaxed mb-2">
-            Si votre produit est <strong>réellement</strong> AOP/DOP/IGP italien, nous étudions son inclusion
-            dans la fiche correspondante (région, lexique, base produits). Critère unique : authenticité documentée.
-          </p>
-          <p class="text-xs text-ink-700/60">
-            Aucune fiche-mention n'est vendue sur la simple base d'un budget : nous refusons les italian sounding.
-          </p>
+        <div style="padding:36px 0;border-right:1px solid var(--color-border);text-align:center">
+          <div class="serif" style="font-size:56px;line-height:1;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-1px">48h</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-top:10px;font-weight:600">Délai de réponse</div>
         </div>
-
-        <div class="rounded-lg border border-cream-200 bg-white p-5">
-          <h3 class="font-serif text-lg text-ink-900 mb-2">Présence dans l'annuaire des épiciers</h3>
-          <p class="text-ink-700 text-sm leading-relaxed mb-2">
-            Listing détaillé d'une épicerie italienne authentique en France, avec descriptif éditorial,
-            spécialités, photo. <strong>Gratuit</strong> par défaut pour les épiceries qui répondent à nos critères ;
-            mise en avant éditoriale sponsorisée possible.
-          </p>
-        </div>
-
-        <div class="rounded-lg border border-cream-200 bg-white p-5">
-          <h3 class="font-serif text-lg text-ink-900 mb-2">Partenariat éditorial long</h3>
-          <p class="text-ink-700 text-sm leading-relaxed">
-            Pour les marques bien établies : série d'articles thématiques, étude d'appellation,
-            reportage de production en région. Calendrier sur 6 mois minimum. Tarification sur dossier.
-          </p>
+        <div style="padding:36px 0;text-align:center">
+          <div class="serif" style="font-size:56px;line-height:1;font-weight:400;font-style:italic;color:var(--color-accent);letter-spacing:-1px">24m</div>
+          <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-top:10px;font-weight:600">Engagement minimum</div>
         </div>
       </div>
-    </section>
-
-    <section class="mb-10">
-      <h2 class="font-serif text-2xl text-ink-900 mb-3">Ce que nous refusons</h2>
-      <ul class="space-y-2 text-ink-700">
-        <li>· Les <strong>italian sounding</strong> (produits prétendus italiens fabriqués hors d'Italie ou avec ingrédients non conformes)</li>
-        <li>· Les liens injectés dans des articles existants sans mention claire de partenariat</li>
-        <li>· Les articles entièrement fournis par l'annonceur sans réécriture éditoriale (notre voix reste la nôtre)</li>
-        <li>· Les marques en concurrence directe avec une fiche éditoriale déjà publiée, sauf dossier sérieux</li>
-      </ul>
-    </section>
-
-    <section class="rounded-lg border border-terra-300 bg-terra-50 p-6 mb-10">
-      <h2 class="font-serif text-2xl text-ink-900 mb-3">Contact direct</h2>
-      <p class="text-ink-700 mb-3">
-        Toutes les demandes passent par mail. Réponse sous 48 heures ouvrées avec premier échange,
-        grille tarifaire et calendrier. Pas de formulaire intermédiaire — on parle directement à
-        {PERSONA.firstName}.
-      </p>
-      <p class="text-lg">
-        <a href={mailto} class="font-medium text-terra-700 hover:text-terra-900">
-          {SITE.email}
-        </a>
-      </p>
-      <p class="text-xs text-ink-700/60 mt-4">
-        Précisez dans votre mail : <strong>nom de marque</strong>, <strong>produit(s) concerné(s)</strong>,
-        <strong>format de partenariat envisagé</strong>, <strong>budget indicatif</strong>. Plus c'est clair,
-        plus la réponse est rapide.
-      </p>
-    </section>
-
-    <section class="text-sm text-ink-700/70">
-      <p>
-        Notre approche est documentée dans nos <a href="/cgv-pro">CGV pro</a> et nos
-        <a href="/mentions-legales">mentions légales</a>. Pour la confidentialité de votre démarche
-        commerciale, nous signons volontiers un NDA avant échange détaillé.
-      </p>
-    </section>
+    </div>
   </section>
+
+  {/* Formats disponibles */}
+  <section style="padding:96px 0;background:var(--color-bg-card);border-top:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:14px">Formats</div>
+      <h2 class="serif" style="font-size:clamp(32px, 4vw, 52px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:64px">
+        Quatre <em style="font-style:italic">manières</em> de collaborer.
+      </h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="format-grid">
+        {FORMATS.map((f) => (
+          <article style="padding:48px;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-base)">
+            <div class="eyebrow" style="margin-bottom:14px;color:var(--color-accent)">{f.eyebrow}</div>
+            <h3 class="serif" style="font-size:30px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:18px">{f.title}</h3>
+            <p style="font-size:15px;line-height:1.7;color:var(--color-text-muted);margin-bottom:24px">{f.body}</p>
+            <ul style="list-style:none;padding:0;margin:0;display:grid;gap:8px">
+              {f.bullets.map((b) => (
+                <li style="font-size:14px;line-height:1.5;color:var(--color-ink);padding-left:20px;position:relative">
+                  <span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>{b}
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Demande de devis */}
+  <section style="padding:96px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start" class="cta-grid">
+        <div>
+          <div class="eyebrow" style="margin-bottom:14px">Demande de devis</div>
+          <h2 class="serif" style="font-size:clamp(32px, 4vw, 52px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:24px">
+            Discuter de votre <em style="font-style:italic">projet</em>.
+          </h2>
+          <p style="font-size:16px;line-height:1.75;color:var(--color-text-muted);margin-bottom:32px">
+            Écrivez-nous avec ces informations :
+          </p>
+          <ul style="list-style:none;padding:0;margin:0 0 32px;display:grid;gap:12px">
+            {[
+              'Nom de votre entreprise et URL du site à promouvoir',
+              'Format souhaité (article complet, mention, partenariat)',
+              'Sujet ou thématique visée',
+              'Contraintes particulières (date, anchor text, etc.)',
+            ].map((b) => (
+              <li style="font-size:15px;line-height:1.6;color:var(--color-ink);padding-left:24px;position:relative">
+                <span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>{b}
+              </li>
+            ))}
+          </ul>
+          <a
+            href={`mailto:mael.guelou.commercial@gmail.com?subject=Demande de devis publicité`}
+            class="btn-fill"
+          >Demander un devis</a>
+          <p style="font-size:13px;color:var(--color-text-muted);margin-top:18px">
+            Nous répondons sous 48 h ouvrées. Voir nos <a href="/cgv/" class="link-underline">CGV</a> pour les conditions de prestation.
+          </p>
+        </div>
+        <aside style="padding:48px;background:var(--color-bg-card);border:1px solid var(--color-border)">
+          <div class="eyebrow" style="margin-bottom:14px">Notre charte</div>
+          <h3 class="serif" style="font-size:24px;line-height:1.2;font-weight:400;letter-spacing:-.3px;margin-bottom:18px">
+            Une <em style="font-style:italic">indépendance</em> non négociable.
+          </h3>
+          <p style="font-size:14px;line-height:1.7;color:var(--color-text-muted);margin-bottom:18px">
+            Aucune marque ne peut faire modifier un article publié, sauf erreur factuelle avérée. Toute collaboration sponsorisée est explicitement signalée au lecteur.
+          </p>
+          <a href="/charte-editoriale/" class="link-underline">Lire notre charte</a>
+        </aside>
+      </div>
+    </div>
+  </section>
+
 </Base>
+<style>
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr !important; }
+  .hero-grid > div:first-child { padding: 48px 32px !important; }
+  .stats-row { grid-template-columns: 1fr !important; }
+  .stats-row > div { border-right: 0 !important; border-bottom: 1px solid var(--color-border) !important; }
+  .stats-row > div:last-child { border-bottom: 0 !important; }
+  .format-grid { grid-template-columns: 1fr !important; }
+  .cta-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+}
+</style>

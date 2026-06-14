@@ -1,43 +1,69 @@
 ---
-import type { MarkdownHeading } from 'astro';
-
+/**
+ * TableOfContents — sommaire auto-généré des H2/H3 d'un article.
+ */
 interface Props {
-  headings: MarkdownHeading[];
-  /** Profondeur min/max des titres affichés (1-6) */
-  minDepth?: number;
-  maxDepth?: number;
-  /** Nombre minimum de titres pour afficher la TOC. En dessous, masquée. */
-  minHeadings?: number;
-  title?: string;
+  html?: string;
+  headings?: Array<{ depth: number; slug: string; text: string }>;
 }
 
-const {
-  headings,
-  minDepth = 2,
-  maxDepth = 3,
-  minHeadings = 3,
-  title = 'Sommaire',
-} = Astro.props;
+const { html, headings: passedHeadings } = Astro.props;
 
-const items = headings.filter((h) => h.depth >= minDepth && h.depth <= maxDepth);
-const display = items.length >= minHeadings;
+let headings: Array<{ depth: number; slug: string; text: string }> = passedHeadings ?? [];
+if (!passedHeadings && html) {
+  const re = /<h([23])[^>]*(?:id="([^"]*)")?[^>]*>([\s\S]*?)<\/h\1>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    const depth = parseInt(m[1], 10);
+    const text = m[3].replace(/<[^>]+>/g, '').trim();
+    // Strip diacritics avec Unicode property escape (works in modern JS)
+    const slug = (m[2] || text).toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (text.length > 1) headings.push({ depth, slug, text });
+  }
+}
+
+if (headings.length < 2) headings = [];
 ---
-{display && (
-  <nav
-    class="toc not-prose mb-10 rounded-lg border border-cream-200 bg-cream-50/60 p-5 sm:p-6"
-    aria-label={title}
-    data-pagefind-ignore
-  >
-    <p class="font-serif text-sm uppercase tracking-widest text-olive-700 mb-3">{title}</p>
-    <ol class="space-y-1.5 text-sm text-ink-700">
-      {items.map((h) => (
-        <li class:list={['leading-snug', h.depth === 3 && 'pl-4']}>
-          <a
-            href={`#${h.slug}`}
-            class="text-ink-700 hover:text-terra-700 underline-offset-2 hover:underline"
-          >{h.text}</a>
+{headings.length >= 2 && (
+  <nav class="toc not-prose" style="padding:32px 0;margin:32px 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border)" aria-label="Sommaire de l'article">
+    <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:18px;font-weight:600">
+      Sommaire
+    </div>
+    <ol style="list-style:none;padding:0;margin:0;display:grid;gap:6px">
+      {headings.map((h, i) => (
+        <li style={h.depth === 3 ? 'padding-left:32px' : ''}>
+          <a href={`#${h.slug}`}
+             style="display:flex;gap:14px;align-items:baseline;padding:6px 0;text-decoration:none;color:var(--color-ink);font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.35;letter-spacing:-.2px"
+             data-toc-link={h.slug}>
+            <span style="font-family:'Inter',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--color-text-muted);font-weight:600;min-width:28px;font-feature-settings:'tnum'">{String(i + 1).padStart(2, '0')}</span>
+            <span>{h.text}</span>
+          </a>
         </li>
       ))}
     </ol>
   </nav>
 )}
+<script is:inline>
+  if ('IntersectionObserver' in window) {
+    const links = document.querySelectorAll('[data-toc-link]');
+    const map = new Map();
+    links.forEach((l) => map.set(l.getAttribute('data-toc-link'), l));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const slug = entry.target.id;
+        const link = map.get(slug);
+        if (!link) return;
+        if (entry.isIntersecting) {
+          links.forEach((l) => l.classList.remove('text-[var(--color-primary)]', 'font-semibold'));
+          link.classList.add('text-[var(--color-primary)]', 'font-semibold');
+        }
+      });
+    }, { rootMargin: '-20% 0px -75% 0px' });
+    document.querySelectorAll('article h2, article h3').forEach((h) => {
+      if (h.id) observer.observe(h);
+    });
+  }
+</script>

@@ -1,0 +1,213 @@
+---
+/**
+ * ProductComparator — comparateur produits pour BRICOLAGE & TECH archétypes.
+ * Données hardcodées par site (à enrichir par l'utilisateur). Prend les top 5
+ * produits du marché, affichés en table avec sort par critère.
+ */
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+const showFor = ['bricolage', 'tech'];
+if (!showFor.includes(archetype)) return null;
+
+interface Product {
+  name: string;
+  brand: string;
+  price: number;
+  rating: number;       // /5
+  pros: string[];
+  cons: string[];
+  specs: Record<string, string | number>;
+  affiliateUrl?: string;
+}
+
+// Catalogue par site/archetype
+const CATALOGS: Record<string, Product[]> = {
+  'meuleuse-disqueuse.com': [
+    {
+      name: 'Bosch Professional GWS 24-180',
+      brand: 'Bosch',
+      price: 149,
+      rating: 4.7,
+      pros: ['Puissance 2400W', 'Fiabilité reconnue', 'Garantie 3 ans'],
+      cons: ['Lourde 5.4kg', 'Bruyante'],
+      specs: { 'Puissance': '2400W', 'Diametre disque': '180mm', 'Poids': '5.4 kg', 'Vitesse': '8500 tr/min' },
+    },
+    {
+      name: 'Makita 9558NB',
+      brand: 'Makita',
+      price: 89,
+      rating: 4.5,
+      pros: ['Compacte', 'Très bon rapport qualité/prix', 'Facile à manier'],
+      cons: ['Moins puissante', 'Disque 125mm seulement'],
+      specs: { Puissance: '840W', 'Diamètre disque': '125mm', Poids: '1.7 kg', Vitesse: '11000 tr/min' },
+    },
+    {
+      name: 'Dewalt DWE4257',
+      brand: 'Dewalt',
+      price: 169,
+      rating: 4.6,
+      pros: ['E-Clutch anti-rebond', 'Frein moteur', 'Variable speed'],
+      cons: ['Prix élevé', 'Disque 125mm'],
+      specs: { Puissance: '1700W', 'Diamètre disque': '125mm', Poids: '2.5 kg', Vitesse: '2800-10500 tr/min' },
+    },
+  ],
+  'scie-electrique.fr': [
+    {
+      name: 'Makita 5008MG',
+      brand: 'Makita',
+      price: 219,
+      rating: 4.8,
+      pros: ['Légère 5.1 kg pour 210mm', 'Magnésium', 'LED de découpe'],
+      cons: ['Câble un peu court'],
+      specs: { Puissance: '1800W', 'Diamètre lame': '210mm', Poids: '5.1 kg', 'Profondeur coupe': '75mm' },
+    },
+    {
+      name: 'Bosch GKS 190',
+      brand: 'Bosch',
+      price: 129,
+      rating: 4.6,
+      pros: ['Très bon rapport q/p', 'Garde-lame fluide', 'Très précise'],
+      cons: ['1400W un peu juste sur bois dur'],
+      specs: { Puissance: '1400W', 'Diamètre lame': '190mm', Poids: '4.2 kg', 'Profondeur coupe': '70mm' },
+    },
+  ],
+  'pompe-a-eau.info': [
+    {
+      name: 'Einhell GC-GP 6538',
+      brand: 'Einhell',
+      price: 89,
+      rating: 4.4,
+      pros: ['650W puissant', 'Bon débit 4000 L/h', 'Auto-amorçante'],
+      cons: ['Bruyante', 'Pas pour eau chaude'],
+      specs: { Puissance: '650W', Débit: '4000 L/h', Hauteur: '38m', Aspiration: '7m' },
+    },
+    {
+      name: 'Gardena 5000/4 Classic',
+      brand: 'Gardena',
+      price: 169,
+      rating: 4.7,
+      pros: ['Robuste', '5000 L/h', 'Anti-blocage'],
+      cons: ['Prix élevé'],
+      specs: { Puissance: '900W', Débit: '5000 L/h', Hauteur: '48m', Aspiration: '8m' },
+    },
+  ],
+  'videoprojecteur.eu': [
+    {
+      name: 'BenQ TK700STi',
+      brand: 'BenQ',
+      price: 1499,
+      rating: 4.6,
+      pros: ['4K HDR Gaming', 'Android TV intégré', 'Latence 16ms'],
+      cons: ['Bruit ventilation', 'Mode lampe vie limitée'],
+      specs: { Résolution: '4K UHD', Luminosité: '3000 lumens', 'Contraste': '10000:1', Throw: 'Court 1.13' },
+    },
+    {
+      name: 'Optoma UHD35',
+      brand: 'Optoma',
+      price: 999,
+      rating: 4.5,
+      pros: ['Excellent pour gaming', 'HDR10', '240Hz 1080p'],
+      cons: ['Pas Android TV', 'Throw moyen'],
+      specs: { Résolution: '4K UHD', Luminosité: '3600 lumens', 'Contraste': '1M:1', Throw: 'Standard 1.21' },
+    },
+  ],
+};
+
+const products = CATALOGS[SITE_CONFIG.domain];
+if (!products || products.length === 0) return null;
+
+const headerLabels: Record<string, string> = {
+  bricolage: '🛠 Comparatif des meilleurs outils 2026',
+  tech: '📊 Comparatif des meilleurs produits 2026',
+};
+
+function buildAffiliateUrl(p: Product): string {
+  if (p.affiliateUrl) return p.affiliateUrl;
+  // Lien Amazon de fallback (nofollow, just for engagement — pas de tracking ID hardcoded)
+  return `https://www.amazon.fr/s?k=${encodeURIComponent(p.brand + ' ' + p.name)}`;
+}
+---
+<section class="product-comparator not-prose" style="margin:64px 0" aria-labelledby="comparator-heading">
+  <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);margin-bottom:18px;font-weight:600">Comparatif</div>
+  <h2 id="comparator-heading" class="serif" style="font-size:clamp(28px, 3.2vw, 40px);line-height:1.1;font-weight:400;letter-spacing:-.5px;margin:0 0 14px;color:var(--color-ink)">
+    {(headerLabels[archetype] ?? '📊 Comparatif').replace(/^[^\s]+\s/, '')}
+  </h2>
+  <p style="font-size:15px;color:var(--color-text-muted);line-height:1.7;margin:0 0 32px;max-width:680px">
+    Sélection rédactionnelle indépendante. Le top choix est mis en valeur ci-dessous.
+  </p>
+
+  <div style="overflow-x:auto;border-top:2px solid var(--color-ink);border-bottom:2px solid var(--color-ink)">
+    <table style="width:100%;border-collapse:collapse;font-family:Inter,sans-serif;min-width:720px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--color-border)">
+          <th style="text-align:left;padding:18px 16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-text-muted)">Produit</th>
+          <th style="text-align:left;padding:18px 16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-text-muted)">Prix</th>
+          <th style="text-align:left;padding:18px 16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-text-muted)">Note</th>
+          <th style="text-align:left;padding:18px 16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--color-text-muted)">Spécs clés</th>
+          <th style="text-align:left;padding:18px 16px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((p, i) => (
+          <tr style="border-bottom:1px solid var(--color-border)">
+            <td style="padding:18px 16px">
+              <div style="font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.3;font-weight:400;letter-spacing:-.2px;color:var(--color-ink)">{p.name}</div>
+              <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);margin-top:4px;font-weight:600">{p.brand}</div>
+              {i === 0 && <span style="display:inline-block;margin-top:8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--color-accent);font-weight:600">★ Top choix</span>}
+            </td>
+            <td style="padding:18px 16px;font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:var(--color-accent);font-feature-settings:'tnum';letter-spacing:-.3px">{p.price.toFixed(2)} €</td>
+            <td style="padding:18px 16px;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--color-ink);font-feature-settings:'tnum'">
+              <span style="color:var(--color-accent)">★</span> <strong style="font-weight:400;font-style:italic">{p.rating}</strong><span style="color:var(--color-text-muted)">/5</span>
+            </td>
+            <td style="padding:18px 16px;font-size:13px">
+              {Object.entries(p.specs).slice(0, 3).map(([k, v]) => (
+                <div style="color:var(--color-text-muted);line-height:1.5">
+                  <strong style="color:var(--color-ink);font-weight:500">{k}:</strong> {v}
+                </div>
+              ))}
+            </td>
+            <td style="padding:18px 16px">
+              <a href={buildAffiliateUrl(p)} target="_blank" rel="noopener nofollow sponsored"
+                 style="display:inline-block;padding:10px 18px;background:var(--color-ink);color:var(--color-bg-base);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;text-decoration:none;white-space:nowrap">
+                Voir l'offre →
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:48px;display:grid;grid-template-columns:repeat(3, 1fr);gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)" class="proscons-grid">
+    {products.slice(0, 3).map((p) => (
+      <details style="border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card)">
+        <summary style="cursor:pointer;padding:24px;font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.3;font-weight:400;letter-spacing:-.2px;color:var(--color-ink);list-style:none;display:flex;align-items:flex-start;justify-content:space-between;gap:14px">
+          <span style="flex:1">{p.name}</span>
+          <svg style="width:16px;height:16px;flex-shrink:0;color:var(--color-accent);margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </summary>
+        <div style="padding:0 24px 24px;border-top:1px solid var(--color-border);padding-top:18px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div>
+              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-accent);font-weight:600;margin-bottom:8px">✓ Forts</div>
+              <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
+                {p.pros.map((pro) => <li style="font-size:12px;line-height:1.55;color:var(--color-ink)">— {pro}</li>)}
+              </ul>
+            </div>
+            <div>
+              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600;margin-bottom:8px">✗ Limites</div>
+              <ul style="list-style:none;margin:0;padding:0;display:grid;gap:6px">
+                {p.cons.map((con) => <li style="font-size:12px;line-height:1.55;color:var(--color-text-muted)">— {con}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </details>
+    ))}
+  </div>
+</section>
+<style>
+@media (max-width: 900px) { .proscons-grid { grid-template-columns: 1fr !important; } }
+</style>

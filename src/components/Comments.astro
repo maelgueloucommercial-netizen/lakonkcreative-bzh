@@ -1,0 +1,67 @@
+---
+/**
+ * Item #28 master plan — Comments system minimal.
+ *
+ * Affiche les commentaires approved + form de soumission.
+ * Backend : cron.felleries.fr/comments (D1-backed, modération manuelle).
+ *
+ * UX : commentaires chargés via fetch JS au load (pas de SSR car static site).
+ * Anti-spam : honeypot + filtre client + filtre serveur (links + keywords).
+ */
+import { SITE_CONFIG } from '../lib/site-config';
+const domain = SITE_CONFIG.domain;
+---
+<section class="comments-block not-prose" data-comments style="margin:48px 0;padding:32px;background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:8px">
+  <h3 style="font-size:18px;font-weight:600;margin:0 0 24px;color:var(--color-ink)">Commentaires</h3>
+  <div data-comments-list style="margin-bottom:32px;font-size:15px;line-height:1.7;color:var(--color-text)">
+    <p style="color:var(--color-text-muted);font-style:italic">Chargement…</p>
+  </div>
+  <form data-comments-form>
+    <input type="text" name="hpfield" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true" />
+    <div style="display:grid;gap:12px;margin-bottom:16px">
+      <input type="text" name="author" placeholder="Votre prénom ou pseudo" required maxlength="60"
+             style="padding:10px;border:1px solid var(--color-border);background:var(--color-bg);font-size:14px;color:var(--color-ink)" />
+      <input type="email" name="email" placeholder="Votre email (privé, jamais affiché)" maxlength="120"
+             style="padding:10px;border:1px solid var(--color-border);background:var(--color-bg);font-size:14px;color:var(--color-ink)" />
+      <textarea name="body" placeholder="Votre commentaire…" required minlength="4" maxlength="2000" rows="4"
+                style="padding:10px;border:1px solid var(--color-border);background:var(--color-bg);font-size:14px;color:var(--color-ink);font-family:inherit;resize:vertical"></textarea>
+    </div>
+    <button type="submit" style="padding:10px 24px;background:var(--color-ink);color:var(--color-bg);border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500">Publier</button>
+    <small style="display:block;margin-top:12px;color:var(--color-text-muted);font-size:12px">Modération manuelle. Aucun lien autorisé.</small>
+    <div data-comments-status style="margin-top:12px;font-size:13px"></div>
+  </form>
+</section>
+<script set:html={`
+(function(){
+  var sect=document.querySelector('[data-comments]');if(!sect)return;
+  var domain=${JSON.stringify(domain)};
+  var ep='https://cron.felleries.fr/comments';
+  var listEl=sect.querySelector('[data-comments-list]');
+  var form=sect.querySelector('[data-comments-form]');
+  var statusEl=sect.querySelector('[data-comments-status]');
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function load(){
+    var u=ep+'?domain='+encodeURIComponent(domain)+'&url='+encodeURIComponent(location.pathname);
+    fetch(u).then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)||rows.length===0){listEl.innerHTML='<p style="color:var(--color-text-muted);font-style:italic">Aucun commentaire pour l\\'instant.</p>';return;}
+      listEl.innerHTML=rows.map(function(r){
+        var d=new Date(r.ts).toLocaleDateString('fr-FR');
+        return '<div style="border-bottom:1px solid var(--color-border);padding:12px 0"><strong>'+esc(r.author_name||'Anonyme')+'</strong> <span style="color:var(--color-text-muted);font-size:12px">— '+d+'</span><p style="margin:6px 0 0">'+esc(r.body)+'</p></div>';
+      }).join('');
+    }).catch(function(){listEl.innerHTML='<p style="color:var(--color-text-muted);font-style:italic">Commentaires temporairement indisponibles.</p>';});
+  }
+  load();
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var fd=new FormData(form);
+    if(fd.get('hpfield')){return;}
+    statusEl.textContent='Envoi…';
+    fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      domain:domain,url:location.pathname,author:fd.get('author'),email:fd.get('email'),body:fd.get('body'),
+    })}).then(function(r){return r.json();}).then(function(j){
+      if(j.ok){statusEl.textContent=j.status==='pending'?'Merci ! Votre commentaire est en attente de modération.':'Reçu, merci.';statusEl.style.color='var(--color-accent)';form.reset();}
+      else{statusEl.textContent='Erreur : '+(j.error||'inconnue');statusEl.style.color='#c00';}
+    }).catch(function(){statusEl.textContent='Erreur réseau.';statusEl.style.color='#c00';});
+  });
+})();
+`} />

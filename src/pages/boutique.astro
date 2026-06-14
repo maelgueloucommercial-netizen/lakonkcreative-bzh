@@ -1,0 +1,286 @@
+---
+/**
+ * Landing BOUTIQUE premium — inspiration Amazon Stores (brand store).
+ * Hero plein-largeur + stats, tuiles catégories visuelles, spotlight coup de cœur,
+ * rayons par catégorie (top produits + intro guide), méthodologie E-E-A-T.
+ * Dynamique : tout dérive de la collection `produits` (+ `catalogues` pour les intros).
+ * URL /boutique/. Schemas CollectionPage + ItemList + BreadcrumbList.
+ */
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+import { getCollection } from 'astro:content';
+import '../styles/templates.css';
+
+const produits = await getCollection('produits');
+const catalogues = await getCollection('catalogues').catch(() => []);
+const catData = (slug: string) => catalogues.find((c: any) => c.data.category === slug)?.data;
+const score = (p: any) => (p.data.scoreGlobal ?? p.data.rating ?? 0) as number;
+const img = (p: any) => (p.data.images?.[0] ?? p.data.image ?? null) as string | null;
+const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const priceTxt = (p: any) => (typeof p.data.price === 'number' ? `${p.data.price} €` : (p.data.priceText ?? ''));
+
+const byCat = new Map<string, typeof produits>();
+for (const p of produits) {
+  if (!byCat.has(p.data.category)) byCat.set(p.data.category, [] as any);
+  byCat.get(p.data.category)!.push(p);
+}
+const categories = [...byCat.entries()].map(([slug, items]) => {
+  const sorted = [...items].sort((a, b) => score(b) - score(a));
+  const prices = items.map((e) => e.data.price ?? e.data.priceLow).filter((n): n is number => typeof n === 'number');
+  const cd = catData(slug);
+  return {
+    slug, label: items[0].data.categoryLabel ?? slug, count: items.length,
+    from: prices.length ? Math.min(...prices) : null,
+    image: items.find((e) => img(e))?.data.images?.[0] ?? img(items[0]),
+    intro: (cd?.intro as string) ?? '', top: sorted.slice(0, 4),
+  };
+}).sort((a, b) => b.count - a.count);
+
+const allSorted = [...produits].sort((a, b) => score(b) - score(a));
+const spotlight: any = allSorted[0];
+const featured = allSorted.slice(0, 8);
+const brands = [...new Set(produits.map((p) => p.data.brand).filter(Boolean))];
+const totalProducts = produits.length;
+// Bons plans (benchmark objetrama) : remises réelles en rayon dédié + entrée nav.
+const bqDisc = (p: any) => (typeof p.data.oldPrice === 'number' && typeof p.data.price === 'number' && p.data.oldPrice > p.data.price)
+  ? Math.round((1 - p.data.price / p.data.oldPrice) * 100) : null;
+const bqDeals = (produits as any[]).filter((p) => bqDisc(p) !== null).sort((a, b) => (bqDisc(b) ?? 0) - (bqDisc(a) ?? 0)).slice(0, 4);
+
+const pageUrl = new URL('/boutique/', SITE_CONFIG.siteUrl).toString();
+const title = `Boutique ${SITE_CONFIG.siteName} — notre sélection testée et comparée`;
+const description = `${totalProducts} produits testés et comparés dans ${categories.length} catégories : ${categories.map((c) => c.label.toLowerCase()).slice(0, 4).join(', ')}. Meilleurs choix, prix et avis vérifiés.`;
+
+const jsonLd: Record<string, unknown>[] = [
+  { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: pageUrl,
+    mainEntity: { '@type': 'ItemList', numberOfItems: categories.length, itemListElement: categories.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.label, url: new URL(`/categorie-produit/${c.slug}/`, SITE_CONFIG.siteUrl).toString() })) } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_CONFIG.siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Boutique', item: pageUrl }] },
+];
+---
+<Base title={title} description={description} canonical={pageUrl} type="website" jsonLd={jsonLd}>
+  <div class="bq">
+    {/* ===== HERO ===== */}
+    <section class="bq-hero">
+      <div class="tpl-wrap bq-hero-in">
+        <span class="bq-eyebrow">La boutique {SITE_CONFIG.siteName}</span>
+        <h1 class="bq-hero-h1">Notre sélection, testée&nbsp;et comparée pour vous</h1>
+        <p class="bq-hero-lead">{description}</p>
+        <div class="bq-stats">
+          <div><strong>{totalProducts}</strong><span>produits</span></div>
+          <div><strong>{categories.length}</strong><span>catégories</span></div>
+          <div><strong>{brands.length}</strong><span>marques</span></div>
+          <div><strong>★</strong><span>notes vérifiées</span></div>
+        </div>
+        <div class="bq-hero-cta">
+          <a href="#categories" class="bq-btn bq-btn--solid">Explorer la boutique</a>
+          {bqDeals.length >= 2 && <a href="/bons-plans/" class="bq-btn bq-btn--ghost">🔥 Bons plans ({bqDeals.length}+) →</a>}
+          {spotlight && <a href={`/produit/${spotlight.data.slug}/`} class="bq-btn bq-btn--ghost">Notre coup de cœur →</a>}
+        </div>
+        <p class="bq-disc">Liens partenaires : une commission peut nous être versée, sans surcoût pour vous. Sélection 100&nbsp;% indépendante.</p>
+      </div>
+    </section>
+
+    {/* ===== TUILES CATÉGORIES ===== */}
+    {categories.length > 0 && (
+      <section id="categories" class="bq-sec">
+        <div class="tpl-wrap">
+          <div class="bq-sec-head"><span class="tpl-eyebrow">Rayons</span><h2 class="bq-h2">Explorer par catégorie</h2></div>
+          <div class="bq-tiles">
+            {categories.map((c) => (
+              <a class="bq-tile" href={`/categorie-produit/${c.slug}/`}>
+                <div class="bq-tile-img">{c.image ? <img src={c.image} alt={c.label} loading="lazy" width="320" height="240" /> : <span class="bq-ph"></span>}</div>
+                <div class="bq-tile-body">
+                  <strong>{c.label}</strong>
+                  <span class="bq-tile-meta">{c.count} produit{c.count > 1 ? 's' : ''}{c.from ? ` · dès ${c.from} €` : ''}</span>
+                  <span class="bq-tile-go">Découvrir →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* ===== BONS PLANS (remises réelles) ===== */}
+    {bqDeals.length >= 2 && (
+      <section class="bq-sec" style="padding-top:0">
+        <div class="tpl-wrap">
+          <div class="bq-shelf-head">
+            <div><span class="tpl-eyebrow" style="color:#b0654f">🔥 Promos</span><h2 class="bq-h2">Les bons plans du moment</h2></div>
+            <a href="/bons-plans/" class="bq-shelf-all">Toutes les promos →</a>
+          </div>
+          <div class="bq-row">
+            {bqDeals.map((e: any) => (
+              <a class="bq-prod" href={`/produit/${e.data.slug}/`}>
+                <span class="bq-badge" style="background:#b0654f">-{bqDisc(e)}%</span>
+                <div class="bq-prod-img">{img(e) && <img src={img(e)} alt={e.data.title} loading="lazy" width="220" height="180" />}</div>
+                {e.data.brand && <span class="bq-prod-brand">{e.data.brand}</span>}
+                <strong class="bq-prod-title">{e.data.title}</strong>
+                {score(e) > 0 && <span class="bq-prod-rating"><span class="bq-stars">{stars(score(e))}</span> {score(e)}</span>}
+                <div class="bq-prod-foot">
+                  <span class="bq-prod-price">{priceTxt(e)}<s>{e.data.oldPrice} €</s></span>
+                  <span class="bq-prod-go">Voir →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* ===== SPOTLIGHT COUP DE CŒUR ===== */}
+    {spotlight && (
+      <section class="bq-spot">
+        <div class="tpl-wrap bq-spot-in">
+          <div class="bq-spot-img">{img(spotlight) && <img src={img(spotlight)} alt={spotlight.data.title} loading="lazy" width="460" height="380" />}</div>
+          <div class="bq-spot-body">
+            <span class="bq-spot-eyebrow">{spotlight.data.badge ?? 'Notre coup de cœur'}</span>
+            <h2 class="bq-spot-title">{spotlight.data.title}</h2>
+            {typeof score(spotlight) === 'number' && score(spotlight) > 0 && (
+              <div class="bq-spot-rating"><span class="bq-stars">{stars(score(spotlight))}</span> <strong>{score(spotlight)}/5</strong>{spotlight.data.reviewCount ? <small> · {spotlight.data.reviewCount.toLocaleString('fr-FR')} avis</small> : null}</div>
+            )}
+            <p class="bq-spot-verdict">{spotlight.data.verdict ?? spotlight.data.bestFor}</p>
+            <div class="bq-spot-foot">
+              {priceTxt(spotlight) && <span class="bq-spot-price">{priceTxt(spotlight)}</span>}
+              <a href={`/produit/${spotlight.data.slug}/`} class="bq-btn bq-btn--solid">Voir la fiche complète →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* ===== RAYONS PAR CATÉGORIE ===== */}
+    {categories.map((c, i) => (
+      <section class={`bq-shelf ${i % 2 ? 'bq-shelf--tint' : ''}`}>
+        <div class="tpl-wrap">
+          <div class="bq-shelf-head">
+            <div><h2 class="bq-h2">{c.label}</h2>{c.intro && <p class="bq-shelf-intro">{c.intro}</p>}</div>
+            <a href={`/categorie-produit/${c.slug}/`} class="bq-shelf-all">Voir les {c.count} →</a>
+          </div>
+          <div class="bq-row">
+            {c.top.map((e: any) => (
+              <a class="bq-prod" href={`/produit/${e.data.slug}/`}>
+                {e.data.badge && <span class="bq-badge">{e.data.badge}</span>}
+                <div class="bq-prod-img">{img(e) && <img src={img(e)} alt={e.data.title} loading="lazy" width="220" height="180" />}</div>
+                {e.data.brand && <span class="bq-prod-brand">{e.data.brand}</span>}
+                <strong class="bq-prod-title">{e.data.title}</strong>
+                {score(e) > 0 && <span class="bq-prod-rating"><span class="bq-stars">{stars(score(e))}</span> {score(e)}</span>}
+                <div class="bq-prod-foot">
+                  {priceTxt(e) && <span class="bq-prod-price">{priceTxt(e)}{typeof e.data.oldPrice === 'number' ? <s>{e.data.oldPrice} €</s> : null}</span>}
+                  <span class="bq-prod-go">Voir →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))}
+
+    {/* ===== MÉTHODOLOGIE ===== */}
+    <section class="bq-method">
+      <div class="tpl-wrap">
+        <div class="bq-sec-head"><span class="tpl-eyebrow tpl-eyebrow--light">En toute confiance</span><h2 class="bq-h2 bq-h2--light">Comment nous sélectionnons</h2></div>
+        <div class="bq-method-grid">
+          <div class="bq-method-it"><span class="bq-method-n">01</span><strong>Testé &amp; comparé</strong><p>Chaque produit est confronté à ses concurrents directs sur des critères concrets, pas sur la fiche marketing.</p></div>
+          <div class="bq-method-it"><span class="bq-method-n">02</span><strong>Notes honnêtes</strong><p>Avantages ET limites. On signale les défauts et on déconseille quand il le faut.</p></div>
+          <div class="bq-method-it"><span class="bq-method-n">03</span><strong>Prix réels</strong><p>Des fourchettes de prix observées chez les marchands, mises à jour régulièrement.</p></div>
+          <div class="bq-method-it"><span class="bq-method-n">04</span><strong>Indépendance</strong><p>Les liens sont affiliés, mais le classement ne s'achète pas : seule la qualité compte.</p></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .bq { --bq-radius: 14px; }
+  .bq-eyebrow { display: inline-block; font-size: .72rem; letter-spacing: .28em; text-transform: uppercase; font-weight: 700; opacity: .85; margin-bottom: 1rem; }
+  .bq-h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.1; margin: 0; letter-spacing: -.01em; }
+  .bq-h2--light { color: #fff; }
+  .bq-sec-head { margin-bottom: 1.8rem; }
+  .bq-sec-head .tpl-eyebrow { color: var(--site-primary); }
+  .bq-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .85rem 1.5rem; border-radius: 999px; font-weight: 700; font-size: .92rem; text-decoration: none; transition: transform .12s, box-shadow .12s; }
+  .bq-btn--solid { background: var(--site-primary); color: #fff; box-shadow: 0 8px 22px color-mix(in srgb, var(--site-primary) 35%, transparent); }
+  .bq-btn--solid:hover { transform: translateY(-2px); }
+  .bq-btn--ghost { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+  .bq-btn--ghost:hover { background: rgba(255,255,255,.2); }
+
+  /* HERO */
+  .bq-hero { background: linear-gradient(135deg, var(--site-primary), color-mix(in srgb, var(--site-primary) 55%, #000)); color: #fff; padding: clamp(3rem, 7vw, 5.5rem) 0; position: relative; overflow: hidden; }
+  .bq-hero::after { content: ""; position: absolute; right: -8%; top: -30%; width: 480px; height: 480px; background: radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); }
+  .bq-hero-in { position: relative; max-width: 880px; }
+  .bq-hero-h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 1.1rem; font-weight: 800; }
+  .bq-hero-lead { font-size: clamp(1rem, 1.6vw, 1.18rem); line-height: 1.55; opacity: .92; max-width: 680px; margin: 0 0 1.8rem; }
+  .bq-stats { display: flex; flex-wrap: wrap; gap: 2.4rem; margin-bottom: 2rem; }
+  .bq-stats div { display: flex; flex-direction: column; }
+  .bq-stats strong { font-size: 2rem; line-height: 1; font-weight: 800; }
+  .bq-stats span { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; opacity: .8; margin-top: .3rem; }
+  .bq-hero-cta { display: flex; flex-wrap: wrap; gap: .8rem; }
+  .bq-disc { font-size: .78rem; opacity: .72; margin-top: 1.6rem; }
+
+  /* SECTIONS */
+  .bq-sec, .bq-shelf, .bq-spot, .bq-method { padding: clamp(2.6rem, 5vw, 4rem) 0; }
+  .bq-shelf--tint { background: var(--site-bg-2, #f6f3ee); }
+
+  /* TUILES CATÉGORIES */
+  .bq-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.3rem; }
+  .bq-tile { display: flex; flex-direction: column; border-radius: var(--bq-radius); overflow: hidden; text-decoration: none; color: var(--site-text); background: var(--site-bg-card, #fff); border: 1px solid var(--site-border); transition: transform .15s, box-shadow .15s; }
+  .bq-tile:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
+  .bq-tile-img { aspect-ratio: 4/3; background: #fff; overflow: hidden; }
+  .bq-tile-img img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; transition: transform .3s; }
+  .bq-tile:hover .bq-tile-img img { transform: scale(1.06); }
+  .bq-ph { display: block; width: 100%; height: 100%; background: linear-gradient(135deg, var(--site-bg-2), var(--site-border)); }
+  .bq-tile-body { padding: 1rem 1.2rem 1.2rem; display: flex; flex-direction: column; gap: .3rem; }
+  .bq-tile-body strong { font-size: 1.12rem; }
+  .bq-tile-meta { font-size: .85rem; color: var(--site-text-muted); }
+  .bq-tile-go { color: var(--site-primary); font-weight: 700; font-size: .85rem; margin-top: .3rem; }
+
+  /* SPOTLIGHT */
+  .bq-spot { background: var(--site-bg-2, #f6f3ee); }
+  .bq-spot-in { display: grid; grid-template-columns: minmax(260px, 420px) 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+  .bq-spot-img { background: #fff; border-radius: var(--bq-radius); padding: 2rem; box-shadow: 0 16px 44px rgba(0,0,0,.1); }
+  .bq-spot-img img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: contain; }
+  .bq-spot-eyebrow { display: inline-block; background: var(--site-primary); color: #fff; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; padding: .35rem .8rem; border-radius: 999px; margin-bottom: 1rem; }
+  .bq-spot-title { font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.08; margin: 0 0 .8rem; letter-spacing: -.01em; }
+  .bq-spot-rating { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+  .bq-spot-rating small { color: var(--site-text-muted); }
+  .bq-spot-verdict { font-size: 1.08rem; line-height: 1.6; color: var(--site-text); margin: 0 0 1.6rem; max-width: 56ch; }
+  .bq-spot-foot { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+  .bq-spot-price { font-size: 1.6rem; font-weight: 800; color: var(--site-primary); }
+
+  /* RAYONS */
+  .bq-shelf-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+  .bq-shelf-intro { font-size: .96rem; color: var(--site-text-muted); margin: .5rem 0 0; max-width: 62ch; line-height: 1.5; }
+  .bq-shelf-all { white-space: nowrap; font-weight: 700; color: var(--site-primary); text-decoration: none; font-size: .92rem; }
+  .bq-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.1rem; }
+
+  /* CARTE PRODUIT */
+  .bq-prod { position: relative; display: flex; flex-direction: column; gap: .45rem; padding: 1.1rem; background: var(--site-bg-card, #fff); border: 1px solid var(--site-border); border-radius: var(--bq-radius); text-decoration: none; color: var(--site-text); transition: transform .15s, box-shadow .15s; }
+  .bq-prod:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(0,0,0,.1); }
+  .bq-badge { position: absolute; top: .8rem; left: .8rem; background: var(--site-secondary, var(--site-primary)); color: #fff; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: .25rem .6rem; border-radius: 999px; z-index: 2; }
+  .bq-prod-img { aspect-ratio: 4/3; background: #fff; border-radius: 9px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .bq-prod-img img { width: 100%; height: 100%; object-fit: contain; padding: .4rem; }
+  .bq-prod-brand { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--site-text-muted); font-weight: 700; }
+  .bq-prod-title { font-size: .98rem; line-height: 1.25; }
+  .bq-prod-rating { font-size: .82rem; color: var(--site-text-muted); }
+  .bq-stars { color: var(--site-secondary, #e0a800); letter-spacing: -1px; }
+  .bq-prod-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: .4rem; }
+  .bq-prod-price { font-weight: 800; color: var(--site-primary); font-size: 1.02rem; }
+  .bq-prod-price s { font-weight: 500; color: var(--site-text-muted); font-size: .8rem; margin-left: .35rem; }
+  .bq-prod-go { font-size: .82rem; font-weight: 700; color: var(--site-primary); }
+
+  /* MÉTHODOLOGIE */
+  .bq-method { background: var(--site-text, #1b120e); color: #fff; }
+  .bq-method .tpl-eyebrow--light, .bq-method .bq-eyebrow { color: rgba(255,255,255,.75); }
+  .bq-method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.6rem; }
+  .bq-method-it { display: flex; flex-direction: column; gap: .5rem; }
+  .bq-method-n { font-size: 1.4rem; font-weight: 800; color: var(--site-primary); opacity: .9; }
+  .bq-method-it strong { font-size: 1.1rem; }
+  .bq-method-it p { font-size: .92rem; line-height: 1.55; opacity: .82; margin: 0; }
+
+  @media (max-width: 720px) {
+    .bq-spot-in { grid-template-columns: 1fr; }
+    .bq-stats { gap: 1.4rem; }
+    .bq-stats strong { font-size: 1.6rem; }
+  }
+</style>

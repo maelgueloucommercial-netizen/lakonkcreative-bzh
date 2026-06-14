@@ -1,0 +1,202 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE_CONFIG } from '../../lib/site-config';
+
+const archetype = SITE_CONFIG.theme.archetype;
+
+const PRESETS: Record<string, Array<{ id: string; label: string; emoji: string; durations: Array<{ label: string; sec: number }> }>> = {
+  village: [
+    { id: 'parking', label: 'Stationnement minute', emoji: '🅿️', durations: [
+      { label: '15 minutes', sec: 900 }, { label: '30 minutes', sec: 1800 }, { label: '1 heure', sec: 3600 }, { label: '2 heures', sec: 7200 },
+    ]},
+  ],
+  bricolage: [
+    { id: 'colle', label: 'Temps de séchage colle', emoji: '🔧', durations: [
+      { label: 'Colle bois rapide (5 min)', sec: 300 }, { label: 'Mastic acrylique (1h)', sec: 3600 }, { label: 'Béton-colle (24h max)', sec: 86400 },
+    ]},
+    { id: 'peinture', label: 'Séchage peinture (entre couches)', emoji: '🎨', durations: [
+      { label: 'Acrylique (30 min)', sec: 1800 }, { label: 'Glycéro (4h)', sec: 14400 }, { label: 'Vernis (12h)', sec: 43200 },
+    ]},
+    { id: 'pause', label: 'Pause chantier (sécurité)', emoji: '⏸️', durations: [
+      { label: '5 minutes', sec: 300 }, { label: '10 minutes', sec: 600 }, { label: '20 minutes', sec: 1200 },
+    ]},
+  ],
+  tech: [
+    { id: 'rappel', label: 'Pause écran (règle 20-20-20)', emoji: '👁️', durations: [
+      { label: '20 minutes', sec: 1200 }, { label: '45 minutes', sec: 2700 }, { label: '1 heure', sec: 3600 },
+    ]},
+    { id: 'gaming', label: 'Sessions gaming (santé)', emoji: '🎮', durations: [
+      { label: '30 minutes', sec: 1800 }, { label: '1h30', sec: 5400 }, { label: '3h max', sec: 10800 },
+    ]},
+  ],
+  adulte: [
+    { id: 'pause', label: 'Minuteur générique', emoji: '⏱️', durations: [
+      { label: '5 minutes', sec: 300 }, { label: '10 minutes', sec: 600 }, { label: '15 minutes', sec: 900 }, { label: '30 minutes', sec: 1800 },
+    ]},
+  ],
+};
+
+const presets = PRESETS[archetype] ?? PRESETS.village;
+---
+<Base
+  title="Minuteurs"
+  description={`Minuteurs préréglés sur ${SITE_CONFIG.siteName}. Audio + notification visuelle.`}
+>
+
+  {/* Hero éditorial */}
+  <section style="padding:80px 0 56px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">Minuteurs</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:20px;letter-spacing:-1px">
+        Mesurer le <em style="font-style:italic">temps</em>.
+      </h1>
+      <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;max-width:620px">
+        Minuteurs préréglés. Audio + notification visuelle. Tout dans votre navigateur, sans inscription.
+      </p>
+    </div>
+  </section>
+
+  {/* Timer affichage géant */}
+  <section style="padding:64px 0 96px;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+
+      <div id="timer-display" class="hidden" style="text-align:center;padding:64px 0">
+        <div class="serif" style="font-size:clamp(120px, 16vw, 220px);line-height:.9;font-weight:400;letter-spacing:-6px;font-style:italic;color:var(--color-accent);font-variant-numeric:tabular-nums" id="timer-value">00:00</div>
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);margin-top:24px;font-weight:600" id="timer-label"></div>
+        <div style="margin-top:48px;display:flex;justify-content:center;gap:18px">
+          <button id="timer-pause" class="btn-fill">Pause</button>
+          <button id="timer-stop" style="padding:14px 28px;background:transparent;border:1px solid var(--color-ink);color:var(--color-ink);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;cursor:pointer">Arrêter</button>
+        </div>
+      </div>
+
+      <div id="timer-presets">
+        {presets.map((p, i) => (
+          <section style={`padding:${i === 0 ? '0' : '40px'} 0 40px;${i > 0 ? 'border-top:1px solid var(--color-border)' : ''}`}>
+            <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:24px">
+              <span style="font-size:28px;line-height:1">{p.emoji}</span>
+              <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.15;font-weight:400;letter-spacing:-.3px">{p.label}</h2>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--color-border);border-left:1px solid var(--color-border)">
+              {p.durations.map((d) => (
+                <button
+                  data-sec={d.sec}
+                  data-label={`${p.label} — ${d.label}`}
+                  style="padding:18px 28px;border:0;border-right:1px solid var(--color-border);border-bottom:1px solid var(--color-border);background:var(--color-bg-card);font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--color-ink);cursor:pointer;letter-spacing:-.2px"
+                >▶ {d.label}</button>
+              ))}
+            </div>
+          </section>
+        ))}
+        <section style="padding:40px 0 40px;border-top:1px solid var(--color-border)">
+          <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:24px">
+            <span style="font-size:28px;line-height:1">⚙️</span>
+            <h2 class="serif" style="font-size:clamp(22px, 2.4vw, 28px);line-height:1.15;font-weight:400;letter-spacing:-.3px">Minuteur personnalisé</h2>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px">
+            <label style="display:block">
+              <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Minutes</span>
+              <input id="custom-min" type="number" min="0" max="600" placeholder="0" style="width:120px;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--color-ink);outline:none" />
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-ink);margin-bottom:8px;font-weight:600">Secondes</span>
+              <input id="custom-sec" type="number" min="0" max="59" placeholder="0" style="width:120px;padding:10px 0;border:0;border-bottom:1px solid var(--color-border);background:transparent;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--color-ink);outline:none" />
+            </label>
+            <button id="custom-start" class="btn-fill">Lancer</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  let timerId = null;
+  let endsAt = 0;
+  let paused = false;
+  let pausedRemaining = 0;
+
+  function format(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = Math.floor(s % 60);
+    if (h) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  }
+
+  function start(seconds, label) {
+    if (timerId) clearInterval(timerId);
+    paused = false;
+    endsAt = Date.now() + seconds * 1000;
+    document.getElementById('timer-display').classList.remove('hidden');
+    document.getElementById('timer-presets').classList.add('hidden');
+    document.getElementById('timer-label').textContent = label;
+    timerId = setInterval(tick, 250);
+    tick();
+  }
+
+  function tick() {
+    if (paused) return;
+    const remaining = Math.max(0, (endsAt - Date.now()) / 1000);
+    document.getElementById('timer-value').textContent = format(remaining);
+    if (remaining <= 0) {
+      clearInterval(timerId);
+      timerId = null;
+      beep();
+      document.getElementById('timer-value').textContent = '00:00';
+      document.getElementById('timer-label').textContent += ' ✓ TERMINÉ';
+      setTimeout(stop, 5000);
+    }
+  }
+
+  function beep() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new Ctx();
+      for (let i = 0; i < 3; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = 880;
+        gain.gain.value = 0.1;
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.4);
+        osc.stop(ctx.currentTime + i * 0.4 + 0.2);
+      }
+    } catch (e) {}
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Minuteur terminé', { body: document.getElementById('timer-label').textContent });
+    }
+  }
+
+  function stop() {
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+    document.getElementById('timer-display').classList.add('hidden');
+    document.getElementById('timer-presets').classList.remove('hidden');
+  }
+
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  document.querySelectorAll('button[data-sec]').forEach((b) => {
+    b.addEventListener('click', () => start(parseInt(b.dataset.sec, 10), b.dataset.label));
+  });
+  document.getElementById('custom-start').addEventListener('click', () => {
+    const m = parseInt(document.getElementById('custom-min').value || '0', 10);
+    const s = parseInt(document.getElementById('custom-sec').value || '0', 10);
+    const total = m * 60 + s;
+    if (total > 0) start(total, `Minuteur personnalisé ${m}:${String(s).padStart(2, '0')}`);
+  });
+  document.getElementById('timer-pause').addEventListener('click', () => {
+    if (!paused) {
+      paused = true;
+      pausedRemaining = endsAt - Date.now();
+      document.getElementById('timer-pause').textContent = '▶ Reprendre';
+    } else {
+      paused = false;
+      endsAt = Date.now() + pausedRemaining;
+      document.getElementById('timer-pause').textContent = '⏸ Pause';
+    }
+  });
+  document.getElementById('timer-stop').addEventListener('click', stop);
+</script>

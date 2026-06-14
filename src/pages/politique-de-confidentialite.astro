@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE_CONFIG } from '../lib/site-config';
+
+const dateMaj = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const SECTIONS = [
+  {
+    title: 'Quelles données collectons-nous ?',
+    bullets: [
+      `Aucun cookie tiers n'est déposé pour le tracking publicitaire ou le profilage.`,
+      `Si vous remplissez le formulaire de contact, nous traitons votre nom, votre email et votre message uniquement pour vous répondre.`,
+      `Si vous vous inscrivez à la newsletter, nous traitons votre email pour vous envoyer la newsletter à laquelle vous avez consenti.`,
+      `Le site utilise Cloudflare Web Analytics, une solution de mesure d'audience anonyme et sans cookie qui ne permet aucune identification individuelle.`,
+    ],
+  },
+  {
+    title: 'Quelle est la base légale ?',
+    body: `Les traitements liés au formulaire de contact et à la newsletter reposent sur votre consentement explicite (article 6.1.a du RGPD). Le traitement statistique anonyme via Cloudflare Web Analytics repose sur l'intérêt légitime de l'éditeur à mesurer l'audience de son site (article 6.1.f).`,
+  },
+  {
+    title: 'Combien de temps conservons-nous vos données ?',
+    bullets: [
+      `Messages du formulaire de contact : 12 mois maximum après le dernier échange, puis suppression.`,
+      `Inscription newsletter : tant que vous ne demandez pas de désinscription. Un lien de désinscription est présent dans chaque envoi.`,
+      `Données de mesure d'audience : 6 mois maximum (politique Cloudflare).`,
+    ],
+  },
+];
+
+const _pageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: `Politique de confidentialité — ${SITE_CONFIG.siteName}`,
+  description: `Politique de confidentialité RGPD : données collectées et droits sur ${SITE_CONFIG.siteName}.`,
+  url: `${SITE_CONFIG.siteUrl}/politique-de-confidentialite/`,
+  inLanguage: 'fr-FR',
+  isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
+};
+---
+<Base
+  title="Politique de confidentialité (RGPD)"
+  description={`Politique de confidentialité de ${SITE_CONFIG.siteName} : quelles données nous collectons, pourquoi, vos droits.`}
+  jsonLd={[_pageSchema]}
+>
+
+  {/* Hero éditorial sobre */}
+  <section style="padding:96px 0 64px;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:18px">RGPD</div>
+      <h1 class="serif" style="font-size:clamp(40px, 5vw, 64px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
+        Votre vie privée, <em style="font-style:italic">respectée</em>.
+      </h1>
+      <p style="font-size:18px;line-height:1.7;color:var(--color-text-muted);max-width:720px;margin-bottom:24px">
+        Le site {SITE_CONFIG.siteName} applique une approche minimaliste : pas de cookies tiers de tracking publicitaire, pas de profilage, pas de revente de vos données.
+      </p>
+      <p style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted);font-weight:600">
+        Dernière mise à jour — {dateMaj}
+      </p>
+    </div>
+  </section>
+
+  {/* Sections principales */}
+  <section style="padding:80px 0;background:var(--color-bg-base)">
+    <div class="site-container site-container--narrow">
+      {SECTIONS.map((s, i) => (
+        <article style={`padding:${i === 0 ? '0' : '48px'} 0 48px;${i > 0 ? 'border-top:1px solid var(--color-border)' : ''}`}>
+          <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:20px">{s.title}</h2>
+          {s.body && <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">{s.body}</p>}
+          {s.bullets && (
+            <ul style="list-style:none;padding:0;margin:0;display:grid;gap:14px">
+              {s.bullets.map((b) => (
+                <li style="font-size:17px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative">
+                  <span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span>{b}
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+      ))}
+
+      <article style="padding:48px 0;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:20px">Quels sont vos droits ?</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px">
+          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement, de portabilité et d'opposition concernant les données qui vous concernent. Pour exercer ces droits, écrivez à <a href={`mailto:mael.guelou.commercial@gmail.com`} class="link-underline">mael.guelou.commercial@gmail.com</a> en précisant votre demande. Nous vous répondrons sous 30 jours maximum.
+        </p>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener" class="link-underline">CNIL</a>.
+        </p>
+      </article>
+
+      <article style="padding:48px 0;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:20px">Sous-traitants</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted);margin-bottom:14px">
+          Nous utilisons les prestataires suivants, qui agissent en tant que sous-traitants au sens du RGPD :
+        </p>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:14px">
+          <li style="font-size:17px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative">
+            <span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span><strong style="color:var(--color-ink);font-weight:500">Cloudflare</strong> : hébergement, CDN, mesure d'audience anonyme.
+          </li>
+          <li style="font-size:17px;line-height:1.7;color:var(--color-text-muted);padding-left:24px;position:relative">
+            <span style="position:absolute;left:0;top:0;color:var(--color-accent)">—</span><strong style="color:var(--color-ink);font-weight:500">Resend</strong> (le cas échéant) : envoi des emails transactionnels (réponses au formulaire de contact, newsletter).
+          </li>
+        </ul>
+      </article>
+
+      <article style="padding:48px 0;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:20px">Liens vers d'autres sites</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Notre site peut contenir des liens vers d'autres sites. Nous n'avons aucun contrôle sur la politique de confidentialité de ces sites et vous invitons à les consulter directement.
+        </p>
+      </article>
+
+      <article style="padding:48px 0 0;border-top:1px solid var(--color-border)">
+        <h2 class="serif" style="font-size:32px;line-height:1.15;font-weight:400;letter-spacing:-.4px;margin-bottom:20px">Modifications</h2>
+        <p style="font-size:17px;line-height:1.75;color:var(--color-text-muted)">
+          Cette politique peut évoluer. Toute mise à jour sera datée en haut de cette page. Nous vous invitons à la consulter régulièrement.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  {/* CTA contact */}
+  <section style="padding:80px 0;background:var(--color-bg-card);border-top:1px solid var(--color-border);text-align:center">
+    <div class="site-container site-container--narrow">
+      <div class="eyebrow" style="margin-bottom:14px">Une question RGPD ?</div>
+      <h2 class="serif" style="font-size:clamp(28px, 3vw, 36px);line-height:1.1;font-weight:400;letter-spacing:-.4px;margin-bottom:24px">
+        Exercer vos <em style="font-style:italic">droits</em>.
+      </h2>
+      <a href={`mailto:mael.guelou.commercial@gmail.com?subject=Demande RGPD`} class="btn-fill">Nous écrire</a>
+    </div>
+  </section>
+
+</Base>

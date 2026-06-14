@@ -1,0 +1,46 @@
+---
+/**
+ * Item #57 master plan — Related searches widget bas d'article.
+ *
+ * Affiche 5-8 suggestions de recherches associées au sujet de l'article.
+ * Données :
+ *   - tags frontmatter de l'article (1ère source)
+ *   - mots-clés extraits du titre + intent
+ *
+ * Les liens pointent vers `/recherche/?q=<query>` (page existante du template).
+ */
+import type { CollectionEntry } from 'astro:content';
+interface Props {
+  article: CollectionEntry<'articles'>;
+}
+const { article } = Astro.props;
+const data = article.data;
+
+// Construit des suggestions à partir du titre + tags + catégorie
+function buildSuggestions(title: string, tags: string[], category?: string): string[] {
+  const out: string[] = [];
+  const titleClean = title.replace(/["']/g, '').slice(0, 60);
+  const verbs = ['comment', 'pourquoi', 'quel', 'quelle'];
+  for (const t of tags.slice(0, 4)) out.push(t);
+  // Variantes informationnelles
+  if (verbs.every((v) => !title.toLowerCase().startsWith(v))) {
+    out.push(`comment ${titleClean.toLowerCase()}`);
+  }
+  if (category && !out.includes(category)) out.push(category);
+  // Dedup, max 6
+  return Array.from(new Set(out)).filter((s) => s && s.length > 2).slice(0, 6);
+}
+const suggestions = buildSuggestions(data.title, data.tags ?? [], data.category);
+---
+{suggestions.length > 0 && (
+  <aside class="related-searches not-prose" style="margin:40px 0;padding:24px;background:var(--color-bg-card);border-left:3px solid var(--color-accent);border-radius:4px">
+    <h3 style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--color-accent);margin:0 0 16px">Recherches associées</h3>
+    <ul style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px">
+      {suggestions.map((s) => (
+        <li>
+          <a href={`/recherche/?q=${encodeURIComponent(s)}`} style="display:inline-block;padding:6px 14px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:20px;font-size:14px;color:var(--color-ink);text-decoration:none">{s}</a>
+        </li>
+      ))}
+    </ul>
+  </aside>
+)}

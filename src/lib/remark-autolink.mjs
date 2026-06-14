@@ -1,108 +1,216 @@
 /**
- * Plugin remark — maillage interne automatique.
+ * Sprint 10 v7 — Autolinking interne par extraction de noms propres.
  *
- * À chaque build, on remplace la **première occurrence** de chaque terme du
- * glossaire (régions, pâtes, lexique) dans le corps Markdown par un lien
- * Markdown pointant vers la fiche correspondante.
+ * Les articles legacy WP n'ont pas de tags/categories extraits. On
+ * construit le glossaire en cherchant des PHRASES NOMINALES DISTINCTIVES
+ * dans les titres (noms propres, lieux composés, marques).
  *
- * Garde-fous :
- *  - skip les fichiers dont l'URL canonique est égale à la cible (pas d'auto-lien)
- *  - skip les nœuds `code`, `inlineCode`, `link`, `linkReference`
- *  - une seule occurrence par terme et par fichier
- *  - un plafond global de `maxLinksPerFile` (3 par défaut) par fiche
- *  - matching sensible à la limite de mots (\b sur Unicode élargi)
+ * Patterns détectés :
+ *   - Composé "Mot-Mot" ou "Mot-Mot-Mot" (Seine-et-Marne, Marne-la-Vallée, La Ferté-Gaucher)
+ *   - Acronymes capitalisés (DPE, RT2012, ...)
+ *   - Suite de 2-3 mots capitalisés (Grisy Suisnes, Notre Dame)
  *
- * Source : item #42 de la roadmap réseau de sites.
+ * Match dans le body insensible au début de phrase (Seine-et-Marne match
+ * que ce soit en début ou milieu de phrase) mais respecte les frontières
+ * de mot.
+ *
+ * Limites :
+ *   - 5 autolinks max par article
+ *   - Chaque cible URL liée 1 fois max par article
+ *   - Skip self-link
+ *   - Skip dans headings, liens existants, code, raw HTML
  */
-import { visit, SKIP } from 'unist-util-visit';
-import { buildGlossary } from './autolink-glossary.mjs';
 
-let GLOSSARY_PROMISE = null;
+import fs from 'node:fs';
+import path from 'node:path';
+import matter from 'gray-matter';
+
+const MAX_AUTOLINKS_PER_ARTICLE = 5;
+const MIN_PHRASE_LENGTH = 5;
+
+// Mots à NE JAMAIS considérer comme noms propres distinctifs
+const STOPWORDS = new Set([
+  'Le', 'La', 'Les', 'Un', 'Une', 'Des', 'Du', 'De', 'Et', 'Ou',
+  'Mon', 'Ma', 'Mes', 'Ton', 'Ta', 'Tes', 'Son', 'Sa', 'Ses',
+  'Pour', 'Avec', 'Dans', 'Sur', 'Comment', 'Pourquoi', 'Quand',
+  'Que', 'Qui', 'Quel', 'Quelle', 'Quels', 'Quelles',
+  'Voir', 'Acheter', 'Choisir', 'Trouver', 'Découvrir', 'Decouvrez',
+  'Découvrez', 'Visitez', 'Tester', 'Comparer', 'Réussir',
+  'Ce', 'Cette', 'Ces', 'Cet', 'Tout', 'Tous', 'Toutes',
+  'Notre', 'Votre', 'Leurs', 'Plus', 'Moins',
+  // Mois français
+  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+  // Adjectifs courants en début de titre
+  'Meilleur', 'Meilleure', 'Top',
+]);
+
+let GLOSSARY_CACHE = null;
 
 /**
- * Échappe les caractères spéciaux regex pour qu'un terme du glossaire soit
- * traité comme un littéral.
+ * Extrait les noms propres distinctifs d'un titre.
+ * Heuristique :
+ *   1. Mots composés avec tirets (Seine-et-Marne) → match prioritaire
+ *   2. Suites de 2-3 mots capitalisés
+ *   3. Acronymes 3+ lettres capitales
  */
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function extractProperNouns(title) {
+  const phrases = new Set();
+
+  // 1. Composés avec tirets : "Seine-et-Marne", "Marne-la-Vallée", "La Ferté-Gaucher"
+  const composeRegex = /\b([A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]+(?:-(?:[a-zà-ÿœæ]+|[A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]+))+)\b/gu;
+  let m;
+  while ((m = composeRegex.exec(title)) !== null) {
+    const p = m[1];
+    if (p.length >= MIN_PHRASE_LENGTH && !STOPWORDS.has(p.split('-')[0])) {
+      phrases.add(p);
+    }
+  }
+
+  // 2. Suites de 2-3 mots capitalisés "Grisy Suisnes", "Notre-Dame de Paris"
+  const multiCapRegex = /\b([A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]{2,}(?:\s+[A-ZÀ-ÝŒŸÆ][a-zà-ÿœæ]{2,}){1,2})\b/gu;
+  while ((m = multiCapRegex.exec(title)) !== null) {
+    const p = m[1];
+    const firstWord = p.split(/\s+/)[0];
+    if (p.length >= MIN_PHRASE_LENGTH && !STOPWORDS.has(firstWord)) {
+      phrases.add(p);
+    }
+  }
+
+  // 3. Acronymes (3+ lettres capitales)
+  const acronymRegex = /\b([A-Z]{3,})\b/g;
+  while ((m = acronymRegex.exec(title)) !== null) {
+    if (m[1].length >= MIN_PHRASE_LENGTH && !STOPWORDS.has(m[1])) {
+      phrases.add(m[1]);
+    }
+  }
+
+  return [...phrases];
 }
 
-/**
- * Extrait le slug d'URL d'un fichier MD pour deviner sa fiche-cible et
- * éviter de l'auto-linker vers lui-même. Très approximatif mais suffisant
- * (il s'agit juste d'éviter "Toscane" → /regions/toscane sur la page
- * /regions/toscane elle-même).
- */
-function ownHrefFromHistory(file) {
-  const hist = file?.history?.[0] ?? '';
-  const m = hist.replace(/\\/g, '/').match(/\/content\/(regions|pates|lexique)\/([^/]+)\.md$/);
-  if (!m) return null;
-  const [, kind, slug] = m;
-  return `/${kind === 'pates' ? 'pates' : kind}/${slug}`;
-}
+function buildGlossary(articlesDir) {
+  if (GLOSSARY_CACHE) return GLOSSARY_CACHE;
 
-export function remarkAutolink({ maxLinksPerFile = 3 } = {}) {
-  return async function transformer(tree, file) {
-    if (!GLOSSARY_PROMISE) GLOSSARY_PROMISE = buildGlossary();
-    const glossary = await GLOSSARY_PROMISE;
+  const phraseToUrl = new Map(); // phrase → first article using it
 
-    const ownHref = ownHrefFromHistory(file);
-    const used = new Set(); // hrefs déjà placés dans cette fiche
-    let placed = 0;
+  if (!fs.existsSync(articlesDir)) {
+    GLOSSARY_CACHE = [];
+    return GLOSSARY_CACHE;
+  }
 
-    visit(tree, 'text', (node, index, parent) => {
-      if (placed >= maxLinksPerFile) return;
-      if (!parent || index === undefined) return;
-      // Ne pas linker à l'intérieur d'un lien existant ni d'un titre
-      if (parent.type === 'link' || parent.type === 'linkReference' || parent.type === 'heading') return;
-      if (!node.value || node.value.length < 3) return;
+  function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.isFile() && entry.name.endsWith('.md')) {
+        try {
+          const raw = fs.readFileSync(full, 'utf-8');
+          const { data } = matter(raw);
+          if (!data.title || !data.slug) continue;
 
-      for (const entry of glossary) {
-        if (placed >= maxLinksPerFile) break;
-        if (used.has(entry.href)) continue;
-        if (ownHref && entry.href === ownHref) continue;
+          let url = '/';
+          if (data.dateUrlFormat !== false && data.urlYear && data.urlMonth && data.urlDay) {
+            const m = String(data.urlMonth).padStart(2, '0');
+            const d = String(data.urlDay).padStart(2, '0');
+            url = `/${data.urlYear}/${m}/${d}/${data.slug}/`;
+          } else if (data.urlPath) {
+            url = `/${data.urlPath}/${data.slug}/`;
+          } else {
+            url = `/${data.slug}/`;
+          }
 
-        // Frontière de mot Unicode pragmatique : ni lettre/chiffre adjacente.
-        // \p{L} et \p{N} couvrent les accents et le grec (ricotta, etc.).
-        // Matching **sensible à la casse pour les régions** uniquement :
-        // les noms propres italiens (Marche, Molise…) sont toujours capitalisés,
-        // donc on évite la collision avec des mots français courants
-        // (verbe "marche"). Lexique et pâtes restent insensibles pour
-        // attraper "al dente", "mantecatura", "tagliatelle" en milieu de
-        // phrase.
-        const flags = entry.kind === 'region' ? 'u' : 'iu';
-        const re = new RegExp(`(?<![\\p{L}\\p{N}])(${escapeRegex(entry.term)})(?![\\p{L}\\p{N}])`, flags);
-        const match = node.value.match(re);
-        if (!match) continue;
-
-        const start = match.index;
-        const end = start + match[0].length;
-        const before = node.value.slice(0, start);
-        const matched = node.value.slice(start, end);
-        const after = node.value.slice(end);
-
-        const newNodes = [];
-        if (before) newNodes.push({ type: 'text', value: before });
-        newNodes.push({
-          type: 'link',
-          url: entry.href,
-          data: {
-            hProperties: {
-              class: `autolink autolink-${entry.kind}`,
-              'data-autolink': entry.kind,
-            },
-          },
-          children: [{ type: 'text', value: matched }],
-        });
-        if (after) newNodes.push({ type: 'text', value: after });
-
-        parent.children.splice(index, 1, ...newNodes);
-        used.add(entry.href);
-        placed += 1;
-        // On a muté parent.children — on saute le sous-arbre pour que visit()
-        // ne reparcoure pas les nœuds qu'on vient d'insérer.
-        return [SKIP, index + newNodes.length];
+          // Extract proper nouns from title
+          const phrases = extractProperNouns(data.title);
+          for (const phrase of phrases) {
+            // Première occurrence gagne (article qui a ce nom dans son titre)
+            if (!phraseToUrl.has(phrase)) {
+              phraseToUrl.set(phrase, { url, slug: data.slug, phrase });
+            }
+          }
+        } catch (_) { /* ignore parse errors */ }
       }
-    });
+    }
+  }
+  walk(articlesDir);
+
+  const all = [...phraseToUrl.values()];
+  // Tri par longueur DESC pour matcher les plus spécifiques en premier
+  all.sort((a, b) => b.phrase.length - a.phrase.length);
+  GLOSSARY_CACHE = all;
+  return all;
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export default function remarkAutolink(opts = {}) {
+  const articlesDir = opts.articlesDir || path.resolve(process.cwd(), 'src/content/articles');
+
+  return (tree, file) => {
+    const glossary = buildGlossary(articlesDir);
+    if (glossary.length === 0) return;
+
+    const filename = file?.history?.[0] || '';
+    const currentSlug = path.basename(filename, '.md');
+
+    let autolinkCount = 0;
+    const usedUrls = new Set();
+
+    function visit(node, parent) {
+      if (autolinkCount >= MAX_AUTOLINKS_PER_ARTICLE) return;
+      if (!node) return;
+
+      if (node.type === 'heading') return;
+      if (node.type === 'link') return;
+      if (node.type === 'code' || node.type === 'inlineCode') return;
+      if (node.type === 'html') return;
+
+      if (node.type === 'text' && node.value && node.value.length >= MIN_PHRASE_LENGTH) {
+        for (const entry of glossary) {
+          if (autolinkCount >= MAX_AUTOLINKS_PER_ARTICLE) break;
+          if (entry.slug === currentSlug) continue;
+          if (usedUrls.has(entry.url)) continue;
+
+          // Match case-sensitive (proper nouns)
+          const re = new RegExp(`(^|[^\\p{L}\\p{N}-])(${escapeRegex(entry.phrase)})(?=[^\\p{L}\\p{N}-]|$)`, 'u');
+          const match = re.exec(node.value);
+          if (!match) continue;
+
+          const before = node.value.slice(0, match.index + match[1].length);
+          const matched = match[2];
+          const after = node.value.slice(match.index + match[1].length + matched.length);
+
+          const linkNode = {
+            type: 'link',
+            url: entry.url,
+            title: null,
+            data: { hProperties: { className: ['autolink'] } },
+            children: [{ type: 'text', value: matched }],
+          };
+          const newNodes = [];
+          if (before) newNodes.push({ type: 'text', value: before });
+          newNodes.push(linkNode);
+          if (after) newNodes.push({ type: 'text', value: after });
+
+          if (parent && Array.isArray(parent.children)) {
+            const i = parent.children.indexOf(node);
+            if (i >= 0) {
+              parent.children.splice(i, 1, ...newNodes);
+              autolinkCount++;
+              usedUrls.add(entry.url);
+              return;
+            }
+          }
+        }
+      }
+
+      if (node.children && Array.isArray(node.children)) {
+        const kids = [...node.children];
+        for (const child of kids) visit(child, node);
+      }
+    }
+
+    visit(tree, null);
   };
 }
