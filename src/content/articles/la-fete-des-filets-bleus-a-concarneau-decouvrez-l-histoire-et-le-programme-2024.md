@@ -113,3 +113,4 @@ Enfin, la fête des Filets Bleus à Concarneau est un événement qui célèbre 
 ## Pour aller plus loin
 
 - [Concarneau, une cité fortifiée millénaire : découvrez son histoire de 1000 à 1500](/concarneau-une-cite-fortifiee-millenaire-decouvrez-son-histoire-de-1000-a-1500/)
+- [La Ville Close de Concarneau : histoire, remparts et visite en 2023](/la-ville-close-de-concarneau-histoire-remparts-et-visite-en-2023/)

@@ -83,3 +83,6 @@ Les visiteurs de la cité fortifiée peuvent également profiter des nombreux é
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [La Ville Close de Concarneau : histoire, remparts et visite en 2023](/la-ville-close-de-concarneau-histoire-remparts-et-visite-en-2023/)
