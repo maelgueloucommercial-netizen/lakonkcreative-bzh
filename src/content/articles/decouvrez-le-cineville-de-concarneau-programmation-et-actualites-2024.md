@@ -104,3 +104,4 @@ Enfin, pour rester informé des prochains événements et festivals de cinéma o
 ## Pour aller plus loin
 
 - [LUS Concarneau : découvrez lhistoire, le stade et le calendrier du club breton depuis 1911](/l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/)
+- [Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023](/decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/)

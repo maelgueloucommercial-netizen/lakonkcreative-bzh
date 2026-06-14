@@ -127,3 +127,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal](/la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/)
 - [Découvrez le Cineville de Concarneau : programmation et actualités 2024](/decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/)
 - [LUS Concarneau : découvrez lhistoire, le stade et le calendrier du club breton depuis 1911](/l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/)
+- [Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023](/decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/)
