@@ -101,3 +101,4 @@ Les supporters de l'US Concarneau peuvent suivre les actualités du club et rest
 ## Pour aller plus loin
 
 - [La fête des Filets Bleus à Concarneau : découvrez lhistoire et le programme 2024](/la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/)
+- [Concarneau, une cité fortifiée millénaire : découvrez son histoire de 1000 à 1500](/concarneau-une-cite-fortifiee-millenaire-decouvrez-son-histoire-de-1000-a-1500/)
