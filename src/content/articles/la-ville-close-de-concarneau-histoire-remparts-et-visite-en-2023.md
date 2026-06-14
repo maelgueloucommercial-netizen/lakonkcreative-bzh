@@ -132,3 +132,6 @@ Il est important de noter que certaines activités peuvent être soumises à des
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Location de vacances à Concarneau : 10 bonnes raisons de choisir cette ville bretonne en 2024](/location-de-vacances-a-concarneau-10-bonnes-raisons-de-choisir-cette-ville-breto/)
