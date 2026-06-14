@@ -107,3 +107,6 @@ Pour un séjour idéal à Concarneau, il est recommandé de loger dans la ville 
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Les plages de Concarneau : découvrez les 3 meilleures plages de Sables Blancs, Cabellou et Kerleven en 2023](/les-plages-de-concarneau-decouvrez-les-3-meilleures-plages-de-sables-blancs-cabe/)
