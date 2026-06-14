@@ -102,3 +102,6 @@ Il est également important de se renseigner sur les labels et les certification
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Découvrez Concarneau en 1 ou 2 jours : litinéraire ultime pour un séjour inoubliable](/decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/)
