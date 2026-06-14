@@ -137,3 +137,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Découvrez Concarneau en 1 ou 2 jours : litinéraire ultime pour un séjour inoubliable](/decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/)
 - [Découvrez le Marinarium de Concarneau : aquarium et station marine de référence en Bretagne](/decouvrez-le-marinarium-de-concarneau-aquarium-et-station-marine-de-reference-en/)
 - [Découvrez les meilleures écoles de voile et locations à Concarneau : Guide 2023](/decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/)
+- [Découvrez le sentier côtier GR34 de Concarneau : 45 km de randonnées et de points de vue époustouflants](/decouvrez-le-sentier-cotier-gr34-de-concarneau-45-km-de-randonnees-et-de-points-/)
