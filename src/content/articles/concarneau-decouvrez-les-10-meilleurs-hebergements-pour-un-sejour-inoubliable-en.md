@@ -130,3 +130,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023](/decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/)
 - [La fête des Filets Bleus à Concarneau : découvrez lhistoire et le programme 2024](/la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/)
 - [Découvrez le marché de Concarneau : jours, horaires et bonnes adresses pour 2024](/decouvrez-le-marche-de-concarneau-jours-horaires-et-bonnes-adresses-pour-2024/)
+- [Concarneau en famille : 20 activités pour enfants en 2024](/concarneau-en-famille-20-activites-pour-enfants-en-2024/)
