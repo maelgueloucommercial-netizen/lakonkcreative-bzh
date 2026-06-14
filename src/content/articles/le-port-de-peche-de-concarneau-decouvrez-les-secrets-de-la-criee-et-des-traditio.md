@@ -94,3 +94,6 @@ Il est important de noter que l'industrie de la pêche à Concarneau est soumise
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port](/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/)

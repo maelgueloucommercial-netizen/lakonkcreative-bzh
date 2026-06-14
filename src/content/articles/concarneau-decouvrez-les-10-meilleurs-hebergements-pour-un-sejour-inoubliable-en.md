@@ -133,3 +133,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Concarneau en famille : 20 activités pour enfants en 2024](/concarneau-en-famille-20-activites-pour-enfants-en-2024/)
 - [Les 10 meilleures tables et crêperies de Concarneau : guide 2023](/les-10-meilleures-tables-et-creperies-de-concarneau-guide-2023/)
 - [Le port de pêche de Concarneau : découvrez les secrets de la criée et des traditions maritimes](/le-port-de-peche-de-concarneau-decouvrez-les-secrets-de-la-criee-et-des-traditio/)
+- [Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port](/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/)
