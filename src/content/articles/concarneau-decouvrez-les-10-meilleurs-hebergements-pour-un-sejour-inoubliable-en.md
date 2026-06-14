@@ -129,3 +129,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [LUS Concarneau : découvrez lhistoire, le stade et le calendrier du club breton depuis 1911](/l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/)
 - [Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023](/decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/)
 - [La fête des Filets Bleus à Concarneau : découvrez lhistoire et le programme 2024](/la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/)
+- [Découvrez le marché de Concarneau : jours, horaires et bonnes adresses pour 2024](/decouvrez-le-marche-de-concarneau-jours-horaires-et-bonnes-adresses-pour-2024/)
