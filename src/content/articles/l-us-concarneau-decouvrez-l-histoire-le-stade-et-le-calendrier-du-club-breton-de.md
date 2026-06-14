@@ -98,3 +98,6 @@ Les supporters de l'US Concarneau peuvent suivre les actualités du club et rest
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [La fête des Filets Bleus à Concarneau : découvrez lhistoire et le programme 2024](/la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/)
