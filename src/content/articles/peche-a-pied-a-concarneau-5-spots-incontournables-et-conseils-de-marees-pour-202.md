@@ -128,3 +128,6 @@ Il est également important de noter que des organismes tels que l'Agence des ai
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau : 20 activités incontournables à faire en 2023](/concarneau-20-activites-incontournables-a-faire-en-2023/)
