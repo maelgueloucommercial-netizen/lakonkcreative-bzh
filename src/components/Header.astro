@@ -71,7 +71,6 @@ const NAV: Record<string, { left: Array<{ label: string; href: string }>; right:
 };
 
 const nav = NAV[archetype] ?? NAV.village;
-const allNav = [...nav.left, ...nav.right];
 const logoMain = SITE_CONFIG.siteName;
 const logoSub = SITE_CONFIG.tagline.length > 50 ? 'magazine indépendant' : SITE_CONFIG.tagline.toLowerCase();
 
@@ -99,6 +98,16 @@ const blogCats = [
     .filter((pc) => !_bySlug.has(pc.slug))
     .map((pc) => ({ slug: pc.slug, name: pc.name, emoji: pc.emoji, count: 0 })),
 ].sort((a, b) => b.count - a.count);
+
+// Anti-doublon nav : le méga-menu Blog rend déjà l'entrée « Rubriques » (dropdown
+// des catégories) et le méga Boutique rend « Boutique ». On retire donc les liens
+// de nav SIMPLES qui feraient doublon (sinon « Rubriques » apparaît deux fois).
+const _redundantNav = (href: string) =>
+  (blogCats.length > 0 && (href === '/categorie/' || href === '/categories/')) ||
+  (boutiqueCats.length > 0 && /\/(boutique|categorie-produit)\/?$/.test(href));
+const navLeft = nav.left.filter((i) => !_redundantNav(i.href));
+const navRight = nav.right.filter((i) => !_redundantNav(i.href));
+const allNav = [...navLeft, ...navRight];
 ---
 
 {/* === LUXE — 3-col Lelo style === */}
@@ -109,14 +118,14 @@ const blogCats = [
         <nav style="display:flex;gap:32px;font-size:13px;letter-spacing:.5px;align-items:center" class="nav-left">
           {blogCats.length > 0 && <BlogMega cats={blogCats} />}
           {boutiqueCats.length > 0 && <BoutiqueMega cats={boutiqueCats} />}
-          {nav.left.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+          {navLeft.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
         </nav>
         <a href="/" style="text-decoration:none;text-align:center;display:block">
           <span class="serif" style="font-size:34px;font-weight:500;letter-spacing:1px;color:var(--color-ink);display:block">{logoMain}</span>
           <span style="display:block;font-size:9px;letter-spacing:4px;font-weight:400;color:var(--color-text-subtle);margin-top:-4px;text-transform:uppercase">{logoSub}</span>
         </a>
         <div style="display:flex;justify-content:flex-end;gap:24px;font-size:13px;align-items:center" class="nav-right">
-          {nav.right.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
+          {navRight.map((item) => <a href={item.href} style="color:var(--color-ink);text-decoration:none">{item.label}</a>)}
           <a href="/recherche/" aria-label="Recherche" style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--color-border);color:var(--color-ink)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </a>
