@@ -39,6 +39,12 @@ const articles = defineCollection({
     glossaryTerm: z.string().optional(),                 // lexique : le terme défini (DefinedTerm)
     clusterSlugs: z.array(z.string()).default([]),       // hub : slugs des articles enfants (maillage pilier)
     relatedTerms: z.array(z.string()).default([]),       // lexique : termes liés (slugs)
+    // --- Agenda local (archétype local_place) — tous optionnels, zéro impact existant. ---
+    // Un article avec `eventDate` est éligible à l'agenda (home + /agenda/) + schema Event.
+    eventDate: z.coerce.date().optional(),
+    eventEndDate: z.coerce.date().optional(),
+    eventType: z.string().optional(),                    // festival|marche|concert|sport|expo…
+    eventLocation: z.string().optional(),
   }),
 });
 

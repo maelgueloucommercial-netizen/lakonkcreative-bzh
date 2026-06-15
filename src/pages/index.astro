@@ -11,6 +11,12 @@ import '../styles/home-skins.css';
 import { WIKI_IMAGES } from '../lib/site-wiki-images';
 import { getArticleImage } from '../lib/article-wiki-images';
 import { buildBlogCategories } from '../lib/blog-categories';
+import { inferArchetype, HOME_SECTIONS } from '../lib/page-archetypes';
+import LocalMap from '../components/LocalMap.astro';
+import WeatherWidget from '../components/niche/WeatherWidget.astro';
+import AgendaHome from '../components/AgendaHome.astro';
+import DevisCta from '../components/DevisCta.astro';
+import ToolEmbed from '../components/ToolEmbed.astro';
 
 const archetype = SITE_CONFIG.theme.archetype;
 const profile = SITE_CONFIG.profile;
@@ -123,7 +129,11 @@ const _hh = [...SITE_CONFIG.siteUrl].reduce((a, c) => ((a * 31 + c.charCodeAt(0)
 // ordre ET skin pilotés par le hash du domaine (indépendants du variant) → 8 ordres × 6 skins,
 // décorrélés (multiplicateurs distincts) = répartition large sur les ~36 sites.
 const orderKey = ORDER_NAMES[_hh % ORDER_NAMES.length];
-const sectionOrder = [...(HOME_ORDERS[orderKey] ?? HOME_ORDERS.magazine)];
+// SÉLECTION + ORDRE DES SECTIONS = archétype STRUCTUREL (6), plus le hash. Le hash
+// ne pilote désormais que le skin visuel (anti-footprint). `inferArchetype` = filet
+// pour les sites sans champ `archetype` (geo→local_place, matchups→comparator, défaut éditorial).
+const structuralArchetype = profile?.archetype ?? inferArchetype((profile as any) ?? { domain: SITE_CONFIG.domain });
+const sectionOrder: string[] = [...HOME_SECTIONS[structuralArchetype]];
 const SKINS = ['paper', 'sharp', 'soft', 'noir', 'outline', 'glossy'];
 const homeSkin = SKINS[((_hh * 7 + 3) >>> 0) % SKINS.length];
 
@@ -159,17 +169,58 @@ const bDeals = (bProduits as any[]).filter((p) => bDisc(p) !== null).sort((a, b)
 // Home commerce-first sur les sites boutique : le CTA principal du hero mène à la boutique
 // (objetrama : la home est un magasin, l'éditorial vient après). Copie locale : ne pas
 // muter profile.hero (objet partagé entre pages au build).
-const commerceFirst = bCats.length > 0;
-const heroEff = commerceFirst
-  ? { ...hero, primaryCta: { label: '🛒 Découvrir la boutique', href: '/boutique/' }, secondaryCta: hero.primaryCta?.href === '/boutique/' ? hero.secondaryCta : (hero.primaryCta ?? hero.secondaryCta) }
-  : hero;
-// Commerce-first : sur les sites boutique, la section shop reste dans les 2 premières positions.
-if (commerceFirst) {
-  const si = sectionOrder.indexOf('shop');
-  if (si > 1) { sectionOrder.splice(si, 1); sectionOrder.unshift('shop'); }
+const commerceFirst = structuralArchetype === 'product_catalogue' && bCats.length > 0;
+// Hero CTA adapté à l'archétype (lead-block propre au type de site). L'ORDRE des
+// sections vient déjà de HOME_SECTIONS[archetype] — plus de splice « commerce-first ».
+function heroCtaForArchetype(): { label: string; href: string } | null {
+  switch (structuralArchetype) {
+    case 'product_catalogue': return bCats.length > 0 ? { label: '🛒 Découvrir la boutique', href: '/boutique/' } : null;
+    case 'local_service_leadgen': return { label: '📝 Devis gratuit', href: '/devis/' };
+    case 'comparator_affiliate': return { label: 'Voir les comparatifs', href: '/comparateur/' };
+    case 'tool_utility': { const t = profile?.tools?.[0]; return t ? { label: `Ouvrir ${t.label}`, href: t.href ?? `/outils/${t.slug}/` } : null; }
+    case 'local_place': return { label: `🧭 Que faire${profile?.geo?.placename ? ` à ${profile.geo.placename}` : ''}`, href: '/agenda/' };
+    default: return null;
+  }
 }
+const _archCta = heroCtaForArchetype();
+const heroEff = _archCta
+  ? { ...hero, primaryCta: _archCta, secondaryCta: hero.primaryCta?.href === _archCta.href ? hero.secondaryCta : (hero.primaryCta ?? hero.secondaryCta) }
+  : hero;
 // Image hero garantie : Wiki sinon meilleur produit sinon image d'article (sites « sans image »).
 const heroImageEff = heroImageUrl ?? (bProduits as any[]).map((p) => p.data.images?.[0]).find(Boolean) ?? editorialImg ?? null;
+
+// ===== DONNÉES DES SECTIONS SUR-MESURE (archétype-aware) — vides ⇒ section masquée =====
+const geo = profile?.geo;
+// local_place — agenda : articles avec eventDate (à venir, triés)
+const now = new Date();
+const agendaEvents = articles
+  .filter((a) => a.data.eventDate instanceof Date && !Number.isNaN(a.data.eventDate.getTime()))
+  .filter((a) => ((a.data.eventEndDate as Date | undefined) ?? a.data.eventDate as Date) >= now)
+  .map((a) => ({
+    title: a.data.title, href: getArticleUrl(a),
+    eventDate: a.data.eventDate as Date, eventEndDate: a.data.eventEndDate as Date | undefined,
+    eventType: a.data.eventType, eventLocation: a.data.eventLocation,
+    image: a.data.heroImage ?? getArticleImage(a.data.slug),
+  }));
+// leadgen — services × villes (collection locales) + avis clients agrégés
+const _locales = await getCollection('locales').catch(() => []);
+const _svcMap = new Map<string, { service: string; serviceSlug: string; villes: { ville: string; href: string }[] }>();
+for (const l of _locales as any[]) {
+  const s = l.data.service;
+  if (!_svcMap.has(s)) _svcMap.set(s, { service: s, serviceSlug: l.data.serviceSlug, villes: [] });
+  _svcMap.get(s)!.villes.push({ ville: l.data.ville, href: `/${l.data.serviceSlug}/${l.data.villeSlug}/` });
+}
+const servicesVilles = [...(_svcMap.values())].slice(0, 6);
+const clientAvis = (_locales as any[])
+  .flatMap((l) => (l.data.avis ?? []).map((a: any) => ({ ...a, ville: l.data.ville })))
+  .slice(0, 6);
+// commerce / comparateur / leadgen — guides, avis marques, comparateurs, études de prix
+const homeGuides = (await getCollection('guides').catch(() => [])).slice(0, 6);
+const homeAvisMarques = (await getCollection('avis').catch(() => [])).slice(0, 6);
+const homeComparateurs = (await getCollection('comparateurs').catch(() => [])).slice(0, 6);
+const homePrix = (await getCollection('etudesPrix').catch(() => [])).slice(0, 4);
+// tool_utility — outil central
+const mainTool = profile?.tools?.[0];
 ---
 <Base title={SITE_CONFIG.tagline} description={hero.subtitle} jsonLd={[orgJsonLd, webSiteJsonLd]}>
 <div class={`hs hs--${homeSkin}`} data-skin={homeSkin} data-order={orderKey}>
@@ -463,6 +514,178 @@ const heroImageEff = heroImageUrl ?? (bProduits as any[]).map((p) => p.data.imag
       <Newsletter />
     </div>
   </section>
+  )}
+
+  {/* ===== SECTIONS SUR-MESURE PAR ARCHÉTYPE (auto-gardées par leurs données) ===== */}
+
+  {/* local_place — CARTE */}
+  {sec === 'localMap' && geo && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div style="text-align:center;max-width:680px;margin:0 auto 36px">
+          <span class="hp-pill">Sur la carte</span>
+          <h2 class="serif" style="font-size:clamp(34px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-top:14px">{geo.placename} <em style="font-style:italic">en un coup d'œil</em>.</h2>
+        </div>
+        <LocalMap lat={geo.lat} lng={geo.lng} placename={geo.placename} region={geo.region} height="420px" />
+      </div>
+    </section>
+  )}
+
+  {/* local_place — MÉTÉO */}
+  {sec === 'weather' && geo && (
+    <section style="padding:64px 0;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+      <div class="site-container" style="max-width:720px"><WeatherWidget /></div>
+    </section>
+  )}
+
+  {/* local_place — AGENDA */}
+  {sec === 'agenda' && agendaEvents.length > 0 && (
+    <AgendaHome events={agendaEvents} placename={geo?.placename} siteUrl={SITE_CONFIG.siteUrl} />
+  )}
+
+  {/* local_place — ANNUAIRE / VIE PRATIQUE (teaser) */}
+  {sec === 'annuaireTeaser' && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container" style="text-align:center;max-width:720px">
+        <span class="hp-pill">Vie pratique</span>
+        <h2 class="serif" style="font-size:clamp(32px,4vw,48px);line-height:1.06;font-weight:400;letter-spacing:-.5px;margin:14px 0 16px">Les bonnes adresses et l'info utile.</h2>
+        <p style="color:var(--color-text-muted);line-height:1.7;margin-bottom:28px">Commerces, services, horaires et démarches{geo?.placename ? ` à ${geo.placename}` : ''} : l'essentiel pour le quotidien et pour préparer votre venue.</p>
+        <a href="/annuaire/" class="btn-fill">Voir l'annuaire</a>
+      </div>
+    </section>
+  )}
+
+  {/* leadgen — DEVIS */}
+  {sec === 'devisCta' && <DevisCta />}
+
+  {/* leadgen — SERVICES × VILLES */}
+  {sec === 'servicesVilles' && servicesVilles.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:30px"><div><span class="hp-pill">Nos prestations</span><h2 class="serif" style="font-size:clamp(32px,4vw,52px);line-height:1.05;font-weight:400;margin-top:14px">Un service, <em style="font-style:italic">près de chez vous</em>.</h2></div></div>
+        <div class="hp-rayons">
+          {servicesVilles.map((s) => (
+            <div class="hp-ray">
+              <div class="hp-rub-head"><h3 class="serif">{s.service}</h3></div>
+              <div style="display:flex;flex-wrap:wrap;gap:10px">
+                {s.villes.slice(0, 12).map((v) => <a href={v.href} class="hp-pill" style="text-transform:none;letter-spacing:0">{v.ville}</a>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* comparateur / leadgen — TOP COMPARATEURS */}
+  {sec === 'comparateurTop' && homeComparateurs.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:30px"><div><span class="hp-pill">Comparateurs</span><h2 class="serif" style="font-size:clamp(32px,4vw,52px);line-height:1.05;font-weight:400;margin-top:14px">On a <em style="font-style:italic">comparé</em> pour vous.</h2></div><a href="/comparateur/" class="link-underline">Tous les comparateurs</a></div>
+        <div class="hp-rub-row">
+          {homeComparateurs.map((c) => (
+            <a href={`/comparateur/${c.data.category}/`} class="hp-art">
+              {c.data.heroImage ? <img src={c.data.heroImage} alt={c.data.title} loading="lazy" /> : <div class="hp-art-ph"></div>}
+              <h4 class="serif">{c.data.title}</h4>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* leadgen — ÉTUDE DE PRIX */}
+  {sec === 'etudePrix' && homePrix.length > 0 && (
+    <section style="padding:80px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:26px"><div><span class="hp-pill">Combien ça coûte ?</span><h2 class="serif" style="font-size:clamp(30px,3.6vw,46px);line-height:1.05;font-weight:400;margin-top:14px">Les prix, sans surprise.</h2></div></div>
+        <div class="hp-rub-row">
+          {homePrix.map((p) => (
+            <a href={`/prix/${p.data.slug}/`} class="hp-art">
+              <h4 class="serif">{p.data.title}</h4>
+              {p.data.priceRange && <span style="font-size:13px;color:var(--color-accent);font-weight:600">{p.data.priceRange}</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* leadgen — ZONES D'INTERVENTION (carte) */}
+  {sec === 'zonesIntervention' && geo && (
+    <section style="padding:80px 0;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div style="text-align:center;max-width:640px;margin:0 auto 30px"><span class="hp-pill">Zones d'intervention</span><h2 class="serif" style="font-size:clamp(30px,3.6vw,46px);line-height:1.05;font-weight:400;margin-top:14px">On intervient autour de {geo.placename}.</h2></div>
+        <LocalMap lat={geo.lat} lng={geo.lng} placename={geo.placename} region={geo.region} height="380px" />
+      </div>
+    </section>
+  )}
+
+  {/* leadgen — AVIS CLIENTS */}
+  {sec === 'avisClients' && clientAvis.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div style="text-align:center;max-width:640px;margin:0 auto 36px"><span class="hp-pill">Ils nous ont fait confiance</span><h2 class="serif" style="font-size:clamp(32px,4vw,52px);line-height:1.05;font-weight:400;margin-top:14px">Avis clients.</h2></div>
+        <div class="hp-rub-row">
+          {clientAvis.map((a) => (
+            <blockquote style="background:var(--color-bg-card);border:1px solid var(--color-border);border-radius:16px;padding:24px;margin:0">
+              <div style="color:#e0a800;letter-spacing:-1px;margin-bottom:10px">{'★'.repeat(Math.round(a.note))}<span style="color:var(--color-border)">{'★'.repeat(5 - Math.round(a.note))}</span></div>
+              <p style="font-size:14px;line-height:1.6;color:var(--color-text);margin:0 0 12px">« {a.texte} »</p>
+              <footer style="font-size:12px;color:var(--color-text-muted);font-weight:600">{a.auteur}{a.ville ? ` · ${a.ville}` : ''}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* commerce / comparateur — GUIDES D'ACHAT */}
+  {sec === 'guidesAchat' && homeGuides.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-card);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:30px"><div><span class="hp-pill">Guides d'achat</span><h2 class="serif" style="font-size:clamp(32px,4vw,52px);line-height:1.05;font-weight:400;margin-top:14px">Bien <em style="font-style:italic">choisir</em>.</h2></div><a href="/guide/" class="link-underline">Tous les guides</a></div>
+        <div class="hp-rub-row">
+          {homeGuides.map((g) => (
+            <a href={`/guide/${g.data.slug}/`} class="hp-art">
+              {g.data.heroImage ? <img src={g.data.heroImage} alt={g.data.title} loading="lazy" /> : <div class="hp-art-ph"></div>}
+              <h4 class="serif">{g.data.title}</h4>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* commerce / comparateur — AVIS MARQUES */}
+  {sec === 'avisMarques' && homeAvisMarques.length > 0 && (
+    <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:30px"><div><span class="hp-pill">Avis &amp; tests</span><h2 class="serif" style="font-size:clamp(32px,4vw,52px);line-height:1.05;font-weight:400;margin-top:14px">Marques au <em style="font-style:italic">banc d'essai</em>.</h2></div><a href="/avis/" class="link-underline">Tous les avis</a></div>
+        <div class="hp-rub-row">
+          {homeAvisMarques.map((a) => (
+            <a href={`/avis/${a.data.slug}/`} class="hp-art">
+              {a.data.heroImage ? <img src={a.data.heroImage} alt={a.data.title} loading="lazy" /> : <div class="hp-art-ph"></div>}
+              <h4 class="serif">{a.data.title}</h4>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* tool_utility — OUTIL CENTRAL */}
+  {sec === 'toolEmbed' && <ToolEmbed tool={mainTool} />}
+
+  {/* tool_utility — FAQ teaser */}
+  {sec === 'faqHome' && (
+    <section style="padding:80px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+      <div class="site-container" style="text-align:center;max-width:680px">
+        <span class="hp-pill">Questions fréquentes</span>
+        <h2 class="serif" style="font-size:clamp(30px,3.6vw,46px);line-height:1.05;font-weight:400;margin:14px 0 16px">Vous vous demandez…</h2>
+        <p style="color:var(--color-text-muted);line-height:1.7;margin-bottom:24px">Tout ce qu'il faut savoir pour bien utiliser {SITE_CONFIG.siteName}.</p>
+        <a href="/faq/" class="btn-fill">Voir la FAQ</a>
+      </div>
+    </section>
   )}
 
   </Fragment>

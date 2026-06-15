@@ -16,7 +16,12 @@ const COORDS_BY_DOMAIN: Record<string, { lat: number; lon: number; cityLabel: st
   'ville-bruyereslechatel.fr': { lat: 48.5742, lon: 2.2436, cityLabel: 'Bruyères-le-Châtel (Essonne)' },
 };
 
-const coords = COORDS_BY_DOMAIN[SITE_CONFIG.domain];
+// Source primaire : profile.geo (tout site local_place avec géo). Fallback :
+// la table hardcodée des villages legacy sans `geo`.
+const geo = SITE_CONFIG.profile?.geo;
+const coords = geo
+  ? { lat: geo.lat, lon: geo.lng, cityLabel: geo.placename }
+  : COORDS_BY_DOMAIN[SITE_CONFIG.domain];
 if (!coords) return null;
 
 // Fetch SSR (cached at build time, refresh on rebuild)

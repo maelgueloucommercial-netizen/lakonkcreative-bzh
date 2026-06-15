@@ -511,10 +511,35 @@ export const SITE_THEMES: Record<string, Partial<SiteTheme> & { archetype: Arche
  * Construit le SiteTheme final pour un domaine en mergeant defaults archetype
  * + overrides spécifiques au site.
  */
+/** Hash déterministe domaine → entier (choix d'archétype visuel de secours). */
+function hashDomain(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
 export function getSiteTheme(domain: string): SiteTheme {
   const site = SITE_THEMES[domain];
   if (!site) {
-    throw new Error(`Aucun thème défini pour ${domain}. Ajouter dans SITE_THEMES.`);
+    // Fallback déterministe (standard réutilisable) : tout NOUVEAU site pas encore
+    // listé dans SITE_THEMES obtient un thème visuel sain par hash domaine, plutôt
+    // que de casser le build. Le branding réel vient des placeholders de site-config.
+    const VISUALS: Archetype[] = ['village', 'bricolage', 'tech', 'adulte'];
+    const arch = VISUALS[hashDomain(domain) % VISUALS.length];
+    const d = ARCHETYPE_DEFAULTS[arch];
+    const niceName = domain.split('.')[0].replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    return {
+      archetype: arch,
+      siteName: niceName,
+      tagline: '',
+      domain,
+      colors: d.colors!,
+      fontHeading: d.fontHeading!,
+      fontBody: d.fontBody!,
+      sections: { ...d.sections },
+      footer: d.footer ?? {},
+      defaultOgImage: undefined,
+    };
   }
   const archetypeDefaults = ARCHETYPE_DEFAULTS[site.archetype];
   return {

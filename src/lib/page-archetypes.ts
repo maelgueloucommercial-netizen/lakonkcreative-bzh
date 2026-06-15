@@ -226,3 +226,46 @@ export function pageTypeForIntent(archetype: ArchetypeId, serpRecommendation: st
   }
   return a.coreType; // fallback : le type cœur de l'archétype
 }
+
+// =============================================================================
+// 4. SECTIONS DE HOME PAR ARCHÉTYPE — quelles sections, dans quel ordre.
+//    Lu par index.astro (`HOME_SECTIONS[structuralArchetype]`). Chaque section
+//    reste AUTO-GARDÉE par ses données dans index.astro (donnée absente → fragment
+//    masqué) ; ce record décide seulement l'inclusion + l'ordre canonique. Les ids
+//    `shop/blog/discover/editorial/duel/author/newsletter` réutilisent les fragments
+//    existants ; les autres sont de nouvelles sections sur-mesure.
+// =============================================================================
+
+export type SectionId =
+  // sections existantes (fragments déjà dans index.astro)
+  | 'editorial' | 'blog' | 'discover' | 'duel' | 'author' | 'newsletter' | 'shop'
+  // local_place
+  | 'localMap' | 'weather' | 'agenda' | 'annuaireTeaser'
+  // local_service_leadgen
+  | 'devisCta' | 'servicesVilles' | 'comparateurTop' | 'etudePrix' | 'zonesIntervention' | 'avisClients'
+  // commerce / comparateur / outil
+  | 'guidesAchat' | 'avisMarques' | 'toolEmbed' | 'faqHome';
+
+export const HOME_SECTIONS: Record<ArchetypeId, SectionId[]> = {
+  // Portail local : carte + météo + agenda + vie locale par rubrique + annuaire.
+  local_place: ['localMap', 'weather', 'agenda', 'blog', 'annuaireTeaser', 'author', 'newsletter'],
+  // Prestataire local (maison-en-container) : devis en tête, service×ville, comparateur, prix, zones, avis.
+  local_service_leadgen: ['devisCta', 'servicesVilles', 'comparateurTop', 'etudePrix', 'zonesIntervention', 'avisClients', 'newsletter'],
+  // E-commerce : rayons + bons plans (shop), guides d'achat, avis marques.
+  product_catalogue: ['shop', 'guidesAchat', 'avisMarques', 'blog', 'newsletter'],
+  // Comparateur affilié : duels/matchups, top comparateurs, guides, tests, outils.
+  comparator_affiliate: ['duel', 'comparateurTop', 'guidesAchat', 'avisMarques', 'discover', 'blog', 'newsletter'],
+  // Magazine éditorial (défaut) : featured + blog riche + outils + signature.
+  editorial_magazine: ['editorial', 'blog', 'discover', 'author', 'newsletter'],
+  // Site-outil : outil central en tête + outils + guides support + FAQ.
+  tool_utility: ['toolEmbed', 'discover', 'guidesAchat', 'faqHome', 'blog', 'newsletter'],
+};
+
+/** Mapping de secours archétype VISUEL (4) → STRUCTUREL (6), utilisé seulement
+ *  en dernier recours quand on n'a ni profil ni données pour `inferArchetype`. */
+export const VISUAL_TO_STRUCTURAL: Record<string, ArchetypeId> = {
+  village: 'local_place',
+  bricolage: 'comparator_affiliate',
+  tech: 'comparator_affiliate',
+  adulte: 'editorial_magazine',
+};

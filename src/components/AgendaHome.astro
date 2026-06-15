@@ -1,0 +1,91 @@
+---
+/**
+ * AgendaHome — section « Agenda » de la home local_place.
+ * Liste les prochains événements (articles avec `eventDate >= today`), triés.
+ * Rendu masqué si aucun événement (dégradation propre). Émet un JSON-LD ItemList
+ * d'Event. Réutilise les classes de skin .hp-pill / .hp-rub-head.
+ */
+interface EventItem {
+  title: string;
+  href: string;
+  eventDate: Date;
+  eventEndDate?: Date;
+  eventType?: string;
+  eventLocation?: string;
+  image?: string | null;
+}
+interface Props {
+  events: EventItem[];
+  placename?: string;
+  limit?: number;
+  siteUrl?: string;
+}
+const { events, placename, limit = 6, siteUrl = '' } = Astro.props as Props;
+const items = [...events]
+  .filter((e) => e.eventDate instanceof Date && !Number.isNaN(e.eventDate.getTime()))
+  .sort((a, b) => a.eventDate.getTime() - b.eventDate.getTime())
+  .slice(0, limit);
+
+const fmtDay = (d: Date) => d.toLocaleDateString('fr-FR', { day: '2-digit' });
+const fmtMon = (d: Date) => d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+const fmtFull = (d: Date) => d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+const jsonLd = items.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: items.map((e, i) => ({
+    '@type': 'ListItem', position: i + 1,
+    item: {
+      '@type': 'Event', name: e.title,
+      startDate: e.eventDate.toISOString().slice(0, 10),
+      ...(e.eventEndDate ? { endDate: e.eventEndDate.toISOString().slice(0, 10) } : {}),
+      ...(e.eventLocation || placename ? { location: { '@type': 'Place', name: e.eventLocation ?? placename } } : {}),
+      ...(siteUrl ? { url: new URL(e.href, siteUrl).toString() } : {}),
+    },
+  })),
+} : null;
+---
+{items.length > 0 && (
+  <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
+    <div class="site-container">
+      <div class="hp-rub-head" style="margin-bottom:34px">
+        <div>
+          <span class="hp-pill">Agenda</span>
+          <h2 class="serif" style="font-size:clamp(34px,4.5vw,56px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-top:14px">
+            À <em style="font-style:italic">ne pas manquer</em>{placename ? ` à ${placename}` : ''}.
+          </h2>
+        </div>
+        <a href="/agenda/" class="link-underline">Tout l'agenda</a>
+      </div>
+      <div class="ag-list">
+        {items.map((e) => (
+          <a href={e.href} class="ag-item">
+            <div class="ag-date" aria-hidden="true">
+              <span class="ag-day">{fmtDay(e.eventDate)}</span>
+              <span class="ag-mon">{fmtMon(e.eventDate)}</span>
+            </div>
+            <div class="ag-body">
+              {e.eventType && <span class="ag-type">{e.eventType}</span>}
+              <h3 class="serif ag-title">{e.title}</h3>
+              <p class="ag-meta">{fmtFull(e.eventDate)}{e.eventLocation ? ` · ${e.eventLocation}` : ''}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+<style>
+  .ag-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .ag-item { display: flex; gap: 18px; align-items: center; text-decoration: none; color: inherit; background: var(--color-bg-card, #fff); border: 1px solid var(--color-border); border-radius: 16px; padding: 16px 18px; transition: transform .15s, box-shadow .15s; }
+  .ag-item:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,.08); }
+  .ag-date { flex: 0 0 auto; width: 62px; height: 62px; border-radius: 14px; background: var(--color-bg-2, #f1ece4); color: var(--color-accent); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+  .ag-day { font-family: var(--font-serif, serif); font-size: 26px; font-weight: 500; }
+  .ag-mon { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+  .ag-type { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--color-text-muted); font-weight: 600; }
+  .ag-title { font-size: 18px; line-height: 1.2; font-weight: 400; letter-spacing: -.2px; margin: 2px 0 4px; }
+  .ag-meta { font-size: 12.5px; color: var(--color-text-muted); margin: 0; }
+  @media (max-width: 760px) { .ag-list { grid-template-columns: 1fr; } }
+</style>

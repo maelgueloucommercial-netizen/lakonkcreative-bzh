@@ -8,8 +8,14 @@
  * Importé par site-config.ts → injecté dans toutes les pages via SITE_CONFIG.profile.
  */
 
+import type { ArchetypeId } from './page-archetypes';
+
 export interface SiteProfile {
   domain: string;
+  // Archétype STRUCTUREL (6) — pilote la home sur-mesure + la nav (HOME_SECTIONS,
+  // ARCHETYPES[].nav). Optionnel : si absent, index.astro/Header dérivent via
+  // inferArchetype(profile) (geo→local_place, matchups→comparator, défaut éditorial).
+  archetype?: ArchetypeId;
   // Variant de layout (anti-footprint Google) : chaque site a un layout différent
   // luxe = Lelo style (cream + serif italic + photos full-bleed) → adulte
   // magazine = Vogue/NYT style (typo plus petite, plus dense) → villages
@@ -528,6 +534,7 @@ const PROFILES: Record<string, SiteProfile> = {
 
   'lakonkcreative.bzh': {
     domain: 'lakonkcreative.bzh',
+    archetype: 'local_place',
     gscVerification: '',
     authorSameAs: [],
     authorityLinks: [

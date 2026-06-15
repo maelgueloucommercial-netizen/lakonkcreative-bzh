@@ -13,64 +13,29 @@ import { getCollection } from 'astro:content';
 import BoutiqueMega from './BoutiqueMega.astro';
 import BlogMega from './BlogMega.astro';
 import { buildBlogCategories } from '../lib/blog-categories';
+import { inferArchetype, ARCHETYPES } from '../lib/page-archetypes';
 
-const archetype = SITE_CONFIG.theme.archetype;
 const profile = SITE_CONFIG.profile;
 const _validVariants = ['luxe', 'magazine', 'tech', 'lifestyle'];
 const _lv = profile?.layoutVariant ?? 'magazine';
 const variant = _validVariants.includes(_lv) ? _lv : 'magazine'; // garde-fou : layoutVariant invalide (ex 'village') → magazine
 
-const NAV: Record<string, { left: Array<{ label: string; href: string }>; right: Array<{ label: string; href: string }> }> = {
-  village: {
-    left: [
-      { label: 'Rubriques', href: '/categorie/' },
-      { label: 'Annuaire', href: '/annuaire/' },
-      { label: 'Articles', href: '/articles/' },
-    ],
-    right: [
-      { label: 'Outils', href: '/outils/' },
-      { label: 'Index', href: '/index-thematique/' },
-      { label: 'Contact', href: '/contact/' },
-    ],
-  },
-  bricolage: {
-    left: [
-      { label: 'Comparatifs', href: '/comparatifs/' },
-      { label: 'Tests', href: '/avis/' },
-      { label: 'Guides', href: '/articles/' },
-    ],
-    right: [
-      { label: 'Outils', href: '/outils/' },
-      { label: 'Glossaire', href: '/glossaire/' },
-      { label: 'Contact', href: '/contact/' },
-    ],
-  },
-  tech: {
-    left: [
-      { label: 'Tests', href: '/avis/' },
-      { label: 'Comparatifs', href: '/comparatifs/' },
-      { label: 'Guides', href: '/articles/' },
-    ],
-    right: [
-      { label: 'Outils', href: '/outils/' },
-      { label: 'Glossaire', href: '/glossaire/' },
-      { label: 'Contact', href: '/contact/' },
-    ],
-  },
-  adulte: {
-    left: [
-      { label: 'Articles', href: '/articles/' },
-      { label: 'Comparatifs', href: '/comparatifs/' },
-      { label: 'Lexique', href: '/glossaire/' },
-    ],
-    right: [
-      { label: 'Outils', href: '/outils/' },
-      { label: 'Contact', href: '/contact/' },
-    ],
-  },
+// Nav pilotée par l'archétype STRUCTUREL (6) — `ARCHETYPES[id].nav` (liste de hrefs
+// canoniques). `inferArchetype` = filet pour les sites sans champ `archetype`.
+const structuralArchetype = profile?.archetype ?? inferArchetype((profile as any) ?? { domain: SITE_CONFIG.domain });
+const NAV_LABELS: Record<string, string> = {
+  '/categorie/': 'Rubriques', '/comparatifs/': 'Comparatifs', '/glossaire/': 'Glossaire',
+  '/outils/': 'Outils', '/a-propos/': 'À propos', '/annuaire/': 'Annuaire',
+  '/categorie-produit/': 'Catalogue', '/guide/': 'Guides', '/avis/': 'Avis',
+  '/services/': 'Services', '/villes/': 'Villes', '/devis/': 'Devis',
+  '/comparateur/': 'Comparateurs', '/contact/': 'Contact', '/agenda/': 'Agenda',
 };
-
-const nav = NAV[archetype] ?? NAV.village;
+const _navItems = ARCHETYPES[structuralArchetype].nav
+  .filter((h) => h !== '/')
+  .map((h) => ({ label: NAV_LABELS[h] ?? (h.replace(/\//g, '').replace(/-/g, ' ') || 'Accueil'), href: h }));
+if (!_navItems.some((i) => i.href === '/contact/')) _navItems.push({ label: 'Contact', href: '/contact/' });
+const _half = Math.ceil(_navItems.length / 2);
+const nav = { left: _navItems.slice(0, _half), right: _navItems.slice(_half) };
 const logoMain = SITE_CONFIG.siteName;
 const logoSub = SITE_CONFIG.tagline.length > 50 ? 'magazine indépendant' : SITE_CONFIG.tagline.toLowerCase();
 
