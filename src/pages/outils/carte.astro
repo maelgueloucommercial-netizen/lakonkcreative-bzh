@@ -11,7 +11,9 @@ const COORDS: Record<string, { lat: number; lon: number; label: string; zoom: nu
   'ville-bruyereslechatel.fr': { lat: 48.5667, lon: 2.1833, label: 'Bruyères-le-Châtel', zoom: 14 },
 };
 const fallback = { lat: 46.603354, lon: 1.888334, label: 'France', zoom: 6 };
-const c = COORDS[SITE_CONFIG.domain] ?? fallback;
+// Source primaire : profile.geo (vraie commune) ; sinon table legacy ; sinon France.
+const _geo = SITE_CONFIG.profile?.geo;
+const c = _geo ? { lat: _geo.lat, lon: _geo.lng, label: _geo.placename, zoom: 14 } : (COORDS[SITE_CONFIG.domain] ?? fallback);
 const archetype = SITE_CONFIG.theme.archetype;
 ---
 <Base

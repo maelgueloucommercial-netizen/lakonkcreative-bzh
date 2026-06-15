@@ -72,6 +72,7 @@ const products = PRODUCTS_BY_ARCHETYPE[archetype] ?? PRODUCTS_BY_ARCHETYPE.villa
 const columns = COLUMNS_BY_ARCHETYPE[archetype] ?? COLUMNS_BY_ARCHETYPE.village;
 ---
 <Base
+  noindex={!(SITE_CONFIG.profile?.tools ?? []).some((t) => t.slug === 'comparateur')}
   title="Comparateur"
   description={`Comparateur de produits ${archetype}. Sélectionnez jusqu'à 4 produits, comparez leurs caractéristiques côte à côte.`}
 >

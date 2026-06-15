@@ -33,6 +33,7 @@ const CONVERTERS: Record<string, Array<{ id: string; label: string; from: string
 const list = CONVERTERS[archetype] ?? CONVERTERS.village;
 ---
 <Base
+  noindex={!(SITE_CONFIG.profile?.tools ?? []).some((t) => t.slug === 'convertisseur')}
   title="Convertisseurs d'unités"
   description={`Convertisseurs d'unités gratuits sur ${SITE_CONFIG.siteName}. Saisissez une valeur, conversion instantanée.`}
 >

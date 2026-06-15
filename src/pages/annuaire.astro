@@ -3,147 +3,147 @@ import Base from '../layouts/Base.astro';
 import { SITE_CONFIG } from '../lib/site-config';
 import { WIKI_IMAGES } from '../lib/site-wiki-images';
 import { getCollection } from 'astro:content';
+import { fetchLocalPlaces, groupPlaces } from '../lib/osm-places';
+import { inferArchetype, isToolAllowed } from '../lib/page-archetypes';
 
 const profile = SITE_CONFIG.profile;
-const archetype = SITE_CONFIG.theme.archetype;
+const geo = profile?.geo;
+const structuralArchetype = profile?.archetype ?? inferArchetype((profile as any) ?? { domain: SITE_CONFIG.domain });
 const heroSubject = profile?.wikiImageSubjects?.[1] ?? profile?.wikiImageSubjects?.[0];
 const heroImg = heroSubject ? WIKI_IMAGES[heroSubject] : null;
+const placename = geo?.placename ?? SITE_CONFIG.siteName;
 
+// === VRAI annuaire : lieux réels OpenStreetMap autour de la commune ===
+const places = geo ? await fetchLocalPlaces(geo.lat, geo.lng, 3000) : [];
+const grouped = groupPlaces(places);
+
+// === Guides pratiques (articles éditoriaux locaux) — complément, pas le cœur ===
 const articles = await getCollection('articles');
 articles.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
-
 function getArticleUrl(entry: typeof articles[number]): string {
   const d = entry.data;
-  if (d.dateUrlFormat) {
-    return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
-  }
+  if (d.dateUrlFormat) return `/${d.urlYear}/${String(d.urlMonth).padStart(2, '0')}/${String(d.urlDay).padStart(2, '0')}/${d.slug}/`;
   return d.urlPath ? `/${d.urlPath}/${d.slug}/` : `/${d.slug}/`;
 }
+const PRACTICAL_KW = ['où manger', 'ou manger', 'où dormir', 'ou dormir', 'restaurant', 'hôtel', 'hotel', 'marché', 'marche', 'horaires', 'adresse', 'pratique', 'commerce', 'thalasso', 'office de tourisme'];
+const guideArticles = articles.filter((a) => { const t = a.data.title.toLowerCase(); return PRACTICAL_KW.some((k) => t.includes(k)); }).slice(0, 12);
 
-const KEYWORDS = ['mairie', 'commerce', 'restaurant', 'médecin', 'medecin', 'pharmacie', 'école', 'ecole', 'collège', 'college', 'association', 'club', 'service', 'horaires', 'contact', 'adresse', 'plombier', 'électricien', 'electricien', 'boulangerie', 'boucherie', 'épicerie', 'epicerie', 'gîte', 'gite', 'hôtel', 'hotel'];
+// Outils pratiques cohérents avec l'archétype seulement (pas de quiz/calculateur sur un portail local)
+const TOOL_LINKS = [
+  { slug: 'carte', label: 'Voir sur la carte', eyebrow: 'Cartographie', href: '/outils/carte/' },
+  { slug: 'meteo', label: 'Prévisions 7 jours', eyebrow: 'Météo', href: '/outils/meteo/' },
+].filter((t) => isToolAllowed(structuralArchetype, t.slug));
 
-const isDirectory = (title: string) => {
-  const t = title.toLowerCase();
-  return KEYWORDS.some(k => t.includes(k));
-};
-const directoryArticles = articles.filter(a => isDirectory(a.data.title)).slice(0, 60);
-
-// Group by first letter for editorial index
-const byLetter = new Map<string, typeof directoryArticles>();
-for (const a of directoryArticles) {
-  const l = a.data.title.charAt(0).toUpperCase();
-  if (!byLetter.has(l)) byLetter.set(l, [] as any);
-  (byLetter.get(l) as any).push(a);
-}
-const letters = [...byLetter.keys()].sort();
-
+const totalReal = places.length;
 const _pageSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: `Annuaire — ${SITE_CONFIG.siteName}`,
-  description: `Annuaire des commerces et services sur ${SITE_CONFIG.siteName}.`,
-  url: `${SITE_CONFIG.siteUrl}/annuaire/`,
-  inLanguage: 'fr-FR',
+  '@context': 'https://schema.org', '@type': 'CollectionPage',
+  name: `Annuaire — ${placename}`,
+  description: `Annuaire des commerces, restaurants, services et lieux de ${placename}.`,
+  url: `${SITE_CONFIG.siteUrl}/annuaire/`, inLanguage: 'fr-FR',
   isPartOf: { '@type': 'WebSite', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
 };
+const _itemList = totalReal > 0 ? {
+  '@context': 'https://schema.org', '@type': 'ItemList',
+  itemListElement: places.slice(0, 100).map((p, i) => ({
+    '@type': 'ListItem', position: i + 1,
+    item: {
+      '@type': 'LocalBusiness', name: p.name,
+      ...(p.address ? { address: { '@type': 'PostalAddress', streetAddress: p.address, addressLocality: placename } } : {}),
+      geo: { '@type': 'GeoCoordinates', latitude: p.lat, longitude: p.lng },
+      ...(p.phone ? { telephone: p.phone } : {}),
+      ...(p.website ? { url: p.website } : {}),
+    },
+  })),
+} : null;
+const noindex = totalReal === 0 && guideArticles.length === 0;
 ---
-<Base
-  title="Annuaire"
-  description={`Annuaire des commerces, services, professionnels et associations recensés sur ${SITE_CONFIG.siteName}.`}
-  jsonLd={[_pageSchema]}
->
+<Base title={`Annuaire de ${placename}`} description={`Commerces, restaurants, hôtels, services et lieux de ${placename}${totalReal > 0 ? ` — ${totalReal} adresses` : ''}.`} noindex={noindex} jsonLd={_itemList ? [_pageSchema, _itemList] : [_pageSchema]}>
 
   {/* Hero éditorial */}
   <section style="position:relative;padding:0;background:var(--color-bg-card)">
     <div style="display:grid;grid-template-columns:5fr 4fr;align-items:stretch" class="hero-grid">
       <div style="position:relative;min-height:440px;overflow:hidden">
         {heroImg ? (
-          <img src={heroImg} alt={SITE_CONFIG.siteName} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
+          <img src={heroImg} alt={placename} loading="eager" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.7)" />
         ) : (
           <div style="position:absolute;inset:0;background:linear-gradient(135deg, var(--color-primary), var(--color-ink))"></div>
         )}
       </div>
       <div style="padding:88px 64px;display:flex;flex-direction:column;justify-content:center">
-        <div class="eyebrow" style="margin-bottom:18px">Annuaire</div>
+        <div class="eyebrow" style="margin-bottom:18px">Annuaire de {placename}</div>
         <h1 class="serif" style="font-size:clamp(40px, 5vw, 68px);line-height:1.05;font-weight:400;margin-bottom:24px;letter-spacing:-1px">
-          Le <em style="font-style:italic">répertoire</em> de notre rédaction.
+          Les <em style="font-style:italic">bonnes adresses</em> de {placename}.
         </h1>
         <p style="font-size:17px;color:var(--color-text-muted);line-height:1.65;max-width:520px">
-          {directoryArticles.length} fiches publiées — commerces, services, professionnels, associations.
+          {totalReal > 0 ? `${totalReal} commerces, restaurants, hôtels et services` : 'Commerces, restaurants et services'} — données ouvertes OpenStreetMap.
         </p>
       </div>
     </div>
   </section>
 
-  {archetype === 'village' && (
-    <section style="padding:80px 0 0;background:var(--color-bg-base)">
-      <div class="site-container site-container--narrow">
-        <div class="eyebrow" style="margin-bottom:14px">Outils pratiques</div>
-        <h2 class="serif" style="font-size:clamp(32px, 3.5vw, 44px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:36px">
-          À <em style="font-style:italic">explorer</em> aussi
-        </h2>
-        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:1px;background:var(--color-border);border:1px solid var(--color-border)" class="tools-grid">
-          <a href="/outils/carte/" style="display:block;padding:36px 28px;background:var(--color-bg-base);text-decoration:none;color:inherit">
-            <div class="eyebrow" style="margin-bottom:10px;color:var(--color-accent)">Cartographie</div>
-            <div class="serif" style="font-size:22px;line-height:1.2;font-weight:400">Voir sur la carte</div>
-          </a>
-          <a href="/outils/meteo/" style="display:block;padding:36px 28px;background:var(--color-bg-base);text-decoration:none;color:inherit">
-            <div class="eyebrow" style="margin-bottom:10px;color:var(--color-accent)">Météo</div>
-            <div class="serif" style="font-size:22px;line-height:1.2;font-weight:400">Prévisions 7 jours</div>
-          </a>
-          <a href="/outils/quiz/" style="display:block;padding:36px 28px;background:var(--color-bg-base);text-decoration:none;color:inherit">
-            <div class="eyebrow" style="margin-bottom:10px;color:var(--color-accent)">Quiz</div>
-            <div class="serif" style="font-size:22px;line-height:1.2;font-weight:400">Testez vos connaissances</div>
-          </a>
-          <a href="/outils/calculateur/" style="display:block;padding:36px 28px;background:var(--color-bg-base);text-decoration:none;color:inherit">
-            <div class="eyebrow" style="margin-bottom:10px;color:var(--color-accent)">Calculateur</div>
-            <div class="serif" style="font-size:22px;line-height:1.2;font-weight:400">Taxe foncière, vitesse…</div>
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
-
-  {/* Index alphabétique */}
-  {letters.length > 0 && (
-    <section style="padding:80px 0;background:var(--color-bg-base)">
-      <div class="site-container site-container--narrow">
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid var(--color-border)">
-          {letters.map((l) => (
-            <a href={`#${l}`} style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--color-ink);text-decoration:none;border:1px solid var(--color-border)">{l}</a>
-          ))}
-        </div>
-
-        {letters.map((letter) => (
-          <section id={letter} style="margin-bottom:64px">
-            <h2 class="serif" style="font-size:48px;line-height:1;font-weight:400;letter-spacing:-1px;margin-bottom:24px;color:var(--color-accent)">{letter}</h2>
-            <ul style="list-style:none;padding:0;margin:0;border-top:1px solid var(--color-border)">
-              {byLetter.get(letter)!.map((a) => (
-                <li style="border-bottom:1px solid var(--color-border)">
-                  <a href={getArticleUrl(a)} style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline;padding:22px 0;text-decoration:none;color:inherit">
-                    <div>
-                      <div class="serif" style="font-size:22px;line-height:1.25;font-weight:400;letter-spacing:-.2px">{a.data.title}</div>
-                      {a.data.description && (
-                        <div style="font-size:14px;color:var(--color-text-muted);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{a.data.description}</div>
-                      )}
-                    </div>
-                    <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-muted)">Voir →</span>
-                  </a>
-                </li>
+  {/* === VRAI ANNUAIRE : fiches réelles groupées par catégorie === */}
+  {grouped.length > 0 && (
+    <section style="padding:72px 0;background:var(--color-bg-base)">
+      <div class="site-container">
+        {grouped.map((g) => (
+          <section style="margin-bottom:56px">
+            <div class="hp-rub-head" style="margin-bottom:22px"><h2 class="serif" style="font-size:clamp(26px,3vw,38px);font-weight:400">{g.group}</h2><span style="font-size:12px;color:var(--color-text-muted)">{g.items.length} adresse{g.items.length > 1 ? 's' : ''}</span></div>
+            <div class="anr-grid">
+              {g.items.map((p) => (
+                <div class="anr-card">
+                  <div class="anr-cat">{p.category}</div>
+                  <strong class="anr-name serif">{p.name}</strong>
+                  {p.address && <div class="anr-addr">{p.address}</div>}
+                  <div class="anr-links">
+                    {p.phone && <a href={`tel:${p.phone.replace(/\s/g, '')}`}>☎</a>}
+                    {p.website && <a href={p.website} rel="nofollow noopener" target="_blank">Site</a>}
+                    <a href={`https://www.openstreetmap.org/${p.osmType}/${p.osmId}`} rel="nofollow noopener" target="_blank">Carte</a>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         ))}
+        <p style="font-size:11px;color:var(--color-text-muted);text-align:center;margin-top:8px">Données © contributeurs OpenStreetMap. Une erreur ? <a href="/contact/" class="link-underline">Signalez-la</a>.</p>
       </div>
     </section>
   )}
 
-  {directoryArticles.length === 0 && (
+  {/* Outils pratiques cohérents (carte/météo seulement) */}
+  {TOOL_LINKS.length > 0 && (
+    <section style="padding:56px 0 0;background:var(--color-bg-base)">
+      <div class="site-container site-container--narrow">
+        <div class="eyebrow" style="margin-bottom:14px">Outils pratiques</div>
+        <div style={`display:grid;grid-template-columns:repeat(${TOOL_LINKS.length}, 1fr);gap:1px;background:var(--color-border);border:1px solid var(--color-border)`} class="tools-grid">
+          {TOOL_LINKS.map((t) => (
+            <a href={t.href} style="display:block;padding:36px 28px;background:var(--color-bg-base);text-decoration:none;color:inherit">
+              <div class="eyebrow" style="margin-bottom:10px;color:var(--color-accent)">{t.eyebrow}</div>
+              <div class="serif" style="font-size:22px;line-height:1.2;font-weight:400">{t.label}</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Guides pratiques (articles) — complément éditorial */}
+  {guideArticles.length > 0 && (
+    <section style="padding:72px 0;background:var(--color-bg-base)">
+      <div class="site-container">
+        <div class="hp-rub-head" style="margin-bottom:26px"><h2 class="serif" style="font-size:clamp(26px,3vw,38px);font-weight:400">Nos guides pratiques</h2><a href="/articles/" class="link-underline">Tous les articles</a></div>
+        <div class="hp-rub-row">
+          {guideArticles.map((a) => (
+            <a href={getArticleUrl(a)} class="hp-art"><h4 class="serif">{a.data.title}</h4></a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {totalReal === 0 && guideArticles.length === 0 && (
     <section style="padding:80px 0;background:var(--color-bg-base)">
       <div class="site-container site-container--narrow">
-        <p style="font-size:18px;color:var(--color-text-muted);line-height:1.6">
-          Aucune fiche d'annuaire pour le moment. Consultez notre <a href="/articles/" class="link-underline">catalogue d'articles</a>.
-        </p>
+        <p style="font-size:18px;color:var(--color-text-muted);line-height:1.6">L'annuaire se complète. Consultez nos <a href="/articles/" class="link-underline">articles</a> en attendant.</p>
       </div>
     </section>
   )}
@@ -153,15 +153,11 @@ const _pageSchema = {
     <div class="site-container site-container--narrow">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center" class="cta-grid">
         <div>
-          <div class="eyebrow" style="margin-bottom:14px">Vous gérez un commerce ?</div>
-          <h2 class="serif" style="font-size:clamp(32px, 3.5vw, 44px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:18px">
-            Demandez votre <em style="font-style:italic">fiche</em>.
-          </h2>
+          <div class="eyebrow" style="margin-bottom:14px">Vous gérez un commerce à {placename} ?</div>
+          <h2 class="serif" style="font-size:clamp(32px, 3.5vw, 44px);line-height:1.05;font-weight:400;letter-spacing:-.5px;margin-bottom:18px">Mettez votre <em style="font-style:italic">fiche</em> en avant.</h2>
         </div>
         <div>
-          <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;margin-bottom:24px">
-            La présentation de base est gratuite. Un format mise en avant éditoriale est possible — voir la <a href="/annoncer-chez-nous/" class="link-underline">page annonceurs</a>.
-          </p>
+          <p style="font-size:16px;color:var(--color-text-muted);line-height:1.7;margin-bottom:24px">La présentation de base est gratuite (données OpenStreetMap). Pour une mise en avant éditoriale, voir la <a href="/annoncer-chez-nous/" class="link-underline">page annonceurs</a>.</p>
           <a href="/contact/" class="btn-fill">Nous contacter</a>
         </div>
       </div>
@@ -170,10 +166,19 @@ const _pageSchema = {
 
 </Base>
 <style>
-@media (max-width: 900px) {
-  .hero-grid { grid-template-columns: 1fr !important; }
-  .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
-  .tools-grid { grid-template-columns: 1fr 1fr !important; }
-  .cta-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-}
+  .anr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .anr-card { background: var(--color-bg-card, #fff); border: 1px solid var(--color-border); border-radius: 14px; padding: 16px 18px; }
+  .anr-cat { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--color-accent); font-weight: 600; margin-bottom: 6px; }
+  .anr-name { display: block; font-size: 18px; line-height: 1.2; font-weight: 500; letter-spacing: -.2px; }
+  .anr-addr { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+  .anr-links { display: flex; gap: 12px; margin-top: 10px; font-size: 12px; }
+  .anr-links a { color: var(--color-accent); text-decoration: none; font-weight: 600; }
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr !important; }
+    .hero-grid > div:nth-child(2) { padding: 48px 32px !important; }
+    .anr-grid { grid-template-columns: 1fr 1fr !important; }
+    .tools-grid { grid-template-columns: 1fr 1fr !important; }
+    .cta-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+  }
+  @media (max-width: 560px) { .anr-grid { grid-template-columns: 1fr !important; } }
 </style>

@@ -13,7 +13,9 @@ const COORDS: Record<string, { lat: number; lon: number; label: string }> = {
   'ville-bruyereslechatel.fr': { lat: 48.5667, lon: 2.1833, label: 'Bruyères-le-Châtel' },
 };
 const fallback = { lat: 48.8566, lon: 2.3522, label: 'France' };
-const coord = COORDS[SITE_CONFIG.domain] ?? fallback;
+// Source primaire : profile.geo (vraie commune du site) ; sinon table legacy ; sinon France.
+const _geo = SITE_CONFIG.profile?.geo;
+const coord = _geo ? { lat: _geo.lat, lon: _geo.lng, label: _geo.placename } : (COORDS[SITE_CONFIG.domain] ?? fallback);
 ---
 <Base
   title={`Météo — ${coord.label}`}

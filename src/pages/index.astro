@@ -543,8 +543,8 @@ const mainTool = profile?.tools?.[0];
     <AgendaHome events={agendaEvents} placename={geo?.placename} siteUrl={SITE_CONFIG.siteUrl} />
   )}
 
-  {/* local_place — ANNUAIRE / VIE PRATIQUE (teaser) */}
-  {sec === 'annuaireTeaser' && (
+  {/* local_place — ANNUAIRE / VIE PRATIQUE (teaser) — vrai annuaire OSM (nécessite la géo) */}
+  {sec === 'annuaireTeaser' && geo && (
     <section style="padding:88px 0;background:var(--color-bg-base);border-bottom:1px solid var(--color-border)">
       <div class="site-container" style="text-align:center;max-width:720px">
         <span class="hp-pill">Vie pratique</span>

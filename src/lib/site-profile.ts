@@ -572,10 +572,8 @@ const PROFILES: Record<string, SiteProfile> = {
       { slug: 'vie-pratique', name: 'Vie pratique', emoji: '🧭', description: 'Météo, marché, stationnement, transports : l\'info pratique du quotidien concarnois.', keywords: ['meteo', 'meteo concarneau', 'marche', 'stationnement', 'parking', 'transport', 'bus', 'pratique', 'horaires', 'maree concarneau', 'office de tourisme', 'commerce'] },
     ],
     tools: [
-      { slug: 'quiz', label: 'Quiz : que faire aujourd\'hui ?', emoji: '🧭', description: 'Selon la météo et vos envies, on vous suggère quoi faire à Concarneau et autour.', seoKeyword: 'que faire concarneau aujourd hui' },
-      { slug: 'comparateur', label: 'Comparateur d\'hébergements', emoji: '⚖️', description: 'Comparez hôtels, campings et locations près de la Ville Close et des plages.', seoKeyword: 'hebergement concarneau comparatif' },
-      { slug: 'calculateur', label: 'Calculateur de budget séjour', emoji: '💶', description: 'Estimez le budget de votre séjour à Concarneau selon la durée et le nombre de personnes.', seoKeyword: 'budget sejour concarneau calcul' },
-      { slug: 'glossaire', href: '/glossaire/', label: 'Lexique breton & marin', emoji: '📖', description: 'Les mots du pays et de la mer, expliqués simplement.', seoKeyword: 'mots bretons marins definition' },
+      { slug: 'meteo', label: 'Météo de Concarneau', emoji: '🌤️', description: 'Prévisions à 7 jours pour Concarneau et la côte de Cornouaille.', seoKeyword: 'meteo concarneau' },
+      { slug: 'carte', label: 'Concarneau sur la carte', emoji: '🗺️', description: 'Carte interactive de Concarneau : Ville Close, port, plages et bonnes adresses.', seoKeyword: 'carte concarneau' },
     ],
     hero: {
       title: 'Concarneau, la Ville Bleue, comme on l\'aime.',

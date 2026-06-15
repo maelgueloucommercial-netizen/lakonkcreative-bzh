@@ -131,6 +131,7 @@ const PRESETS: Record<string, Array<{ id: string; label: string; emoji: string; 
 const calculs = profilePresets && profilePresets.length > 0 ? profilePresets : (PRESETS[archetype] ?? PRESETS.village);
 ---
 <Base
+  noindex={!(SITE_CONFIG.profile?.tools ?? []).some((t) => t.slug === 'calculateur')}
   title="Calculateurs"
   description={`Calculateurs gratuits et instantanés sur ${SITE_CONFIG.siteName} : ${calculs.map(c => c.label).join(', ')}.`}
 >

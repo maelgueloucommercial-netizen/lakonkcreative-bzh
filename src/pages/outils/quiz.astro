@@ -38,6 +38,7 @@ const QUIZ_BY_ARCHETYPE: Record<string, QuizQ[]> = {
 const quiz = QUIZ_BY_ARCHETYPE[archetype] ?? QUIZ_BY_ARCHETYPE.village;
 ---
 <Base
+  noindex={!(SITE_CONFIG.profile?.tools ?? []).some((t) => t.slug === 'quiz')}
   title="Quiz interactif"
   description={`Testez vos connaissances avec notre quiz ${archetype === 'village' ? 'sur la commune' : archetype === 'bricolage' ? 'bricolage' : archetype === 'tech' ? 'tech' : 'thématique'}, gratuit et sans inscription.`}
 >

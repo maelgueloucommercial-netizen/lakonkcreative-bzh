@@ -39,6 +39,7 @@ const PRESETS: Record<string, Array<{ id: string; label: string; emoji: string; 
 const presets = PRESETS[archetype] ?? PRESETS.village;
 ---
 <Base
+  noindex={!(SITE_CONFIG.profile?.tools ?? []).some((t) => t.slug === 'timer')}
   title="Minuteurs"
   description={`Minuteurs préréglés sur ${SITE_CONFIG.siteName}. Audio + notification visuelle.`}
 >
