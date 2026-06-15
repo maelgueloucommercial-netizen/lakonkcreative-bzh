@@ -99,14 +99,25 @@ export function buildNicheSchemas(opts: BuildSchemasOpts): Record<string, unknow
     ...(opts.bodyText && opts.bodyText.length > 100 && { articleBody: opts.bodyText.slice(0, 5000) }),
   };
   if (opts.heroImage) {
-    // ImageObject complet pour rich results Google
-    article.image = {
-      '@type': 'ImageObject',
-      url: opts.heroImage,
-      contentUrl: opts.heroImage,
-      width: 1200,
-      height: 630,
-    };
+    // ImageObject complet pour rich results Google (hero + images de corps).
+    const heroAbs = /^https?:/i.test(opts.heroImage) ? opts.heroImage : `${opts.siteUrl}${opts.heroImage}`;
+    const images: Array<Record<string, unknown>> = [
+      { '@type': 'ImageObject', url: heroAbs, contentUrl: heroAbs, width: 1200, height: 630 },
+    ];
+    // Images de corps (figures <img> injectées par l'auto-publish) → éligibilité Google Images.
+    if (opts.bodyText) {
+      const seen = new Set<string>([opts.heroImage, heroAbs]);
+      const re = /<img[^>]+src="([^"]+\.(?:jpe?g|png|webp))"/gi;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(opts.bodyText)) !== null && images.length < 12) {
+        const src = m[1];
+        if (seen.has(src)) continue;
+        seen.add(src);
+        const abs = /^https?:/i.test(src) ? src : `${opts.siteUrl}${src}`;
+        images.push({ '@type': 'ImageObject', url: abs, contentUrl: abs, width: 1280, height: 853 });
+      }
+    }
+    article.image = images.length === 1 ? images[0] : images;
   }
   // E-E-A-T : citations externes (mentions Schema.org `citation`)
   if (opts.sources && opts.sources.length > 0) {

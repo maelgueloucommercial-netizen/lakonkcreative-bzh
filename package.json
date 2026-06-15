@@ -1,13 +1,13 @@
 {
   "name": "lakonkcreative-bzh",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "prebuild": "node scripts/download-fonts.mjs || echo fonts-skip ; node scripts/fetch-google-images.mjs || echo gi-skip ; node scripts/fetch-wiki-images.mjs || echo wiki-skip ; node scripts/fetch-article-images.mjs || echo ai-skip",
-    "build": "astro build && (pagefind --site dist || echo 'pagefind skipped — non-blocking')",
+    "build": "rm -rf node_modules/.astro .astro && astro build && (pagefind --site dist || echo 'pagefind skipped — non-blocking')",
     "preview": "astro preview",
     "astro": "astro"
   },

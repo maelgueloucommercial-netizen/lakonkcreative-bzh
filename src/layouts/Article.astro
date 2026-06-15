@@ -186,7 +186,7 @@ const profile = SITE_CONFIG.profile;
       {heroImg && (
         <>
           {/* IMG réel pour SEO + accessibilité, masqué visuellement (le visuel utilise background-image en surcouche) */}
-          <img src={heroImg} alt={data.title} loading="eager" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(1.05)" />
+          <img src={heroImg} alt={data.title} loading="eager" fetchpriority="high" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55) saturate(1.05)" />
           <div style="position:absolute;inset:0;background:linear-gradient(180deg, transparent 0%, rgba(20,15,12,.55) 100%)"></div>
         </>
       )}
@@ -199,8 +199,8 @@ const profile = SITE_CONFIG.profile;
             {data.sponsored && (<><span style="margin:0 10px">·</span><span>Sponsorisé</span></>)}
           </nav>
           <div class={heroImg ? 'eyebrow-light' : 'eyebrow'} style="margin-bottom:18px">
-            {dateFormatted}
-            {updatedFormatted && updatedFormatted !== dateFormatted && <span> · Mis à jour le {updatedFormatted}</span>}
+            <time datetime={data.pubDate.toISOString().slice(0, 10)}>{dateFormatted}</time>
+            {updatedFormatted && updatedFormatted !== dateFormatted && <span> · Mis à jour le <time datetime={data.modifiedDate?.toISOString().slice(0, 10)}>{updatedFormatted}</time></span>}
             <span> · {readingMinutes} min de lecture</span>
             {intent.primary !== 'general' && <span> · {intent.primary.replace('_', ' ')}</span>}
           </div>

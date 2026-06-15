@@ -265,6 +265,23 @@ h1, h2, h3, h4, h5, h6 {
   margin: 2.5rem 0;
   border: 1px solid var(--color-border);
 }
+/* Figures injectées dans le corps par l'auto-publish (image + légende contextuelle) */
+.prose-article figure.article-figure {
+  margin: 2.5rem 0;
+}
+.prose-article figure.article-figure img {
+  margin: 0 0 .6rem;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.prose-article figure.article-figure figcaption {
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-style: italic;
+}
 .prose-article blockquote {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
