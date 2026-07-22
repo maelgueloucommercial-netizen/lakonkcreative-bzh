@@ -35,7 +35,7 @@ const articles = defineCollection({
     // Prend le dessus sur la FAQ auto-générée si présente.
     faq: z.array(z.object({ question: z.string(), answer: z.string() })).optional(),
     // --- Discriminateur de type éditorial (hub/faq/lexique) — optionnel, défaut article. ---
-    pageType: z.enum(['article', 'hub', 'faq', 'lexique']).optional(),
+    pageType: z.enum(['article', 'hub', 'faq', 'lexique', 'recette', 'listicle', 'tutoriel', 'comparatif', 'guideAchat', 'avisMarque', 'actualite']).optional(),
     glossaryTerm: z.string().optional(),                 // lexique : le terme défini (DefinedTerm)
     clusterSlugs: z.array(z.string()).default([]),       // hub : slugs des articles enfants (maillage pilier)
     relatedTerms: z.array(z.string()).default([]),       // lexique : termes liés (slugs)
