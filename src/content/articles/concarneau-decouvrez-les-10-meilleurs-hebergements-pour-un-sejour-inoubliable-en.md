@@ -139,3 +139,4 @@ En résumé, choisir le meilleur hébergement à Concarneau nécessite de prendr
 - [Découvrez les meilleures écoles de voile et locations à Concarneau : Guide 2023](/decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/)
 - [Découvrez le sentier côtier GR34 de Concarneau : 45 km de randonnées et de points de vue époustouflants](/decouvrez-le-sentier-cotier-gr34-de-concarneau-45-km-de-randonnees-et-de-points-/)
 - [Découvrez les trésors de Concarneau : Pont-Aven, Trégunc et larchipel des Glénan en 2024](/decouvrez-les-tresors-de-concarneau-pont-aven-tregunc-et-l-archipel-des-glenan-e/)
+- [Découvrez Concarneau et ses environs : Guide 2026](/decouvrez-concarneau-et-ses-environs-guide-2026/)

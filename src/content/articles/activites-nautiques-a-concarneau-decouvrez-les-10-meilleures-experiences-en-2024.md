@@ -98,3 +98,6 @@ Il est important de noter que les excursions en mer doivent être réalisées de
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Découvrez Concarneau et ses environs : Guide 2026](/decouvrez-concarneau-et-ses-environs-guide-2026/)
