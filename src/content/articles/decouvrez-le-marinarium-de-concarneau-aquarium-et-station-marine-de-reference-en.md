@@ -1,6 +1,6 @@
 ---
-title: "Découvrez le Marinarium de Concarneau : aquarium et station marine de référence en Bretagne"
-description: "Explorez les richesses marines de la Bretagne au Marinarium de Concarneau, un aquarium et une station marine unique en son genre. Découvrez comment cette institution contribue à la préservation de la biodiversité et à l'éducation du public. Comparez les différentes espèces de poissons et d'invertébrés qui y sont présentes."
+title: "Marinarium de Concarneau : aquarium et station marine"
+description: "Explorez les richesses marines de la Bretagne au Marinarium de Concarneau, un aquarium et une station marine unique en son genre."
 category: guide
 tags:
   - Marinarium de Concarneau

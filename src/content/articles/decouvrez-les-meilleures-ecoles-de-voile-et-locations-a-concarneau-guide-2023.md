@@ -1,6 +1,6 @@
 ---
-title: "Découvrez les meilleures écoles de voile et locations à Concarneau : Guide 2023"
-description: "Trouvez les meilleures écoles de voile et locations de bateaux à Concarneau. Comparez les tarifs et les programmes pour une sortie en mer inoubliable. Découvrez comment choisir la meilleure option pour vos vacances."
+title: "Meilleures écoles de voile et locations à Concarneau"
+description: "Trouvez les meilleures écoles de voile et locations de bateaux à Concarneau. Comparez les tarifs et les programmes pour une sortie en mer inoubliable."
 category: guide
 tags:
   - nautisme

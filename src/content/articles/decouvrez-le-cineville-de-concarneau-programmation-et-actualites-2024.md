@@ -1,6 +1,6 @@
 ---
-title: "Découvrez le Cineville de Concarneau : programmation et actualités 2024"
-description: "Retrouvez les dernières sorties et les événements à venir au Cineville de Concarneau. Comparez les tarifs et les horaires de séance. Découvrez comment profiter au maximum de votre expérience cinématographique à Concarneau."
+title: "Cineville de Concarneau : programmation et actualités"
+description: "Retrouvez les dernières sorties et les événements à venir au Cineville de Concarneau. Comparez les tarifs et les horaires de séance."
 category: guide
 tags:
   - Cineville Concarneau

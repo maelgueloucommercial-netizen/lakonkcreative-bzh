@@ -1,6 +1,6 @@
 ---
-title: "Les 10 Meilleurs Restaurants de Concarneau [2023] : Guide Expert"
-description: "Découvrez les meilleurs restaurants de Concarneau, sélectionnés pour leur qualité et leur authenticité. Comparez les menus, les prix et les avis des clients pour trouver votre prochain repas préféré. Plus de 2000 avis analysés."
+title: "Les 10 Meilleurs Restaurants de Concarneau [2023]"
+description: "Découvrez les meilleurs restaurants de Concarneau, sélectionnés pour leur qualité et leur authenticité."
 category: guide
 tags:
   - restaurants de Concarneau

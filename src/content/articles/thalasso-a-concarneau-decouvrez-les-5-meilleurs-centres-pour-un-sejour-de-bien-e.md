@@ -1,6 +1,6 @@
 ---
-title: "Thalasso à Concarneau : découvrez les 5 meilleurs centres pour un séjour de bien-être en 2024"
-description: "Découvrez les bienfaits de la thalassothérapie à Concarneau, ville bretonne réputée pour ses stations thermales. Comparez les 5 meilleurs centres de thalasso de la région et apprenez comment profiter de la mer pour votre santé et votre bien-être."
+title: "Thalasso à Concarneau : découvrez les 5 meilleurs centres"
+description: "Découvrez les bienfaits de la thalassothérapie à Concarneau, ville bretonne réputée pour ses stations thermales."
 category: guide
 tags:
   - thalasso

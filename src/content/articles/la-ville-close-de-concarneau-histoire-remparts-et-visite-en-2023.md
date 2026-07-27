@@ -1,6 +1,6 @@
 ---
-title: "La Ville Close de Concarneau : histoire, remparts et visite en 2023"
-description: "Découvrez l'histoire de la Ville Close de Concarneau, ses remparts et comment visiter ce site emblématique de Bretagne. Comparez les différentes périodes de construction et les événements clés qui ont marqué son histoire. Visitez la Ville Close en 2023 et explorez ses rues étroites et ses fortifications."
+title: "La Ville Close de Concarneau : histoire, remparts et visite"
+description: "Découvrez l'histoire de la Ville Close de Concarneau, ses remparts et comment visiter ce site emblématique de Bretagne."
 category: guide
 tags:
   - Concarneau

@@ -1,6 +1,6 @@
 ---
-title: "Les plages de Concarneau : découvrez les 3 meilleures plages de Sables Blancs, Cabellou et Kerleven en 2023"
-description: "Concarneau, ville côtière bretonne, abrite trois plages de renom : Sables Blancs, Cabellou et Kerleven. Découvrez comment choisir la meilleure plage pour vos vacances en fonction de vos besoins et de vos préférences. Comparez les caractéristiques de chaque plage et trouvez les activités de loisirs adaptées à votre séjour."
+title: "Les plages de Concarneau : découvrez les 3 meilleures"
+description: "Concarneau, ville côtière bretonne, abrite trois plages de renom : Sables Blancs, Cabellou et Kerleven."
 category: guide
 tags:
   - plages de Concarneau

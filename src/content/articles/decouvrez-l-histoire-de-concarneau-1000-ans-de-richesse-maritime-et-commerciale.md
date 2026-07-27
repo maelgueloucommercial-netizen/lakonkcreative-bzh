@@ -1,6 +1,6 @@
 ---
-title: "Découvrez l'Histoire de Concarneau : 1000 Ans de Richesse Maritime et Commerciale"
-description: "Explorez l'histoire de Concarneau, ville bretonne aux racines maritimes et commerciales profondes. De la préhistoire à nos jours, découvrez les événements clés, les personnages emblématiques et les faits marquants qui ont façonné cette ville côtière."
+title: "Histoire de Concarneau : 1000 Ans de Richesse Maritime"
+description: "Explorez l'histoire de Concarneau, ville bretonne aux racines maritimes et commerciales profondes."
 category: guide
 tags:
   - histoire de Concarneau

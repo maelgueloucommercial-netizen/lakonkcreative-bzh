@@ -1,6 +1,6 @@
 ---
-title: "Location de vacances à Concarneau : 10 bonnes raisons de choisir cette ville bretonne en 2024"
-description: "Découvrez les atouts de la location de vacances à Concarneau, ville côtière bretonne. Comparez les prix, les activités et les hébergements pour un séjour inoubliable. Réservez votre location de vacances à Concarneau dès aujourd'hui !"
+title: "Location de vacances à Concarneau : 10 bonnes raisons"
+description: "Découvrez les atouts de la location de vacances à Concarneau, ville côtière bretonne. Comparez les prix, les activités et les hébergements pour un séjour."
 category: guide
 tags:
   - location de vacances

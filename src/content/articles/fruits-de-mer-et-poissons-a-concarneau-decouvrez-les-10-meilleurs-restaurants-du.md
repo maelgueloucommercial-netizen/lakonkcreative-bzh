@@ -1,6 +1,6 @@
 ---
-title: "Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port"
-description: "Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique avec ses fruits de mer et poissons frais. Comparez les 10 meilleurs restaurants du port et découvrez comment choisir le meilleur poisson pour votre repas."
+title: "Fruits de mer et poissons à Concarneau : découvrez les 10"
+description: "Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique avec ses fruits de mer et poissons frais."
 category: guide
 tags:
   - Concarneau

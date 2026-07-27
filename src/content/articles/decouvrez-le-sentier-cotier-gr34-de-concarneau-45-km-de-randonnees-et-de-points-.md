@@ -1,6 +1,6 @@
 ---
-title: "Découvrez le sentier côtier GR34 de Concarneau : 45 km de randonnées et de points de vue époustouflants"
-description: "Explorez les trésors du littoral breton avec le sentier côtier GR34 de Concarneau. Découvrez comment profiter de 45 km de randonnées et de points de vue uniques, avec des étapes et des conseils pratiques pour un voyage inoubliable."
+title: "Sentier côtier GR34 de Concarneau : 45 km de randonnées"
+description: "Explorez les trésors du littoral breton avec le sentier côtier GR34 de Concarneau. Découvrez comment profiter de 45 km de randonnées et de points de vue."
 category: guide
 tags:
   - "sentier côtier GR34"

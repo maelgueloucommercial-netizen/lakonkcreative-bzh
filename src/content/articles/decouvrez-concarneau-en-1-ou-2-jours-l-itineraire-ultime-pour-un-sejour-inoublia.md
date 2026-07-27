@@ -1,6 +1,6 @@
 ---
-title: "Découvrez Concarneau en 1 ou 2 jours : l'itinéraire ultime pour un séjour inoubliable"
-description: "Explorez les secrets de Concarneau en 48 heures ! Découvrez les incontournables, les activités à faire et les bons plans pour un séjour réussi dans cette ville bretonne. Comparez les meilleures options pour votre voyage."
+title: "Concarneau en 1 ou 2 jours : l'itinéraire ultime"
+description: "Explorez les secrets de Concarneau en 48 heures ! Découvrez les incontournables, les activités à faire et les bons plans pour un séjour réussi."
 category: guide
 tags:
   - Concarneau

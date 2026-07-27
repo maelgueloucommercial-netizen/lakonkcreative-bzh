@@ -1,6 +1,6 @@
 ---
-title: "Le port de pêche de Concarneau : découvrez les secrets de la criée et des traditions maritimes"
-description: "Découvrez comment fonctionne la criée du port de pêche de Concarneau, les traditions maritimes qui l'entourent et les chiffres clés de cette industrie en plein essor. Comparez les différentes espèces de poissons vendues et découvrez comment la ville de Concarneau est devenue un leader dans la pêche française."
+title: "Le port de pêche de Concarneau : découvrez les secrets"
+description: "Découvrez comment fonctionne la criée du port de pêche de Concarneau, les traditions maritimes qui l'entourent et les chiffres clés de cette industrie."
 category: guide
 tags:
   - "port de pêche"

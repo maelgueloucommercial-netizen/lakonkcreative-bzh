@@ -1,6 +1,6 @@
 ---
-title: "Les 10 meilleures tables et crêperies de Concarneau : guide 2023"
-description: "Découvrez les meilleures adresses pour manger à Concarneau. Comparez les spécialités bretonnes, les poissons frais et les crêpes délicieuses. Réservez vos tables pour un séjour inoubliable !"
+title: "Les 10 meilleures tables et crêperies de Concarneau"
+description: "Découvrez les meilleures adresses pour manger à Concarneau. Comparez les spécialités bretonnes, les poissons frais et les crêpes délicieuses."
 category: guide
 tags:
   - Concarneau

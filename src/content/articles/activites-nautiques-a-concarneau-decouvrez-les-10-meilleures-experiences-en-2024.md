@@ -1,6 +1,6 @@
 ---
-title: "Activités nautiques à Concarneau : découvrez les 10 meilleures expériences en 2024"
-description: "Concarneau, ville côtière bretonne, offre une variété d'activités nautiques pour tous les goûts. Comparez les meilleures options pour votre séjour en 2024 et découvrez comment profiter au maximum de la mer."
+title: "Activités nautiques à Concarneau : découvrez les 10"
+description: "Concarneau, ville côtière bretonne, offre une variété d'activités nautiques pour tous les goûts."
 category: guide
 tags:
   - "activités nautiques"

@@ -34,8 +34,10 @@ const path = Astro.url.pathname;
 const pathWithSlash = path === '/' ? '/' : (path.endsWith('/') ? path : path + '/');
 const canonicalUrl = canonical ?? new URL(pathWithSlash, SITE_CONFIG.siteUrl).toString();
 
-const fullTitle = title === SITE_CONFIG.siteName ? title : `${title} — ${SITE_CONFIG.siteName}`;
-
+// Suffixe « — <nom du site> » retiré : il coûtait ~9 caractères sur un
+// budget d'affichage de 60 et poussait la majorité des titres au-delà de
+// la troncature de Google. Le domaine est déjà affiché au-dessus du titre.
+const fullTitle = title;
 // OG image fallback : 1) prop explicit, 2) defaultOgImage SITE_CONFIG, 3) première image Wikipedia disponible
 // (loop sur tous les wikiImageSubjects au cas où le premier n'a pas été trouvé sur Wikipedia)
 const profile = SITE_CONFIG.profile;

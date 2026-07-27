@@ -1,6 +1,6 @@
 ---
-title: "Météo à Concarneau : Climat, Saisons et Meilleure Période pour Visiter (2024)"
-description: "Découvrez le climat de Concarneau, ses saisons et la meilleure période pour visiter cette ville bretonne. Comparez les températures, les précipitations et les activités en fonction des saisons. Tout ce qu'il faut savoir pour planifier votre voyage à Concarneau."
+title: "Météo à Concarneau : Climat, Saisons et Meilleure Période"
+description: "Découvrez le climat de Concarneau, ses saisons et la meilleure période pour visiter cette ville bretonne."
 category: guide
 tags:
   - "météo Concarneau"

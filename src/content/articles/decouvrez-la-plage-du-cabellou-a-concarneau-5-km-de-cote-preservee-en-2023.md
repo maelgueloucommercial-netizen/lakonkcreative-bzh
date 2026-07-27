@@ -1,6 +1,6 @@
 ---
-title: "Découvrez la plage du Cabellou à Concarneau : 5 km de côte préservée en 2023"
-description: "Explorez la presqu'île du Cabellou à Concarneau, avec ses 5 km de côte préservée. Découvrez comment cette plage a su conserver son charme naturel et quelles activités vous pouvez y pratiquer. Comparez les avantages de cette destination avec d'autres plages bretonnes."
+title: "Plage du Cabellou à Concarneau : 5 km de côte préservée"
+description: "Explorez la presqu'île du Cabellou à Concarneau, avec ses 5 km de côte préservée. Découvrez comment cette plage a su conserver son charme naturel."
 category: guide
 tags:
   - plage du Cabellou

@@ -1,6 +1,6 @@
 ---
-title: "Se garer à Concarneau : les 5 meilleurs parkings et astuces pour stationner en 2024"
-description: "Découvrez les tarifs et les meilleures options de stationnement à Concarneau. Comparez les parkings et apprenez comment économiser jusqu'à 30% sur vos frais de stationnement. Tout ce qu'il faut savoir pour se garer à Concarneau en 2024."
+title: "Se garer à Concarneau : les 5 meilleurs parkings et astuces"
+description: "Découvrez les tarifs et les meilleures options de stationnement à Concarneau. Comparez les parkings et apprenez comment économiser jusqu'à 30%."
 category: guide
 tags:
   - Concarneau

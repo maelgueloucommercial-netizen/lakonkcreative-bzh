@@ -1,6 +1,6 @@
 ---
-title: "Découvrez le marché de Concarneau : jours, horaires et bonnes adresses pour 2024"
-description: "Explorez le marché de Concarneau avec nos conseils pour 2024. Découvrez les jours et horaires d'ouverture, les meilleures adresses et les spécialités locales. Comparez les options et planifiez votre visite."
+title: "Marché de Concarneau : jours, horaires et bonnes adresses"
+description: "Explorez le marché de Concarneau avec nos conseils pour 2024. Découvrez les jours et horaires d'ouverture, les meilleures adresses et les spécialités."
 category: guide
 tags:
   - "marché de Concarneau"

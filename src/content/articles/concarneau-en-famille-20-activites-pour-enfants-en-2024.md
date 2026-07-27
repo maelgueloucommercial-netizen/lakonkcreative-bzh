@@ -1,6 +1,6 @@
 ---
-title: "Concarneau en famille : 20 activités pour enfants en 2024"
-description: "Découvrez les 20 meilleures activités à faire avec vos enfants à Concarneau. Comparez les prix et les horaires des musées, plages et parcs d'attractions. Réservez vos vacances en famille dès aujourd'hui !"
+title: "Concarneau en famille : 20 activités pour enfants"
+description: "Découvrez les 20 meilleures activités à faire avec vos enfants à Concarneau. Comparez les prix et les horaires des musées, plages et parcs d'attractions."
 category: guide
 tags:
   - Concarneau

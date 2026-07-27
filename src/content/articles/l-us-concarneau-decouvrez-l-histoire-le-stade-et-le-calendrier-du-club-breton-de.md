@@ -1,6 +1,6 @@
 ---
-title: "L'US Concarneau : découvrez l'histoire, le stade et le calendrier du club breton depuis 1911"
-description: "Découvrez l'histoire de l'US Concarneau, un club de football breton fondé en 1911. Explorez son stade, le Stade Guy Piriou, et consultez son calendrier pour la saison en cours. Tout ce qu'il faut savoir sur le club de Concarneau."
+title: "L'US Concarneau : découvrez l'histoire, le stade"
+description: "Découvrez l'histoire de l'US Concarneau, un club de football breton fondé en 1911. Explorez son stade, le Stade Guy Piriou, et consultez son calendrier."
 category: guide
 tags:
   - US Concarneau

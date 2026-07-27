@@ -124,8 +124,8 @@ const breadcrumbJsonLd = {
 };
 ---
 <Base
-  title="Rubriques"
-  description={`Explorez les ${categories.length} rubriques de ${SITE_CONFIG.siteName} — ${categories.map((c) => c.name).join(' · ')}.`}
+  title={`Toutes les rubriques de ${SITE_CONFIG.siteName}`}
+  description={`Toutes les rubriques de ${SITE_CONFIG.siteName} : ${categories.slice(0, 4).map((c) => c.name).join(', ')}…`}
   jsonLd={[collectionPageJsonLd, breadcrumbJsonLd]}
 >
   <header style="padding:120px 0 64px;background:var(--color-bg-base)">

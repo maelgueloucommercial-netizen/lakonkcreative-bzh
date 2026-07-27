@@ -1,6 +1,6 @@
 ---
-title: "Découvrez les trésors de Concarneau : Pont-Aven, Trégunc et l'archipel des Glénan en 2024"
-description: "Explorez les charmes de la Bretagne avec notre guide complet sur Concarneau, Pont-Aven, Trégunc et l'archipel des Glénan. Découvrez comment visiter ces destinations emblématiques, leurs secrets et leurs atouts. Comparez les meilleures activités et découvrez les trésors cachés de cette région bretonne."
+title: "Trésors de Concarneau : Pont-Aven, Trégunc et l'archipel"
+description: "Explorez les charmes de la Bretagne avec notre guide complet sur Concarneau, Pont-Aven, Trégunc et l'archipel des Glénan."
 category: guide
 tags:
   - Concarneau

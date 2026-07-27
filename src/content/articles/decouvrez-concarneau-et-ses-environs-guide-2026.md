@@ -1,6 +1,6 @@
 ---
-title: "Découvrez Concarneau et ses environs : Guide 2026"
-description: "Visitez Concarneau et ses environs avec notre guide complet : découvrez les 10 meilleures activités, comparez les prix des locations de vélos et découvrez comment profiter de la baie de Concarneau"
+title: "Découvrez Concarneau et ses environs"
+description: "Visitez Concarneau et ses environs avec notre guide complet : découvrez les 10 meilleures activités, comparez les prix des locations de vélos et découvrez."
 category: guide
 tags:
   - Concarneau

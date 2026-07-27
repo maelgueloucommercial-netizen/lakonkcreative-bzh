@@ -1,6 +1,6 @@
 ---
-title: "La fête des Filets Bleus à Concarneau : découvrez l'histoire et le programme 2024"
-description: "Découvrez l'histoire et le programme de la fête des Filets Bleus à Concarneau, un événement emblématique de la ville bretonne. Comparez les activités et les spectacles proposés en 2024 et ce qu'il faut savoir pour y assister."
+title: "La fête des Filets Bleus à Concarneau : découvrez"
+description: "Découvrez l'histoire et le programme de la fête des Filets Bleus à Concarneau, un événement emblématique de la ville bretonne."
 category: guide
 tags:
   - "Fête des Filets Bleus"

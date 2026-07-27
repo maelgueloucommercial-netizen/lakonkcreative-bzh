@@ -1,6 +1,6 @@
 ---
-title: "Concarneau : découvrez les 10 meilleurs hébergements pour un séjour inoubliable en 2024"
-description: "Trouvez le meilleur endroit où dormir à Concarneau avec notre sélection des 10 meilleurs hôtels, campings et locations. Comparez les tarifs et réservez votre hébergement idéal pour un séjour inoubliable en 2024."
+title: "Concarneau : découvrez les 10 meilleurs hébergements"
+description: "Trouvez le meilleur endroit où dormir à Concarneau avec notre sélection des 10 meilleurs hôtels, campings et locations."
 category: guide
 tags:
   - Concarneau

@@ -1,6 +1,6 @@
 ---
-title: "Manger pas cher à Concarneau : 10 bonnes adresses et snacks à partir de 5€"
-description: "Découvrez comment manger pas cher à Concarneau avec nos 10 bonnes adresses et snacks à partir de 5€. Comparez les prix et les spécialités de la ville pour un séjour gourmand sans ruiner votre budget."
+title: "Manger pas cher à Concarneau : 10 bonnes adresses et snacks"
+description: "Découvrez comment manger pas cher à Concarneau avec nos 10 bonnes adresses et snacks à partir de 5€."
 category: guide
 tags:
   - Concarneau

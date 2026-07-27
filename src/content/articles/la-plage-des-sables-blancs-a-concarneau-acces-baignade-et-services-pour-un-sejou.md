@@ -1,6 +1,6 @@
 ---
-title: "La plage des Sables Blancs à Concarneau : accès, baignade et services pour un séjour idéal"
-description: "Découvrez comment profiter au maximum de la plage des Sables Blancs à Concarneau, avec des informations pratiques sur l'accès, la baignade et les services à disposition. Comparez les meilleures options pour un séjour inoubliable."
+title: "La plage des Sables Blancs à Concarneau : accès, baignade"
+description: "Découvrez comment profiter au maximum de la plage des Sables Blancs à Concarneau, avec des informations pratiques sur l'accès, la baignade et les services."
 category: guide
 tags:
   - Concarneau

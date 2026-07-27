@@ -1,6 +1,6 @@
 ---
-title: "Pêche à pied à Concarneau : 5 spots incontournables et conseils de marées pour 2024"
-description: "Découvrez les 5 meilleurs spots de pêche à pied à Concarneau, les coefficients de marées et les conseils pour réussir votre sortie en 2024. Comparez les périodes de pêche et les espèces à capturer."
+title: "Pêche à pied à Concarneau : 5 spots incontournables"
+description: "Découvrez les 5 meilleurs spots de pêche à pied à Concarneau, les coefficients de marées et les conseils pour réussir votre sortie en 2024."
 category: guide
 tags:
   - "pêche à pied"

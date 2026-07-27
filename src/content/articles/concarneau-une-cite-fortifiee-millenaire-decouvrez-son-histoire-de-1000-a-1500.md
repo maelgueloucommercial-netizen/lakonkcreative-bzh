@@ -1,6 +1,6 @@
 ---
-title: "Concarneau, une cité fortifiée millénaire : découvrez son histoire de 1000 à 1500"
-description: "Découvrez l'histoire de Concarneau, une cité fortifiée bretonne, de ses origines au Moyen Âge. Explorez les faits et chiffres clés de son développement, de 1000 à 1500. Comparez les périodes de prospérité et de déclin de cette ville emblématique."
+title: "Concarneau, une cité fortifiée millénaire : découvrez"
+description: "Découvrez l'histoire de Concarneau, une cité fortifiée bretonne, de ses origines au Moyen Âge."
 category: guide
 tags:
   - Concarneau

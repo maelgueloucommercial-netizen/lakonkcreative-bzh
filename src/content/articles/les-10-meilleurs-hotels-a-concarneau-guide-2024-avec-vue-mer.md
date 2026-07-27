@@ -1,6 +1,6 @@
 ---
-title: "Les 10 Meilleurs Hôtels à Concarneau : Guide 2024 avec Vue Mer"
-description: "Découvrez les meilleurs hôtels à Concarneau avec vue mer, classés selon les critiques et les tarifs. Comparez les offres et réservez votre séjour en Bretagne avec nos conseils d'experts."
+title: "Les 10 Meilleurs Hôtels à Concarneau : Guide 2024 avec Vue"
+description: "Découvrez les meilleurs hôtels à Concarneau avec vue mer, classés selon les critiques et les tarifs."
 category: guide
 tags:
   - "hôtels à Concarneau"

@@ -1,6 +1,6 @@
 ---
 title: "Concarneau : 20 activités incontournables à faire en 2023"
-description: "Découvrez les meilleures visites, sorties et activités à Concarneau. Comparez les prix et les horaires des attractions, plages et musées. Que faire à Concarneau ?"
+description: "Découvrez les meilleures visites, sorties et activités à Concarneau. Comparez les prix et les horaires des attractions, plages et musées."
 category: guide
 tags:
   - Concarneau
