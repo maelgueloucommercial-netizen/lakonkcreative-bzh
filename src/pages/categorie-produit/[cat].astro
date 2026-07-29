@@ -30,8 +30,34 @@ const CatContent = cat ? (await render(cat)).Content : null;
 const catFaq = cat?.data?.faq;
 const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
 const boutiqueUrl = new URL('/boutique/', SITE_CONFIG.siteUrl).toString();
-const title = cat?.data?.title ?? `${label} : notre sélection, prix et avis`;
-const description = cat?.data?.intro ?? `Comparez notre sélection de ${label.toLowerCase()} : prix, avis, marques et caractéristiques. Filtrez par marque, prix, résolution, technologie et usage.`;
+// ⚠️ Titre et description sont CONSTRUITS ici : leur longueur dépend du nom de la
+// catégorie, donc elle échappe à toute correction faite dans le frontmatter.
+// Mesuré en ligne avant ce correctif : descriptions à 162-183 caractères, titres
+// à 63-71, et une description qui commençait par une image markdown.
+const metaPropre = (s: string) => String(s ?? '')
+  .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+  .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/[*_`#>]/g, '')
+  .replace(/\s+/g, ' ')
+  .trim();
+// Dernier recours seulement : on coupe sur un espace, jamais au milieu d'un mot.
+const metaBorne = (s: string, n: number) => {
+  const t = metaPropre(s);
+  if (t.length <= n) return t;
+  const c = t.slice(0, n - 1);
+  const e = c.lastIndexOf(' ');
+  return (e > n * 0.6 ? c.slice(0, e) : c).replace(/[\s,;:–-]+$/, '') + '…';
+};
+// Un slug n'est pas un libellé : « webcam-overlay-statique-premium » se lit
+// « webcam overlay statique premium ».
+const metaLisible = (l: string) => (/\s/.test(l) ? l : String(l ?? '').replace(/-/g, ' '));
+// On DÉGRADE vers une formulation plus courte plutôt que d'amputer.
+const metaCascade = (formes: string[], n: number) =>
+  formes.find((f) => metaPropre(f).length <= n) ?? metaBorne(formes[formes.length - 1], n);
+const L = metaLisible(label);
+const title = cat?.data?.title ? metaBorne(cat.data.title, 60) : metaCascade([`${L} : notre sélection, prix et avis`, `${L} : notre sélection et prix`, `${L} : notre sélection`, `${L}`], 60);
+const description = cat?.data?.intro ? metaBorne(cat.data.intro, 160) : metaCascade([`Comparez notre sélection de ${L.toLowerCase()} : prix, avis, marques et caractéristiques. Filtrez par marque, prix, résolution, technologie et usage.`, `Comparez notre sélection de ${L.toLowerCase()} : prix, avis, marques et caractéristiques.`, `Comparez notre sélection de ${L.toLowerCase()} : prix, avis et caractéristiques.`, `Comparez notre sélection de ${L.toLowerCase()} : prix et avis.`], 160);
 // « À partir de » (pattern objetrama) quand on n'a qu'une fourchette basse.
 const priceOf = (e: any) => e.data.priceText ?? (typeof e.data.price === 'number' ? `${e.data.price} €` : (typeof e.data.priceLow === 'number' ? `À partir de ${e.data.priceLow} €` : ''));
 const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));

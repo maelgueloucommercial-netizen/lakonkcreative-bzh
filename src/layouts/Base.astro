@@ -1,4 +1,40 @@
 ---
+// ⚠️ Dernier rempart sur les métas : quel que soit le gabarit qui a construit le
+// titre et la description, ils passent ici. Mesuré en ligne avant ce correctif :
+// des titres à 65-107 caractères et des descriptions à 162-305, produits par une
+// quinzaine de gabarits différents. On borne au point de passage commun.
+const metaPropre = (s: string) => String(s ?? '')
+  .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+  .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/[*_`#>]/g, '')
+  .replace(/\s+/g, ' ')
+  .trim();
+const metaCoupe = (t: string, n: number) => {
+  const c = t.slice(0, n - 1);
+  const e = c.lastIndexOf(' ');
+  return (e > n * 0.6 ? c.slice(0, e) : c).replace(/[\s,;:–—-]+$/, '') + '…';
+};
+// Le titre DÉGRADE (énumération, puis sous-titre) avant d'être coupé.
+const metaTitre = (s: string, n = 60) => {
+  let t = metaPropre(s);
+  while (t.length > n) {
+    const v = t.lastIndexOf(', ');
+    if (v < 25) break;
+    t = t.slice(0, v);
+  }
+  if (t.length > n) {
+    const v = Math.max(t.lastIndexOf(' : '), t.lastIndexOf(' — '));
+    if (v >= 25) t = t.slice(0, v);
+  }
+  return t.length > n ? metaCoupe(t, n) : t;
+};
+const metaDescription = (s: string, n = 160) => {
+  const t = metaPropre(s);
+  if (!t) return undefined;
+  return t.length > n ? metaCoupe(t, n) : t;
+};
+
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -37,7 +73,7 @@ const canonicalUrl = canonical ?? new URL(pathWithSlash, SITE_CONFIG.siteUrl).to
 // Suffixe « — <nom du site> » retiré : il coûtait ~9 caractères sur un
 // budget d'affichage de 60 et poussait la majorité des titres au-delà de
 // la troncature de Google. Le domaine est déjà affiché au-dessus du titre.
-const fullTitle = title;
+const fullTitle = metaTitre(title);
 // OG image fallback : 1) prop explicit, 2) defaultOgImage SITE_CONFIG, 3) première image Wikipedia disponible
 // (loop sur tous les wikiImageSubjects au cas où le premier n'a pas été trouvé sur Wikipedia)
 const profile = SITE_CONFIG.profile;
@@ -142,6 +178,7 @@ const globalSchemas = [
   ...(placeSchema ? [placeSchema] : []),
   ...jsonLd,
 ];
+
 ---
 <!DOCTYPE html>
 <html lang="fr">
@@ -149,7 +186,7 @@ const globalSchemas = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription(description)} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="canonical" href={canonicalUrl} />
     {/* #29 hreflang alternates — émis uniquement si i18n activé (ENABLE_EN=1) */}
