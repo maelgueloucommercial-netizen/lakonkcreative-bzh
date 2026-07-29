@@ -164,7 +164,6 @@ Il est important de noter que les dates et les détails des événements peuvent
   <figcaption>Notre sélection sur Amazon</figcaption>
 </figure>
 
-
 - [Concarneau](https://www.amazon.fr/s?k=Concarneau&tag=guelou-21)
 - [Finistère](https://www.amazon.fr/s?k=Finist%C3%A8re&tag=guelou-21)
 - [Tourisme](https://www.amazon.fr/s?k=Tourisme&tag=guelou-21)
