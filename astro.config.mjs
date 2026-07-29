@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
+import sitemap from '@astrojs/sitemap';
+import sitemapSansNoindex from './src/lib/sitemap-noindex.mjs';
 import tailwindcss from '@tailwindcss/vite';
 import remarkAutolink from './src/lib/remark-autolink.mjs';
 import remarkImgAttrs from './src/lib/remark-img-attrs.mjs';
@@ -33,6 +34,7 @@ export default defineConfig({
         locales: { fr: 'fr-FR', en: 'en-US' },
       } : undefined,
     }),
+    sitemapSansNoindex(),
   ],
   markdown: {
     remarkPlugins: [remarkAutolink, remarkImgAttrs],
