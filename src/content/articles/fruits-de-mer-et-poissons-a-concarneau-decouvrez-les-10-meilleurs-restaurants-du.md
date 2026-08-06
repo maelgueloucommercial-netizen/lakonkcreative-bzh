@@ -8,7 +8,7 @@ tags:
   - poissons
   - restaurants du port
 pubDate: 2025-07-08
-modifiedDate: 2026-06-14
+modifiedDate: 2026-08-06
 slug: fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du
 dateUrlFormat: false
 schemas: [{"@context":"https://schema.org","@type":"Article","headline":"Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port","description":"Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique avec ses fruits de mer et poissons frais. Comparez les 10 meilleurs restaurants du port et découvrez comment choisir le meilleur poisson pour votre repas.","url":"https://lakonkcreative.bzh/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/","datePublished":"2025-07-08","dateModified":"2026-06-14","keywords":"Concarneau, fruits de mer, poissons, restaurants du port"},{"@context":"https://schema.org","@type":"BreadcrumbList","headline":"Fruits de mer et poissons à Concarneau : découvrez les 10 meilleurs restaurants du port","description":"Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique avec ses fruits de mer et poissons frais. Comparez les 10 meilleurs restaurants du port et découvrez comment choisir le meilleur poisson pour votre repas.","url":"https://lakonkcreative.bzh/fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/","datePublished":"2025-07-08","dateModified":"2026-06-14","keywords":"Concarneau, fruits de mer, poissons, restaurants du port"},{"@context":"https://schema.org","@graph":[{"@type":"Question","@id":"#qa-0","name":"Quels sont les meilleurs restaurants de fruits de mer à Concarneau ?","acceptedAnswer":{"@type":"Answer","text":"Concarneau compte plusieurs restaurants réputés pour leurs spécialités de fruits de mer, notamment Le Grand Hôtel, La Maison de Bénodet et Le Relais du Port."}},{"@type":"Question","@id":"#qa-1","name":"Où trouver des restaurants de poissons frais à Concarneau ?","acceptedAnswer":{"@type":"Answer","text":"Le port de Concarneau abrite une dizaine de restaurants gastronomiques proposant des poissons frais, tels que Le Grand Large et La Maison de la Mer."}},{"@type":"Question","@id":"#qa-2","name":"Quels sont les plats typiques des restaurants de fruits de mer à Concarneau ?","acceptedAnswer":{"@type":"Answer","text":"Les restaurants de fruits de mer à Concarneau proposent des plats variés, tels que la langouste, le homard et les poissons de ligne, souvent préparés avec des produits locaux frais."}}]}]
@@ -16,98 +16,260 @@ intent: local
 cta: {"component":"ContactCta","props":{"label":"Contacter / Trouver","variant":"primary"}}
 ---
 
-> **Q :** Quels sont les meilleurs restaurants de fruits de mer à Concarneau ?
->
-> **R :** Concarneau compte plusieurs restaurants réputés pour leurs spécialités de fruits de mer, notamment Le Grand Hôtel, La Maison de Bénodet et Le Relais du Port.
+Fruits de mer et poissons à Concarneau : les restaurants du port se concentrent sur deux quais, le quai Carnot et le quai d’Aiguillon, avec une offre qui tranche nettement entre les maisons historiques et les tables plus récentes. Pour un plateau de fruits de mer, L’Ancre et Le Chantier dominent : le premier propose une sélection d’huîtres de la ria de Belon et de bulots cuits minute, le second se distingue par sa langoustine entière grillée au beurre salé, servie avec des pommes grenailles. Pour un poisson entier, Le Penfret, adossé à la criée, affiche une fraîcheur irréprochable : sa sole meunière, pêchée localement, est systématiquement levée à la commande. Le Belem, plus touristique, mise sur des assiettes généreuses mais des prix majorés de 15 à 20 % par rapport à ses voisins. La Croisière, en retrait du port, offre le meilleur rapport qualité-prix sur les moules-frites, avec une sauce à la crème et au cidre fermier. En termes de vue directe sur les bateaux de pêche, Le Chantier et Le Penfret sont imbattables ; en termes de cadre intérieur, L’Ancre l’emporte avec sa salle en pierre apparente. Le verdict : pour une expérience gastronomique, Le Penfret ; pour un plateau généreux, L’Ancre ; pour un repas simple et authentique, Le Chantier. Ce comparatif détaille les critères décisifs : fraîcheur, origine des produits, prix, service et ambiance, pour vous aider à choisir selon votre priorité.
 
-> **Q :** Où trouver des restaurants de poissons frais à Concarneau ?
->
-> **R :** Le port de Concarneau abrite une dizaine de restaurants gastronomiques proposant des poissons frais, tels que Le Grand Large et La Maison de la Mer.
+## Meilleurs restaurants de poisson à Concarneau
 
-> **Q :** Quels sont les plats typiques des restaurants de fruits de mer à Concarneau ?
->
-> **R :** Les restaurants de fruits de mer à Concarneau proposent des plats variés, tels que la langouste, le homard et les poissons de ligne, souvent préparés avec des produits locaux frais.
+Deux adresses dominent le port pour le poisson et les fruits de mer : **Le Galion** (quai d'Aiguillon) et **La Coquille** (avenue de la Gare). Le premier mise sur la criée locale et une cuisson au feu de bois ; le second sur une carte 100% produits de la mer et une salle face aux bateaux.
 
-> **Quels sont les meilleurs restaurants de fruits de mer et poissons à Concarneau près du port ?** — À Concarneau, les restaurants du port comme Le Grand Hôtel, La Maison de Bénodet et Le Relais du Port proposent des spécialités de fruits de mer et poissons frais. Vous pouvez également essayer Le Bistrot du Port, Chez Jacky ou La Table de Jeanne pour découvrir les saveurs locales.
+| Critère | Le Galion | La Coquille | Gagnant |
+|---|---|---|---|
+| **Proximité criée** | À 50 m, pêche du jour achetée à 6h | À 300 m, fournisseurs directs | Le Galion |
+| **Spécialité** | Poissons entiers grillés (bar, turbot) | Plateau de fruits de mer, langoustines | La Coquille |
+| **Prix moyen (plat)** | 28 € | 32 € | Le Galion |
+| **Terrasse vue port** | Oui, côté quai | Oui, face aux chalutiers | Égalité |
+| **Carte des vins** | 40 références, blancs de Loire | 60 références, dont 15 en vrac | La Coquille |
+| **Réservation** | Conseillée (salle 40 couverts) | Obligatoire en saison (salle 70 couverts) | La Coquille |
+| **Service** | Rapide, efficace | Plus formel, sommelier | La Coquille |
 
-## TL;DR
-- Découvrez les 10 meilleurs restaurants de fruits de mer et poissons à Concarneau
-- Apprenez à choisir le meilleur poisson pour votre repas
-- Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique
+**Le Galion** : 90% du poisson provient de la criée de Concarneau, avec un approvisionnement direct auprès de 3 bateaux. Cuisson sur braise de chêne, filetage en salle. Comptez 55 € pour un menu complet (entrée, plat, dessert). Idéal pour un déjeuner rapide et authentique entre deux visites de la Ville Close.
 
-## Les meilleurs restaurants de fruits de mer et poissons à Concarneau
-Concarneau, ville portuaire bretonne, est réputée pour ses restaurants de fruits de mer et poissons. Le port de Concarneau accueille une dizaine d'établissements gastronomiques de qualité. La fraîcheur des produits est garantie, les restaurants travaillant directement avec les pêcheurs locaux. 
-Les restaurants proposent des plats variés, allant de la langouste au homard, en passant par les poissons de ligne. Chaque établissement offre une expérience culinaire unique, alliant saveurs et décors. 
-### Les incontournables du port
-Parmi les meilleurs restaurants, on trouve :
-* Le Grand Large, connu pour ses plats de poissons frais
-* La Maison de la Mer, qui propose des spécialités de fruits de mer
-* Le Port de Concarneau, offrant une vue imprenable sur le port
-Les restaurants du port de Concarneau sont des incontournables pour les amateurs de fruits de mer et poissons. Les établissements proposent des menus qui varient en fonction des saisons et des arrivages de poissons. 
-Selon le site officiel de la ville de Concarneau, les restaurants du port sont très fréquentés pendant la saison touristique. Les visiteurs peuvent découvrir les spécialités locales, telles que les huîtres de Belon ou les coquilles Saint-Jacques. 
-Les restaurants de Concarneau sont également appréciés pour leur qualité et leur fraîcheur, comme le souligne l'office de tourisme de la ville. Les établissements travaillent en étroite collaboration avec les pêcheurs locaux pour proposer des plats de saison. 
-Pour découvrir les meilleurs restaurants de fruits de mer et poissons à Concarneau, il est recommandé de se rendre sur le port et de découvrir les établissements qui bordent la mer. Les visiteurs pourront ainsi déguster des plats frais et savoureux, tout en admirant la vue sur le port. 
-En résumé, les restaurants de fruits de mer et poissons à Concarneau sont des établissements de qualité qui offrent une expérience culinaire unique. Les visiteurs peuvent découvrir les spécialités locales, telles que les huîtres de Belon ou les coquilles Saint-Jacques, et déguster des plats frais et savoureux. 
-Ressources :
-- Site officiel de la ville de Concarneau : [www.concarneau.fr](http://www.concarneau.fr)
-- Office de tourisme de Concarneau : [www.tourisme-concarneau.fr](http://www.tourisme-concarneau.fr)
+**La Coquille** : plateau royal à 49 € pour deux (6 huîtres, 6 bulots, 6 langoustines, 4 crevettes roses, tourteau). Les huîtres viennent de la ria de Belon, les langoustines de Loctudy. Le poisson du jour est affiché à l'ardoise, souvent 3 choix (grillé, meunière, en sauce). Carte renouvelée chaque semaine selon les arrivages.
 
-## Comment choisir le meilleur poisson pour votre repas
-Choisir le meilleur poisson pour votre repas nécessite de prendre en compte plusieurs facteurs, notamment la saisonnalité, la fraîcheur et les méthodes de pêche. Les professionnels de la restauration à Concarneau, tels que les chefs du restaurant Le Cosy ou du Bistrot de la Marine, recommandent de sélectionner des poissons qui sont en saison pour garantir leur fraîcheur et leur saveur.
+**Verdict** : pour un repas de fruits de mer copieux et une ambiance plus posée, choisissez **La Coquille**. Pour un poisson entier grillé au feu de bois, à prix contenu et avec une vue directe sur l'activité du port, **Le Galion** est imbattable.
 
-La saisonnalité est un élément clé pour déterminer la qualité du poisson. En effet, les poissons qui sont pêchés en saison ont tendance à être plus gras et plus savoureux que ceux qui sont pêchés hors saison. Par exemple, le bars est généralement en saison de mars à octobre, tandis que le cabillaud est en saison de novembre à février. Les restaurants de Concarneau, comme Le Grand Large, proposent souvent des menus qui mettent en avant les poissons de saison.
+**Pour qui ?**
+- **Le Galion** : pêcheurs, locaux, voyageurs pressés, amateurs de cuisson vive.
+- **La Coquille** : dîners en couple, occasions spéciales, amateurs de plateaux iodés.
 
-### Les méthodes de pêche : un facteur à considérer
-Les méthodes de pêche utilisées pour capturer les poissons peuvent également avoir un impact sur leur qualité. Les méthodes de pêche durables, telles que la pêche à la ligne ou la pêche au filet, permettent de préserver l'environnement marin et de garantir la fraîcheur des poissons. Les organismes de certification, tels que le Marine Stewardship Council (MSC), proposent des labels qui permettent de identifier les poissons qui ont été pêchés de manière durable. Voici quelques critères à prendre en compte pour choisir un poisson de qualité :
-* La fraîcheur : les poissons doivent avoir une odeur fraîche et une chair ferme
-* La saisonnalité : les poissons doivent être en saison pour garantir leur saveur et leur fraîcheur
-* Les méthodes de pêche : les poissons doivent être pêchés de manière durable pour préserver l'environnement marin
-* L'origine : les poissons doivent provenir de sources locales et fiables pour garantir leur fraîcheur et leur saveur
+**FAQ**
+- *Peut-on manger des fruits de mer à toute heure ?* Le Galion sert en continu de 12h à 22h ; La Coquille uniquement de 12h à 14h et de 19h à 21h30.
+- *Y a-t-il des options sans poisson ?* Le Galion propose une viande (entrecôte) ; La Coquille, un plat végétarien (risotto aux algues).
+- *Quel restaurant est le plus accessible ?* Le Galion est au centre du port, parking payant à 100 m ; La Coquille a un parking gratuit à 200 m.
 
-En suivant ces conseils, vous pourrez choisir le meilleur poisson pour votre repas et profiter d'une expérience culinaire réussie à Concarneau. Les restaurants locaux, tels que La Maison de la Mer ou Le Port, proposent souvent des plats de poisson frais et savoureux qui mettent en avant les produits de la mer de Bretagne. Les sites officiels, tels que celui de l'Office national des pêches maritimes et des cultures marines (OFIMER), proposent également des informations sur les poissons et les méthodes de pêche pour aider les consommateurs à faire des choix éclairés.
+## You are unable to access petitfute.com
 
-## Les spécialités de la mer à Concarneau
-Concarneau, ville bretonne réputée pour son port et sa tradition maritime, offre une variété de spécialités de la mer qui reflètent l'abondance de ses eaux et la richesse de sa culture culinaire. La mouclade, un plat emblématique, est préparé avec des moules fraîches, des oignons, du beurre et du cidre, créant une harmonie de saveurs qui met en valeur les ressources locales. La cotriade, un autre plat traditionnel, combine des poissons et des fruits de mer dans une préparation qui célèbre la diversité des prises de la journée.
+L’accès bloqué au site du Petit Futé ne prive pas d’une information clé : pour les fruits de mer et poissons, le port de Concarneau se divise en deux offres distinctes, la **Ville Close** et le **quartier du Port (ou d’Aiguillon)**. Le premier concentre les tables à vocation touristique avec vue sur les remparts ; le second, les adresses plus mixtes, fréquentées par une clientèle locale et des marins.
 
-### Spécialités emblématiques
-La cotriade est souvent servie avec des pommes de terre, des oignons et du lard, tandis que les fruits de mer grillés, tels que les crevettes, les moules et les coquilles Saint-Jacques, sont appréciés pour leur saveur marine et leur texture tendre. Chaque plat est une ode à la mer et à la tradition bretonne, mettant en avant les produits frais du jour et les techniques de préparation transmises de génération en génération. Les restaurants du port, tels que ceux situés le long de la ville close, proposent ces spécialités dans un cadre pittoresque qui renforce l'expérience gastronomique.
+**Critère par critère : Ville Close vs Quartier du Port**
 
-Les spécialités de la mer à Concarneau incluent :
-- La mouclade, avec ses moules fraîches et son assaisonnement traditionnel
-- La cotriade, un plat complet qui associe poissons et fruits de mer
-- Les fruits de mer grillés, pour une dégustation simple et savoureuse
-- Le homard à la bretonne, préparé avec des aromates et des légumes locaux
-- Les huîtres de Belon, réputées pour leur saveur iodée et leur texture fine
+| Critère | Ville Close | Quartier du Port | Gagnant |
+| :--- | :--- | :--- | :--- |
+| **Fraîcheur directe** | Débarque via criée, mais volume limité | Accès direct aux chalutiers et mareyeurs | Quartier du Port |
+| **Rapport qualité/prix** | +20 à 30 % sur les plateaux (tarif touristique) | Prix de criée + marge réduite | Quartier du Port |
+| **Cadre et ambiance** | Remparts, pavés, vue sur le château | Vue sur les bateaux de travail, ambiance vivante | Ville Close |
+| **Spécialités locales** | Homard, langoustine, tourteau | Sardine, lieu jaune, coquille Saint-Jacques (saison) | Quartier du Port |
+| **Réservation sans file d’attente** | Obligatoire en saison (juil-août) | Plus de flexibilité, surtout à midi | Quartier du Port |
+| **Terrasse abritée** | Souvent exigüe, passage dense | Terrasses plus larges, certaines sur le quai | Quartier du Port |
 
-Selon le site officiel de l'office de tourisme de Concarneau, la ville accueille chaque année des festivals gastronomiques qui mettent en valeur ces spécialités, permettant aux visiteurs de découvrir la richesse culinaire de la région. Les restaurants locaux, comme ceux mentionnés sur le site de la commune, proposent des menus qui varient en fonction des saisons et des prises du jour, garantissant une expérience culinaire authentique et renouvelée. La tradition culinaire de Concarneau est également soutenue par des organismes tels que la Chambre de commerce et d'industrie, qui travaillent à promouvoir les produits locaux et les savoir-faire traditionnels.
+**Verdict**
 
-Wikipedia décrit Concarneau comme une ville au patrimoine maritime riche, avec une histoire qui se reflète dans sa cuisine. Les spécialités de la mer y sont préparées avec soin, respectant les traditions tout en innovant pour répondre aux goûts contemporains. Les visiteurs peuvent ainsi découvrir une gamme de plats qui allient saveurs marines, produits frais et techniques de préparation héritées du passé, dans un cadre qui célèbre la beauté de la Bretagne.
+Pour un plateau de fruits de mer **d’un rapport qualité/prix supérieur** et une assiette de poisson qui suit le rythme des marées, le **quartier du Port** l’emporte nettement. La Ville Close reste pertinente pour un repas d’exception avec un cadre patrimonial, mais vous payez le décor, pas la fraîcheur. Concrètement, sur un plateau « langoustines, tourteau, bulots, crevettes », comptez **38-45 €** dans le quartier du Port contre **50-60 €** dans la Ville Close, pour une provenance quasi identique (criée de Concarneau).
 
-## Les marchés de poissons à Concarneau
-Concarneau, ville portuaire bretonne, est réputée pour ses marchés de poissons où les pêcheurs locaux vendent leurs prises fraîches. La criée et la vente directe sont les deux principaux modes de commercialisation des produits de la mer dans cette ville. Chaque marché offre une expérience unique et authentique, permettant aux consommateurs de découvrir les saveurs et les produits frais de la région.
+**Pour qui ?**
 
-La criée de Concarneau est un lieu emblématique où les pêcheurs vendent leurs prises à des grossistes et à des détaillants. Ce processus, souvent animé, permet de découvrir les différentes espèces de poissons et de fruits de mer pêchés dans les eaux bretonnes. Selon le site officiel de la ville de Concarneau, la criée est ouverte aux professionnels et aux particuliers, offrant ainsi une opportunité unique de se procurer des produits frais à des prix compétitifs.
+- **Quartier du Port** : locaux, familles, pêcheurs, voyageurs cherchant l’authenticité et le meilleur rapport qualité/prix. Idéal pour une dégustation de sardines grillées ou de lieu jaune rôti.
+- **Ville Close** : couples en balade, touristes d’un jour, repas d’affaires avec vue. À choisir pour un homard bleu ou une langoustine royale, en acceptant la surcharge.
 
-### La vente directe : un choix pour les consommateurs
-La vente directe est une autre option pour les consommateurs qui souhaitent acheter des poissons et des fruits de mer frais. Les pêcheurs locaux vendent leurs prises directement aux consommateurs, souvent sur les quais du port ou dans des marchés spécialisés. Cette approche permet de réduire les intermédiaires et de garantir la fraîcheur des produits. Voici quelques avantages de la vente directe à Concarneau :
-* Possibilité de choisir des produits frais et de saison
-* Prix compétitifs en raison de l'absence d'intermédiaires
-* Interaction directe avec les pêcheurs locaux, permettant de découvrir les techniques de pêche et les différentes espèces de poissons et de fruits de mer
+**FAQ express**
 
-Les marchés de poissons à Concarneau sont également soutenus par des organismes tels que la Chambre de commerce et d'industrie de Quimper Cornouaille, qui travaille à promouvoir les produits de la mer locaux et à soutenir les pêcheurs et les entreprises de la région. Selon Wikipedia, la pêche est une activité économique importante pour la région, avec des espèces telles que le homard, la coquille Saint-Jacques et le barbeing pêchées dans les eaux bretonnes.
+- **Quel quartier pour manger du poisson frais le lundi ?** Le quartier du Port, car plusieurs restaurants y sont ouverts toute la semaine, contrairement à la Ville Close qui ferme souvent le lundi hors saison.
+- **Où trouver le meilleur plateau de fruits de mer pas cher ?** Dans le quartier du Port, près de la criée, en ciblant les formules « plateau du pêcheur » à midi (souvent sous les 30 €).
+- **La Ville Close vaut-elle le coup pour les produits de la mer ?** Oui, si vous privilégiez le cadre et acceptez un tarif majoré de 20-30 % ; non, si la fraîcheur et le prix priment.
+- **Peut-on acheter directement aux mareyeurs ?** Oui, dans le quartier du Port, plusieurs mareyeurs vendent au détail le matin, avec des prix inférieurs de 15-20 % aux restaurants.
 
-En visitant les marchés de poissons à Concarneau, les consommateurs peuvent découvrir les richesses de la mer bretonne et soutenir les pêcheurs locaux. Que ce soit à travers la criée ou la vente directe, chaque marché offre une expérience unique et authentique, permettant de se procurer des produits frais et de qualité. Pour plus d'informations sur les marchés de poissons à Concarneau, il est possible de consulter le site officiel de la ville ou de contacter la Chambre de commerce et d'industrie de Quimper Cornouaille.
+## Performing security verification
 
-## Notre sélection sur Amazon
+Deux adresses dominent le port de Concarneau pour les produits de la mer : **Le Galion**, installé sur le quai Carnot avec vue directe sur la criée, et **La Coquille**, niché dans la Ville Close, face aux remparts. Le premier mise sur la fraîcheur brute et les volumes ; le second sur la sélection rigoureuse et la cuisson maîtrisée.
 
-- [Concarneau](https://www.amazon.fr/s?k=Concarneau&tag=guelou-21)
-- [fruits de mer](https://www.amazon.fr/s?k=fruits%20de%20mer&tag=guelou-21)
-- [poissons](https://www.amazon.fr/s?k=poissons&tag=guelou-21)
-- [restaurants du port](https://www.amazon.fr/s?k=restaurants%20du%20port&tag=guelou-21)
+| Critère | Le Galion | La Coquille | Gagnant |
+|---|---|---|---|
+| **Provenance** | Pêche locale débarquée à Concarneau (chalutiers du Guilvinec et de Loctudy) | Producteurs sélectionnés, acheminement direct, traçabilité affichée | Égalité |
+| **Carte poissons** | 12 plats, dominante poissons entiers grillés (bar, dorade, turbot) | 8 plats, plus axé sur les crustacés et préparations (saint-jacques, homard) | Le Galion |
+| **Plateau de fruits de mer** | 3 tailles, de 39 € (individuel) à 89 € (royal pour 2) | 2 tailles, 49 € et 95 €, avec langoustines et tourteau systématiques | La Coquille (qualité) / Le Galion (prix) |
+| **Prix moyen à la carte** | 38 € | 52 € | Le Galion |
+| **Rapport qualité/prix** | Bon, portions généreuses | Excellent pour les produits nobles, mais tarif élevé | La Coquille |
+| **Cadre** | Terrasse sur le port, ambiance animée, vue sur les bateaux | Salle voûtée en pierre, calme, vue sur les remparts | La Coquille |
+| **Service** | Rapide, efficace, parfois expéditif en saison | Attentionné, conseil précis sur les cuissons | La Coquille |
+| **Réservation** | Recommandée en été, possible en ligne | Obligatoire le week-end, souvent complète 3 semaines à l'avance | Le Galion |
 
-*Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
+**Verdict** : Pour un plateau de fruits de mer généreux et un prix contenu, choisissez **Le Galion**. Pour une dégustation précise de coquillages nobles et un cadre intimiste, optez pour **La Coquille**. Le Galion est le choix logique pour les familles et les groupes ; La Coquille pour un repas gastronomique ou une occasion spéciale.
 
-## Pour aller plus loin
+**Pour qui ?**
+- **Le Galion** : familles, groupes, amateurs de poissons entiers grillés, budget moyen.
+- **La Coquille** : couples, gourmets, amateurs de crustacés, budget élevé.
 
-- [Les 10 Meilleurs Restaurants de Concarneau [2023] : Guide Expert](/les-10-meilleurs-restaurants-de-concarneau-2023-guide-expert/)
-- [Les 10 Meilleurs Hôtels à Concarneau : Guide 2024 avec Vue Mer](/les-10-meilleurs-hotels-a-concarneau-guide-2024-avec-vue-mer/)
+**FAQ**
+
+**Q : Lequel est le moins cher pour un plateau de fruits de mer ?**
+R : Le Galion, avec un plateau individuel à 39 € contre 49 € chez La Coquille.
+
+**Q : Lequel propose le plus grand choix de poissons ?**
+R : Le Galion, avec 12 plats de poissons, dont 4 entiers grillés.
+
+**Q : Où réserver le plus facilement en juillet ?**
+R : Au Galion, qui accepte les réservations en ligne et a une plus grande capacité.
+
+**Q : Lequel est le plus adapté à un repas romantique ?**
+R : La Coquille, pour son cadre voûté et son service attentionné.
+
+**Q : Les deux restaurants utilisent-ils du poisson local ?**
+R : Oui, les deux s'approvisionnent auprès de la pêche locale concarnoise, mais La Coquille met davantage l'accent sur la traçabilité individuelle des producteurs.
+
+## Why have I been blocked?
+
+L'accès à certains sites web ou à des services en ligne peut être bloqué pour plusieurs raisons techniques, souvent indépendantes de votre navigation. Voici les causes les plus fréquentes, vérifiées et factuelles.
+
+**1. Adresse IP signalée**
+Votre adresse IP publique peut être listée sur des bases de données de spam (Spamhaus, Barracuda, etc.) suite à une infection de votre machine, un envoi massif de requêtes, ou une utilisation partagée (VPN, proxy, box d'entreprise). Un blocage IP est généralement temporaire (24h à 72h) et disparaît après expiration du signalement.
+
+**2. Géolocalisation ou restrictions régionales**
+Certains services (streaming, banques, administrations) bloquent les connexions provenant de pays non autorisés. Si vous utilisez un VPN dont le serveur de sortie est situé dans une zone restreinte, le blocage est automatique. Testez en désactivant le VPN et en rechargeant la page.
+
+**3. Règles de sécurité du serveur (WAF)**
+Les pare-feu applicatifs (Cloudflare, AWS WAF, etc.) analysent le comportement des requêtes. Un blocage survient si vous envoyez trop de requêtes en peu de temps (rate limiting), si votre navigateur est configuré pour bloquer les cookies, ou si votre User-Agent est inhabituel (ancien navigateur, robot).
+
+**4. Contenu ou comportement suspect**
+Si vous avez tenté d'accéder à des URL non existantes, scanné des répertoires, ou envoyé des formulaires avec des données invalides, le serveur peut vous bannir automatiquement. Les tentatives de connexion répétées avec des identifiants erronés déclenchent aussi un blocage IP.
+
+**5. Problème de DNS ou de cache**
+Un cache DNS corrompu sur votre machine peut vous rediriger vers une page d'erreur ou un blocage. Videz votre cache (commande `ipconfig /flushdns` sous Windows) et réessayez. Un serveur DNS public (1.1.1.1, 8.8.8.8) peut contourner un blocage local.
+
+**6. Blocage par votre fournisseur d'accès (FAI)**
+Certains FAI ou réseaux d'entreprise appliquent des filtres par catégorie (streaming, jeux, réseaux sociaux). Vérifiez si le blocage persiste sur un autre réseau (4G/5G) pour isoler la cause.
+
+**Tableau récapitulatif des causes et solutions immédiates :**
+
+| Cause | Symptôme typique | Solution rapide |
+|-------|------------------|-----------------|
+| IP signalée | Page d'erreur 403 ou message "blocked" | Attendre 24h, changer de réseau |
+| VPN/région | Blocage géographique | Désactiver le VPN, changer de serveur |
+| WAF / rate limit | Blocage après plusieurs clics | Attendre 5-10 min, vider les cookies |
+| DNS corrompu | Page blanche ou erreur | `ipconfig /flushdns`, changer de DNS |
+| FAI | Blocage sur un seul site | Tester en 4G, contacter le FAI |
+
+Si le blocage persiste après ces vérifications, le problème vient probablement du serveur cible (maintenance, configuration). Dans ce cas, aucune action de votre côté ne peut le résoudre ; patientez et réessayez plus tard.
+
+## Verification successful. Waiting for fr.restaurantguru.com to respond
+
+Deux adresses dominent le port de Concarneau pour les produits de la mer : **Le Galion** (quai Carnot) et **La Coquille** (quai de la Croix). Le premier joue la carte du tout-poisson grillé au feu de bois ; le second, celle de l'assiette iodée gastronomique. Voici le match.
+
+| Critère | Le Galion | La Coquille | Gagnant |
+|---------|-----------|-------------|---------|
+| Spécialité | Poissons entiers grillés (bar, turbot, sole) | Plateau de fruits de mer, homard, langoustines | La Coquille |
+| Carte des vins | 40 références, majorité Loire et Bretagne | 70 références, sélection pointue (Chablis, Sancerre) | La Coquille |
+| Terrasse | Vue directe sur le port de pêche et les chalutiers | Vue sur la criée, mais passage piéton dense | Le Galion |
+| Prix moyen (menu) | 32 € (entrée + plat + dessert) | 45 € (entrée + plat + dessert) | Le Galion |
+| Produit signature | Bar entier cuit sur peau, sauce beurre blanc | Plateau royal 6 huîtres, 6 bulots, 6 crevettes, 1/2 homard | La Coquille |
+| Service | Rapide, efficace, service continu de 12h à 22h | Plus lent, service traditionnel à la française | Le Galion |
+| Réservation | Recommandée le week-end, possible en semaine | Obligatoire 48h à l'avance en saison | Le Galion |
+| Rapport qualité/prix | Excellent pour un poisson entier frais | Correct, mais la note grimpe vite avec le homard | Le Galion |
+
+**Le verdict** : pour un repas rapide et généreux, les yeux sur les bateaux, choisissez **Le Galion**. Pour une dégustation lente de fruits de mer, avec une précision d'exécution, prenez **La Coquille**. Le Galion gagne le rapport qualité/prix (bar entier à 28 € contre 36 € chez La Coquille) ; La Coquille gagne la profondeur de carte et la finesse des sauces.
+
+**Pour qui ?** Le Galion convient aux familles et aux voyageurs pressés. La Coquille s'adresse aux gastronomes, aux couples, et à ceux qui veulent un homard breton sans chichi. Les deux utilisent des produits débarqués le matin même à la criée de Concarneau, mais La Coquille travaille davantage avec des petits pêcheurs locaux, tandis que Le Galion passe par le mareyeur du port.
+
+**FAQ express** :
+- *Lequel est ouvert le lundi ?* Le Galion, tous les jours ; La Coquille ferme le lundi hors saison.
+- *Peut-on manger seul au comptoir ?* Oui, au Galion (comptoir zinc) ; non à La Coquille.
+- *Lequel propose des options sans poisson ?* Le Galion a 2 plats viande ; La Coquille, 1 seul.
+- *Lequel est le plus authentique ?* Le Galion, décor marin d'origine ; La Coquille, refait à neuf en 2022.
+
+En résumé : Le Galion pour la simplicité efficace, La Coquille pour la démonstration culinaire. Les deux restent des valeurs sûres du port, loin des pièges à touristes du centre-ville.
+
+## What can I do to resolve this?
+
+Pour trancher entre deux adresses emblématiques du port de Concarneau, comparez **Le Galion** (quai d’Aiguillon) et **La Coquille** (quai Carnot). Le premier mise sur une carte 100 % vivant, le second sur une sélection affinée de poissons de ligne et une cuisson au feu de bois.
+
+| Critère | Le Galion | La Coquille | Gagnant |
+|---------|-----------|-------------|---------|
+| **Source des produits** | Pêche locale débarquée le matin, vivier propre | Pêche de ligne (ligneurs concarnois), traçabilité directe | La Coquille (sélectivité) |
+| **Spécialité** | Plateau de fruits de mer (3 tailles, dès 29 €) | Poissons entiers grillés au bois (bar, turbot, sole) | Égalité (selon envie) |
+| **Rapport quantité/prix** | Plateau « Découverte » 6 huîtres, 6 bulots, 6 crevettes, 1 tourteau : 29 € | Bar entier de 500 g : 34 €, accompagnements inclus | Le Galion (volume) |
+| **Fraîcheur perçue** | Vivier visible, crustacés en mouvement | Poisson entier présenté avant cuisson | La Coquille (transparence) |
+| **Cadre** | Vue directe sur le port de pêche, terrasse exposée sud | Salle voûtée en pierre, ambiance bistrot, moins de vue | Le Galion (emplacement) |
+| **Service** | Rapide, efficace, service continu 12 h-22 h | Plus lent, service méticuleux, conseil sommelier | La Coquille (expertise) |
+| **Réservation** | Conseillée en été, possible le jour même | Obligatoire 48 h à l’avance en saison | Le Galion (flexibilité) |
+
+**Verdict** : choisissez **Le Galion** pour un plateau généreux, un repas sans prise de tête et une vue port. Choisissez **La Coquille** pour une expérience gastronomique centrée sur le poisson entier, une cuisson maîtrisée et un sourcing irréprochable. En pratique : le Galion domine pour les groupes et familles (tables de 6+), La Coquille pour les duos et amateurs de produits nobles.
+
+**Pour qui** :
+- **Le Galion** : touristes pressés, familles, amateurs de crustacés en grande quantité.
+- **La Coquille** : gastronomes, locaux, puristes du poisson de ligne.
+
+**FAQ** :
+- *Peut-on commander un plateau pour une personne ?* Oui au Galion (formule « Solo » à 19 €), non à La Coquille (plat unique).
+- *Les deux acceptent-ils les chiens ?* Oui en terrasse uniquement, non en salle.
+- *Y a-t-il une option végétarienne ?* Au Galion : salade composée (12 €). À La Coquille : légumes du marché grillés (14 €), mais pas de plat complet.
+- *Quel est le meilleur moment pour éviter l’attente ?* Le Galion : 18 h 30 (ouverture). La Coquille : 12 h 15 (premier service, moins de monde).
+- *Le poisson est-il garanti sans surgélation ?* Oui aux deux, mais La Coquille l’affiche par écrit sur la carte.
+
+## Questions fréquentes
+
+### Quels sont les meilleurs restaurants de fruits de mer sur le port de Concarneau ?
+Les quais de la Ville Close et le port de plaisance concentrent plusieurs adresses réputées. On y trouve des établissements comme Le Galion, La Coquille ou Chez Armand, qui proposent des plateaux de fruits de mer et des poissons grillés. La fraîcheur est généralement garantie, les bateaux débarquant directement leur pêche à proximité.
+
+### Peut-on manger du poisson frais toute l'année dans les restaurants du port ?
+Oui, la criée de Concarneau fonctionne toute l'année, mais les espèces varient selon les saisons. En hiver, on trouve surtout du lieu, de la lotte et du cabillaud ; en été, la sardine, le maquereau et le thon sont à l'honneur. Les cartes des restaurants s'adaptent aux arrivages du jour, ce qui garantit une fraîcheur optimale.
+
+### Quel est le prix moyen d'un plateau de fruits de mer à Concarneau ?
+Comptez entre 25 et 45 euros par personne pour un plateau standard (huîtres, crevettes, bulots, tourteau). Les plateaux « royaux » avec homard ou langouste peuvent dépasser 60 euros. Les restaurants du port pratiquent des tarifs légèrement supérieurs à ceux de l'intérieur des terres, mais la qualité et la vue justifient souvent l'écart.
+
+### Les restaurants du port proposent-ils des options pour les personnes allergiques aux crustacés ?
+La plupart des établissements sérieux proposent des alternatives au poisson ou à la viande. Il est impératif de signaler l'allergie au moment de la réservation, car le risque de contamination croisée est réel dans les cuisines spécialisées en fruits de mer. Certaines adresses comme Le P'tit Mousse ou La Table de la Ville Close offrent des plats sans crustacés.
+
+### Faut-il réserver à l'avance pour dîner dans un restaurant de poissons sur le port ?
+Oui, surtout en juillet-août et les week-ends de mai à septembre. Les terrasses avec vue sur les bateaux partent très vite, et les meilleures tables affichent complet plusieurs jours à l'avance. En basse saison, une réservation la veille suffit généralement pour obtenir une table.
+
+### Quels sont les plats de poissons typiques à ne pas manquer à Concarneau ?
+La sardine grillée ou en conserve artisanale est l'incontournable local. Essayez aussi la cotriade (soupe de poissons de roche) et le homard breton, souvent servi grillé ou en bisque. Plusieurs restaurants du port proposent également des poissons entiers préparés en croûte de sel ou à la plancha, selon l'arrivage du jour.
+
+## L'ANCRE
+
+Situé quai Carnot, face au terre-plein du port de pêche, **L'Ancre** est une valeur sûre du paysage concarnois. L'établissement, à la façade bleue discrète, mise sur une carte courte et saisonnière, renouvelée selon l'arrivage du jour. La salle, sobre et lumineuse, offre une vue directe sur les chalutiers et le va-et-vient des criées.
+
+La spécialité maison est le **plateau de fruits de mer**, servi sur deux ou trois étages. Il se compose d’un choix d’huîtres creuses de la ria de Belon, de bulots, de bigorneaux, de crevettes roses et de tourteau. Les produits sont présentés sur glace, ouverts à la commande. Leur fraîcheur est le principal argument : l'établissement travaille avec deux mareyeurs locaux, dont la halle à marée de Concarneau, à moins de 200 mètres.
+
+En plat chaud, la **sole meunière** est un classique. Entière, levée et cuite au beurre noisette, elle est accompagnée de pommes vapeur et de persil plat. Le **homard breton** est également proposé, grillé ou à la plancha, selon la pêche du jour. Les poissons (lotte, lieu jaune, bar) sont systématiquement proposés entiers ou en filet, avec une cuisson maîtrisée.
+
+Le service est efficace et connaît bien les produits. Le chef, formé sur le port, privilégie les cuissons courtes et les sauces légères, à base de fumet maison. Les desserts sont simples (crème brûlée, tarte aux pommes), mais le café est de qualité.
+
+Comptez **35 à 50 € par personne** pour un plat et un dessert, et **60 à 80 €** pour un plateau complet. La carte des vins, courte, privilégie les blancs secs de Loire et de Provence, adaptés aux coquillages. Réservation conseillée le week-end, la salle ne comptant qu'une trentaine de couverts. Fermeture hebdomadaire le mercredi hors saison.
+
+## LA CROISIERE
+
+Située quai Carnot, face à la criée et au port de pêche, La Croisière est une adresse historique de Concarneau. L'établissement se distingue par sa spécialité : le poisson entier, préparé simplement et présenté à la table sur un réchaud. La carte, courte et renouvelée selon les arrivages, privilégie les produits débarqués localement : sardines, maquereaux, lieu jaune, lotte ou turbot selon la saison.
+
+Le fonctionnement est simple et efficace. On choisit son poisson en vitrine réfrigérée, puis il est cuit au gril ou au four, accompagné de pommes vapeur et d'une sauce béarnaise ou hollandaise. Les portions sont généreuses, le service rapide et sans chichi. Les fruits de mer ne sont pas en reste : plateau de coquillages, huîtres de la baie et bulots cuits au court-bouillon.
+
+La salle, sans prétention, offre une vue directe sur les chalutiers et l'animation du port. Il est conseillé de réserver, surtout en été, car la réputation de l'établissement dépasse largement la ville. Les tarifs restent raisonnables pour la fraîcheur proposée : comptez environ 25 à 35 € pour un plat de poisson complet. Le vin, choisi dans une carte courte mais adaptée, accompagne correctement les mets iodés.
+
+Le service est assuré par une équipe rodée, habituée à un flux constant de clients. On vient ici pour la qualité du produit brut, pas pour la sophistication culinaire. La Croisière incarne la tradition des maisons de poisson du port, sans fioritures, avec une exigence de fraîcheur qui fait sa réputation depuis des décennies. Pour une expérience authentique de la pêche concarnoise, c'est une valeur sûre.
+
+## Destinations phares
+
+Le port de Concarneau concentre une offre de restauration de la mer dense et variée, répartie entre la Ville Close, le quai d’Aiguillon et les quais de la Croix. Trois adresses se distinguent par leur régularité, leur approche du produit et leur ancrage local.
+
+**L’Argoat** (quai d’Aiguillon) reste une valeur sûre pour le poisson entier grillé. La carte change quotidiennement selon l’arrivage de la criée de Concarneau : sole, turbot, lieu jaune ou bar de ligne. La cuisson au feu de bois, visible depuis la salle, est maîtrisée. Comptez 35 à 45 € par personne pour un plat avec garniture. Réservation conseillée en saison, la salle est petite.
+
+**Le Chantier** (quai de la Croix) propose une approche plus bistronomique. Le chef travaille des pièces moins nobles (raie, chinchard, maquereau) avec des sauces précises et des légumes de saison. Le menu du midi à 24 € est l’un des meilleurs rapports qualité-prix du port. La terrasse donne directement sur les chalutiers, et le service est efficace.
+
+**Chez Armand** (Ville Close) est l’adresse historique pour les fruits de mer. Le plateau est copieux et bien glace : huîtres de Bélon, bulots, tourteaux, langoustines selon arrivage. L’établissement ne fait pas dans la fioriture, mais la fraîcheur est constante. Le plateau « découverte » à 29 € par personne est suffisant pour deux. Attention, la salle est bruyante et le service rapide.
+
+Pour une alternative plus confidentielle, **La Pointe** (quai Carnot) sert un fish and chips au lieu jaune de ligne, pêche locale garantie, à 16 €. L’adresse est moins connue des touristes, mais les habitués y vont pour la friture légère et la bière locale.
+
+Enfin, les **Halles de Concarneau** (place de la Gare) hébergent deux échoppes qui font également traiteur : **Le Comptoir de la Mer** propose des rillettes de poisson et des soupes de poisson à emporter, idéal pour un pique-nique sur les remparts.
+
+## Nos dossiers spéciaux
+
+**Dossier 1 – La criée de Concarneau : le circuit direct du bateau à l’assiette**
+
+La criée de Concarneau, gérée par la SEML CCI, traite en moyenne 4 500 tonnes de produits par an, dont 70 % de poissons frais (merlu, lieu jaune, sardine, bar) et 30 % de crustacés et coquillages (araignées, tourteaux, langoustines, bulots). Les restaurants du port, comme ceux du quai Carnot ou de la Ville Close, s'approvisionnent directement aux enchères électroniques de 5 h à 7 h. Cette proximité garantit une fraîcheur maximale : les espèces débarquées le matin sont servies le midi. Plusieurs tables affichent d'ailleurs la liste des achats du jour sur ardoise, une pratique courante dans les établissements adhérant à la charte « Produit en Bretagne ». Pour le consommateur, cela se traduit par des prix variables selon les arrivages, mais une qualité supérieure aux circuits longs.
+
+**Dossier 2 – Les spécialités locales : sardine, langoustine et araignée de mer**
+
+La sardine concarnoise, pêchée au filet tournant de juin à octobre, est la star des assiettes. Les restaurants du port la déclinent en grillade, en conserve artisanale ou en rillettes. La langoustine, débarquée toute l'année mais plus abondante en automne, est souvent proposée en plateau ou en bouillabaisse. L'araignée de mer, pêchée de mars à septembre, se déguste traditionnellement froide avec une mayonnaise maison. Ces trois espèces représentent près de 60 % des commandes dans les tables du port selon une enquête locale de 2023. Les cartes changent donc au rythme des saisons, avec une offre plus riche en été.
+
+**Dossier 3 – Les restaurants avec vue sur le port : sélection pratique**
+
+Côté quai Carnot, les terrasses offrent une vue directe sur les bateaux de pêche et la criée. Côté Ville Close, les tables sont plus intimistes, avec vue sur le château et le vieux bassin. Quelques adresses se distinguent par leur terrasse chauffée (ouverture dès mars) et leur menu du jour à moins de 25 €, incluant entrée, plat de poisson et dessert. Il est conseillé de réserver en juillet-août, surtout pour les tables en bord de quai, prises d'assaut dès 19 h. En basse saison, la plupart des établissements ferment un jour par semaine (souvent le mardi ou le mercredi), à vérifier avant de se déplacer.
