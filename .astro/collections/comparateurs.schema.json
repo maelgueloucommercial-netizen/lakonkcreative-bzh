@@ -1,0 +1,352 @@
+{
+  "$ref": "#/definitions/comparateurs",
+  "definitions": {
+    "comparateurs": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "category": {
+          "type": "string"
+        },
+        "pubDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "modifiedDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "seoScore": {
+          "type": "number"
+        },
+        "keywordVolume": {
+          "type": "number"
+        },
+        "noindex": {
+          "type": "boolean"
+        },
+        "heroImage": {
+          "type": "string"
+        },
+        "heroImageAlt": {
+          "type": "string"
+        },
+        "affiliateDisclosure": {
+          "type": "boolean",
+          "default": true
+        },
+        "specColumns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rank": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              },
+              "brand": {
+                "type": "string"
+              },
+              "image": {
+                "type": "string"
+              },
+              "badge": {
+                "type": "string"
+              },
+              "bestFor": {
+                "type": "string"
+              },
+              "note": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "noteMax": {
+                "type": "number",
+                "default": 10
+              },
+              "reviewCount": {
+                "type": "number"
+              },
+              "price": {
+                "type": "string"
+              },
+              "specs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "pros": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "cons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "verdict": {
+                "type": "string"
+              },
+              "ctaUrl": {
+                "type": "string"
+              },
+              "ctaLabel": {
+                "type": "string",
+                "default": "Voir le prix"
+              },
+              "merchants": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "url"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "priceLow": {
+                "type": "number"
+              },
+              "priceHigh": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string",
+                "default": "EUR"
+              },
+              "reviewUrl": {
+                "type": "string"
+              },
+              "imageAlt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "topPicks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "itemRank": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "label",
+              "itemRank"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "usagePicks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "usage": {
+                "type": "string"
+              },
+              "itemRank": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "usage",
+              "itemRank"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "verdict": {
+          "type": "string"
+        },
+        "methodology": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "takeaways": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "relatedGuides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "titre": {
+                "type": "string"
+              },
+              "desc": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "titre",
+              "desc"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "faq": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "question",
+              "answer"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "category",
+        "pubDate"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

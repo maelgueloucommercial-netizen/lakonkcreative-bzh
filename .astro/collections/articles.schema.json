@@ -1,0 +1,233 @@
+{
+  "$ref": "#/definitions/articles",
+  "definitions": {
+    "articles": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "pubDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "modifiedDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "slug": {
+          "type": "string"
+        },
+        "wpPostId": {
+          "type": "number"
+        },
+        "legacyUrl": {
+          "type": "string"
+        },
+        "sponsored": {
+          "type": "boolean",
+          "default": false
+        },
+        "seoScore": {
+          "type": "number"
+        },
+        "dateUrlFormat": {
+          "type": "boolean",
+          "default": true
+        },
+        "urlYear": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "urlMonth": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "urlDay": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "heroImage": {
+          "type": "string"
+        },
+        "heroImageAlt": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "category": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "localBusiness": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "noindex": {
+          "type": "boolean"
+        },
+        "faq": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "question",
+              "answer"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "pageType": {
+          "type": "string",
+          "enum": [
+            "article",
+            "hub",
+            "faq",
+            "lexique",
+            "recette",
+            "listicle",
+            "tutoriel",
+            "comparatif",
+            "guideAchat",
+            "avisMarque",
+            "actualite"
+          ]
+        },
+        "glossaryTerm": {
+          "type": "string"
+        },
+        "clusterSlugs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "relatedTerms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "eventDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "eventEndDate": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "eventLocation": {
+          "type": "string"
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "pubDate",
+        "slug"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

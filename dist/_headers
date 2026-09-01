@@ -1,0 +1,13 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://push-sdk.com https://*.push-sdk.com 'unsafe-inline' https://unpkg.com https://static.cloudflareinsights.com https://plausible.io https://*.felleries.fr https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.googletagservices.com https://*.google.com https://*.doubleclick.net https://adservice.google.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://*.googlesyndication.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://push-sdk.com https://*.push-sdk.com https://api.open-meteo.com https://cloudflareinsights.com https://plausible.io https://*.felleries.fr https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://www.openstreetmap.org; frame-ancestors 'self'
+
+/*.xml
+  Content-Type: application/xml; charset=utf-8
+
+/*.txt
+  Content-Type: text/plain; charset=utf-8

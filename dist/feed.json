@@ -1,0 +1,448 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Concarneau",
+  "home_page_url": "https://lakonkcreative.bzh/",
+  "feed_url": "https://lakonkcreative.bzh//feed.json",
+  "description": "Vie locale, patrimoine et tourisme à Concarneau",
+  "language": "fr-FR",
+  "favicon": "https://lakonkcreative.bzh//favicon.svg",
+  "icon": "https://lakonkcreative.bzh//favicon.svg",
+  "items": [
+    {
+      "id": "https://lakonkcreative.bzh//concarneau-une-cite-fortifiee-millenaire-decouvrez-son-histoire-de-1000-a-1500/",
+      "url": "https://lakonkcreative.bzh//concarneau-une-cite-fortifiee-millenaire-decouvrez-son-histoire-de-1000-a-1500/",
+      "title": "Concarneau, une cité fortifiée millénaire : découvrez",
+      "summary": "Découvrez l'histoire de Concarneau, une cité fortifiée bretonne, de ses origines au Moyen Âge.",
+      "date_published": "2026-05-19T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "histoire",
+        "cité fortifiée",
+        "Moyen Âge"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//les-plages-de-concarneau-decouvrez-les-3-meilleures-plages-de-sables-blancs-cabe/",
+      "url": "https://lakonkcreative.bzh//les-plages-de-concarneau-decouvrez-les-3-meilleures-plages-de-sables-blancs-cabe/",
+      "title": "Les plages de Concarneau : découvrez les 3 meilleures",
+      "summary": "Concarneau, ville côtière bretonne, abrite trois plages de renom : Sables Blancs, Cabellou et Kerleven.",
+      "date_published": "2026-05-19T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "plages de Concarneau",
+        "Sables Blancs",
+        "Cabellou",
+        "Kerleven",
+        "vacances en Bretagne"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-l-histoire-de-concarneau-1000-ans-de-richesse-maritime-et-commerciale/",
+      "url": "https://lakonkcreative.bzh//decouvrez-l-histoire-de-concarneau-1000-ans-de-richesse-maritime-et-commerciale/",
+      "title": "Histoire de Concarneau : 1000 Ans de Richesse Maritime",
+      "summary": "Explorez l'histoire de Concarneau, ville bretonne aux racines maritimes et commerciales profondes.",
+      "date_published": "2026-05-14T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "histoire de Concarneau",
+        "ville bretonne",
+        "maritime",
+        "commerciale"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//les-10-meilleures-tables-et-creperies-de-concarneau-guide-2023/",
+      "url": "https://lakonkcreative.bzh//les-10-meilleures-tables-et-creperies-de-concarneau-guide-2023/",
+      "title": "Les 10 meilleures tables et crêperies de Concarneau",
+      "summary": "Découvrez les meilleures adresses pour manger à Concarneau. Comparez les spécialités bretonnes, les poissons frais et les crêpes délicieuses.",
+      "date_published": "2026-04-28T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "restaurants",
+        "crêperies",
+        "guide de voyage"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//concarneau-20-activites-incontournables-a-faire-en-2023/",
+      "url": "https://lakonkcreative.bzh//concarneau-20-activites-incontournables-a-faire-en-2023/",
+      "title": "Concarneau : 20 activités incontournables à faire en 2023",
+      "summary": "Découvrez les meilleures visites, sorties et activités à Concarneau. Comparez les prix et les horaires des attractions, plages et musées.",
+      "date_published": "2026-04-07T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "visites",
+        "sorties",
+        "activités",
+        "Bretagne"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/",
+      "url": "https://lakonkcreative.bzh//decouvrez-concarneau-en-1-ou-2-jours-l-itineraire-ultime-pour-un-sejour-inoublia/",
+      "title": "Concarneau en 1 ou 2 jours : l'itinéraire ultime",
+      "summary": "Explorez les secrets de Concarneau en 48 heures ! Découvrez les incontournables, les activités à faire et les bons plans pour un séjour réussi.",
+      "date_published": "2026-04-02T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "itinéraire",
+        "séjour",
+        "Bretonne",
+        "voyage"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//meteo-a-concarneau-climat-saisons-et-meilleure-periode-pour-visiter-2024/",
+      "url": "https://lakonkcreative.bzh//meteo-a-concarneau-climat-saisons-et-meilleure-periode-pour-visiter-2024/",
+      "title": "Météo à Concarneau : Climat, Saisons et Meilleure Période",
+      "summary": "Découvrez le climat de Concarneau, ses saisons et la meilleure période pour visiter cette ville bretonne.",
+      "date_published": "2026-04-02T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "météo Concarneau",
+        "climat Bretagne",
+        "saisons Concarneau"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//la-ville-close-de-concarneau-histoire-remparts-et-visite-en-2023/",
+      "url": "https://lakonkcreative.bzh//la-ville-close-de-concarneau-histoire-remparts-et-visite-en-2023/",
+      "title": "La Ville Close de Concarneau : histoire, remparts et visite",
+      "summary": "Découvrez l'histoire de la Ville Close de Concarneau, ses remparts et comment visiter ce site emblématique de Bretagne.",
+      "date_published": "2026-03-26T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "Ville Close",
+        "Bretagne",
+        "histoire",
+        "remparts"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/",
+      "url": "https://lakonkcreative.bzh//la-plage-des-sables-blancs-a-concarneau-acces-baignade-et-services-pour-un-sejou/",
+      "title": "La plage des Sables Blancs à Concarneau : accès, baignade",
+      "summary": "Découvrez comment profiter au maximum de la plage des Sables Blancs à Concarneau, avec des informations pratiques sur l'accès, la baignade et les services.",
+      "date_published": "2026-03-24T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "plage des Sables Blancs",
+        "accès",
+        "baignade",
+        "services"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-le-sentier-cotier-gr34-de-concarneau-45-km-de-randonnees-et-de-points-/",
+      "url": "https://lakonkcreative.bzh//decouvrez-le-sentier-cotier-gr34-de-concarneau-45-km-de-randonnees-et-de-points-/",
+      "title": "Sentier côtier GR34 de Concarneau : 45 km de randonnées",
+      "summary": "Explorez les trésors du littoral breton avec le sentier côtier GR34 de Concarneau. Découvrez comment profiter de 45 km de randonnées et de points de vue.",
+      "date_published": "2026-03-17T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "sentier côtier GR34",
+        "Concarneau",
+        "randonnées",
+        "points de vue"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//se-garer-a-concarneau-les-5-meilleurs-parkings-et-astuces-pour-stationner-en-202/",
+      "url": "https://lakonkcreative.bzh//se-garer-a-concarneau-les-5-meilleurs-parkings-et-astuces-pour-stationner-en-202/",
+      "title": "Se garer à Concarneau : les 5 meilleurs parkings et astuces",
+      "summary": "Découvrez les tarifs et les meilleures options de stationnement à Concarneau. Comparez les parkings et apprenez comment économiser jusqu'à 30%.",
+      "date_published": "2026-01-27T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "stationnement",
+        "parkings",
+        "tarifs"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//manger-pas-cher-a-concarneau-10-bonnes-adresses-et-snacks-a-partir-de-5/",
+      "url": "https://lakonkcreative.bzh//manger-pas-cher-a-concarneau-10-bonnes-adresses-et-snacks-a-partir-de-5/",
+      "title": "Manger pas cher à Concarneau : 10 bonnes adresses et snacks",
+      "summary": "Découvrez comment manger pas cher à Concarneau avec nos 10 bonnes adresses et snacks à partir de 5€.",
+      "date_published": "2026-01-21T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "manger pas cher",
+        "bonnes adresses",
+        "snacks"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/",
+      "url": "https://lakonkcreative.bzh//decouvrez-la-plage-du-cabellou-a-concarneau-5-km-de-cote-preservee-en-2023/",
+      "title": "Plage du Cabellou à Concarneau : 5 km de côte préservée",
+      "summary": "Explorez la presqu'île du Cabellou à Concarneau, avec ses 5 km de côte préservée. Découvrez comment cette plage a su conserver son charme naturel.",
+      "date_published": "2026-01-06T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "plage du Cabellou",
+        "Concarneau",
+        "presqu'île",
+        "côte bretonne"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//thalasso-a-concarneau-decouvrez-les-5-meilleurs-centres-pour-un-sejour-de-bien-e/",
+      "url": "https://lakonkcreative.bzh//thalasso-a-concarneau-decouvrez-les-5-meilleurs-centres-pour-un-sejour-de-bien-e/",
+      "title": "Thalasso à Concarneau : découvrez les 5 meilleurs centres",
+      "summary": "Découvrez les bienfaits de la thalassothérapie à Concarneau, ville bretonne réputée pour ses stations thermales.",
+      "date_published": "2025-12-30T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "thalasso",
+        "Concarneau",
+        "bien-être",
+        "santé"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//concarneau-en-famille-20-activites-pour-enfants-en-2024/",
+      "url": "https://lakonkcreative.bzh//concarneau-en-famille-20-activites-pour-enfants-en-2024/",
+      "title": "Concarneau en famille : 20 activités pour enfants",
+      "summary": "Découvrez les 20 meilleures activités à faire avec vos enfants à Concarneau. Comparez les prix et les horaires des musées, plages et parcs d'attractions.",
+      "date_published": "2025-12-25T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "activités enfants",
+        "vacances famille"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-le-marinarium-de-concarneau-aquarium-et-station-marine-de-reference-en/",
+      "url": "https://lakonkcreative.bzh//decouvrez-le-marinarium-de-concarneau-aquarium-et-station-marine-de-reference-en/",
+      "title": "Marinarium de Concarneau : aquarium et station marine",
+      "summary": "Explorez les richesses marines de la Bretagne au Marinarium de Concarneau, un aquarium et une station marine unique en son genre.",
+      "date_published": "2025-12-25T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Marinarium de Concarneau",
+        "aquarium",
+        "station marine",
+        "Bretagne"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-concarneau-et-ses-environs-guide-2026/",
+      "url": "https://lakonkcreative.bzh//decouvrez-concarneau-et-ses-environs-guide-2026/",
+      "title": "Découvrez Concarneau et ses environs",
+      "summary": "Visitez Concarneau et ses environs avec notre guide complet : découvrez les 10 meilleures activités, comparez les prix des locations de vélos et découvrez.",
+      "date_published": "2025-11-13T00:00:00.000Z",
+      "date_modified": "2026-08-07T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "Finistère",
+        "Tourisme"
+      ],
+      "image": "/images/blog/decouvrez-concarneau-et-ses-environs-guide-2026.jpg"
+    },
+    {
+      "id": "https://lakonkcreative.bzh//location-de-vacances-a-concarneau-10-bonnes-raisons-de-choisir-cette-ville-breto/",
+      "url": "https://lakonkcreative.bzh//location-de-vacances-a-concarneau-10-bonnes-raisons-de-choisir-cette-ville-breto/",
+      "title": "Location de vacances à Concarneau : 10 bonnes raisons",
+      "summary": "Découvrez les atouts de la location de vacances à Concarneau, ville côtière bretonne. Comparez les prix, les activités et les hébergements pour un séjour.",
+      "date_published": "2025-11-04T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "location de vacances",
+        "Concarneau",
+        "Bretagne",
+        "vacances en France"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//activites-nautiques-a-concarneau-decouvrez-les-10-meilleures-experiences-en-2024/",
+      "url": "https://lakonkcreative.bzh//activites-nautiques-a-concarneau-decouvrez-les-10-meilleures-experiences-en-2024/",
+      "title": "Activités nautiques à Concarneau : découvrez les 10",
+      "summary": "Concarneau, ville côtière bretonne, offre une variété d'activités nautiques pour tous les goûts.",
+      "date_published": "2025-10-14T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "activités nautiques",
+        "Concarneau",
+        "Bretagne",
+        "mer"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-les-tresors-de-concarneau-pont-aven-tregunc-et-l-archipel-des-glenan-e/",
+      "url": "https://lakonkcreative.bzh//decouvrez-les-tresors-de-concarneau-pont-aven-tregunc-et-l-archipel-des-glenan-e/",
+      "title": "Trésors de Concarneau : Pont-Aven, Trégunc et l'archipel",
+      "summary": "Explorez les charmes de la Bretagne avec notre guide complet sur Concarneau, Pont-Aven, Trégunc et l'archipel des Glénan.",
+      "date_published": "2025-10-09T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "Pont-Aven",
+        "Trégunc",
+        "archipel des Glénan",
+        "Bretagne"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//les-10-meilleurs-hotels-a-concarneau-guide-2024-avec-vue-mer/",
+      "url": "https://lakonkcreative.bzh//les-10-meilleurs-hotels-a-concarneau-guide-2024-avec-vue-mer/",
+      "title": "Les 10 Meilleurs Hôtels à Concarneau : Guide 2024 avec Vue",
+      "summary": "Découvrez les meilleurs hôtels à Concarneau avec vue mer, classés selon les critiques et les tarifs.",
+      "date_published": "2025-10-09T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "hôtels à Concarneau",
+        "hôtels vue mer",
+        "Concarneau tourisme"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-le-marche-de-concarneau-jours-horaires-et-bonnes-adresses-pour-2024/",
+      "url": "https://lakonkcreative.bzh//decouvrez-le-marche-de-concarneau-jours-horaires-et-bonnes-adresses-pour-2024/",
+      "title": "Marché de Concarneau : jours, horaires et bonnes adresses",
+      "summary": "Explorez le marché de Concarneau avec nos conseils pour 2024. Découvrez les jours et horaires d'ouverture, les meilleures adresses et les spécialités.",
+      "date_published": "2025-09-09T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "marché de Concarneau",
+        "jours et horaires",
+        "bonnes adresses",
+        "Concarneau"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/",
+      "url": "https://lakonkcreative.bzh//la-fete-des-filets-bleus-a-concarneau-decouvrez-l-histoire-et-le-programme-2024/",
+      "title": "La fête des Filets Bleus à Concarneau : découvrez",
+      "summary": "Découvrez l'histoire et le programme de la fête des Filets Bleus à Concarneau, un événement emblématique de la ville bretonne.",
+      "date_published": "2025-09-04T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Fête des Filets Bleus",
+        "Concarneau",
+        "Bretagne",
+        "Événements"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//les-10-meilleurs-restaurants-de-concarneau-2023-guide-expert/",
+      "url": "https://lakonkcreative.bzh//les-10-meilleurs-restaurants-de-concarneau-2023-guide-expert/",
+      "title": "Les 10 Meilleurs Restaurants de Concarneau [2023]",
+      "summary": "Découvrez les meilleurs restaurants de Concarneau, sélectionnés pour leur qualité et leur authenticité.",
+      "date_published": "2025-08-27T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "restaurants de Concarneau",
+        "guide gastronomique",
+        "Concarneau"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//le-port-de-peche-de-concarneau-decouvrez-les-secrets-de-la-criee-et-des-traditio/",
+      "url": "https://lakonkcreative.bzh//le-port-de-peche-de-concarneau-decouvrez-les-secrets-de-la-criee-et-des-traditio/",
+      "title": "Le port de pêche de Concarneau : découvrez les secrets",
+      "summary": "Découvrez comment fonctionne la criée du port de pêche de Concarneau, les traditions maritimes qui l'entourent et les chiffres clés de cette industrie.",
+      "date_published": "2025-07-24T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "port de pêche",
+        "Concarneau",
+        "criée",
+        "traditions maritimes"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//concarneau-decouvrez-les-10-meilleurs-hebergements-pour-un-sejour-inoubliable-en/",
+      "url": "https://lakonkcreative.bzh//concarneau-decouvrez-les-10-meilleurs-hebergements-pour-un-sejour-inoubliable-en/",
+      "title": "Concarneau : découvrez les 10 meilleurs hébergements",
+      "summary": "Trouvez le meilleur endroit où dormir à Concarneau avec notre sélection des 10 meilleurs hôtels, campings et locations.",
+      "date_published": "2025-07-22T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "hôtels",
+        "campings",
+        "locations",
+        "séjour"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/",
+      "url": "https://lakonkcreative.bzh//decouvrez-les-meilleures-ecoles-de-voile-et-locations-a-concarneau-guide-2023/",
+      "title": "Meilleures écoles de voile et locations à Concarneau",
+      "summary": "Trouvez les meilleures écoles de voile et locations de bateaux à Concarneau. Comparez les tarifs et les programmes pour une sortie en mer inoubliable.",
+      "date_published": "2025-07-08T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "nautisme",
+        "voile",
+        "Concarneau",
+        "écoles de voile",
+        "location de bateaux"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/",
+      "url": "https://lakonkcreative.bzh//fruits-de-mer-et-poissons-a-concarneau-decouvrez-les-10-meilleurs-restaurants-du/",
+      "title": "Fruits de mer et poissons à Concarneau : découvrez les 10",
+      "summary": "Concarneau, capitale de la pêche bretonne, offre une expérience culinaire unique avec ses fruits de mer et poissons frais.",
+      "date_published": "2025-07-08T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Concarneau",
+        "fruits de mer",
+        "poissons",
+        "restaurants du port"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/",
+      "url": "https://lakonkcreative.bzh//decouvrez-le-cineville-de-concarneau-programmation-et-actualites-2024/",
+      "title": "Cineville de Concarneau : programmation et actualités",
+      "summary": "Retrouvez les dernières sorties et les événements à venir au Cineville de Concarneau. Comparez les tarifs et les horaires de séance.",
+      "date_published": "2025-05-08T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "Cineville Concarneau",
+        "programmation cinéma",
+        "Concarneau"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//peche-a-pied-a-concarneau-5-spots-incontournables-et-conseils-de-marees-pour-202/",
+      "url": "https://lakonkcreative.bzh//peche-a-pied-a-concarneau-5-spots-incontournables-et-conseils-de-marees-pour-202/",
+      "title": "Pêche à pied à Concarneau : 5 spots incontournables",
+      "summary": "Découvrez les 5 meilleurs spots de pêche à pied à Concarneau, les coefficients de marées et les conseils pour réussir votre sortie en 2024.",
+      "date_published": "2025-05-06T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "pêche à pied",
+        "Concarneau",
+        "marées",
+        "spots de pêche"
+      ]
+    },
+    {
+      "id": "https://lakonkcreative.bzh//l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/",
+      "url": "https://lakonkcreative.bzh//l-us-concarneau-decouvrez-l-histoire-le-stade-et-le-calendrier-du-club-breton-de/",
+      "title": "L'US Concarneau : découvrez l'histoire, le stade",
+      "summary": "Découvrez l'histoire de l'US Concarneau, un club de football breton fondé en 1911. Explorez son stade, le Stade Guy Piriou, et consultez son calendrier.",
+      "date_published": "2025-03-06T00:00:00.000Z",
+      "date_modified": "2026-08-06T00:00:00.000Z",
+      "tags": [
+        "US Concarneau",
+        "football breton",
+        "Stade Guy Piriou"
+      ]
+    }
+  ]
+}

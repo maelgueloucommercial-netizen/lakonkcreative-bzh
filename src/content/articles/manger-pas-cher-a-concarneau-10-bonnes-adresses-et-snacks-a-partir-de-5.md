@@ -75,7 +75,6 @@ Pour un repas complet à moins de 15 €, le secteur de la Ville Close et la rue
 
 **Peut-on manger pour moins de 10 € dans la Ville Close ?** Oui, uniquement en prenant une galette complète (9,50 €) dans les crêperies de la rue Saint-Guénolé, sans boisson ni dessert.
 
-**
 
 ## Verification successful. Waiting for www.justacote.com to respond
 

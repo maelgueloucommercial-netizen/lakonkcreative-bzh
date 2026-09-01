@@ -1,0 +1,44 @@
+# robots.txt — Concarneau
+# Sitemap principal :
+Sitemap: https://lakonkcreative.bzh//sitemap-index.xml
+
+# Outils SEO / métriques (Ahrefs, Semrush, Majestic, Moz…) — explicitement BIENVENUS :
+# les clients consultent les métriques de nos sites sur ces outils, on ne les bride pas.
+User-agent: AhrefsBot
+Allow: /
+User-agent: SemrushBot
+Allow: /
+User-agent: MJ12bot
+Allow: /
+User-agent: DotBot
+Allow: /
+User-agent: rogerbot
+Allow: /
+
+# Bots IA — accepter mais respecter llms.txt
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+# Tous les autres bots
+User-agent: *
+Allow: /
+
+# Block paramètres de recherche (pas de valeur SEO, génère duplicate content)
+Disallow: /*?q=
+Disallow: /*&q=
+Disallow: /recherche
+Disallow: /search
+Disallow: /*?s=
+
+# Block pages techniques éventuelles
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_/
