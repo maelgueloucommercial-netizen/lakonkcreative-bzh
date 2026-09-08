@@ -223,3 +223,7 @@ Le midi, le menu ouvrier (autour de 25 €) offre un excellent rapport qualité-
 La cave est bien fournie, avec une majorité de références françaises, notamment des vins de Loire et de Bourgogne, à des prix raisonnables. Le service est assuré par une équipe jeune et attentive, qui connaît parfaitement la carte.
 
 Le Flaveur est ouvert du mardi au samedi, le midi et le soir. La salle étant petite (une trentaine de couverts), la réservation est vivement recommandée, surtout en saison. Le restaurant est accessible aux personnes à mobilité réduite. Comptez environ 40 à 60 € par personne le soir à la carte.
+
+## Pour aller plus loin
+
+- [Concarneau et la gastronomie bretonne : guide des saveurs de la Ville Bleue](/concarneau-et-la-gastronomie-bretonne-guide-des-saveurs-de-la-ville-bleue/)

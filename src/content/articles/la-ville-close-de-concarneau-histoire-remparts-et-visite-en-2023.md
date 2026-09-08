@@ -259,3 +259,7 @@ La cité fortifiée a servi de décor à plusieurs films, dont « L’Homme du l
 
 **Itinéraires de visite : circuits pédestres et accès**  
 Le circuit classique dure 2 heures : entrée par la porte du Passage, montée vers la place du Gouverneur, puis descente vers le quai d’Aiguillon. Un parcours plus long (3,5 km) longe les douves extérieures, avec des panneaux explicatifs sur la faune et la flore des berges.
+
+## Pour aller plus loin
+
+- [Concarneau et la gastronomie bretonne : guide des saveurs de la Ville Bleue](/concarneau-et-la-gastronomie-bretonne-guide-des-saveurs-de-la-ville-bleue/)
