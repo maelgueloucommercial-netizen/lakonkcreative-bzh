@@ -244,3 +244,7 @@ Les centres de thalasso de Concarneau et leurs partenaires locaux animent une pr
 **Collaborations locales** : les comptes relaient des partenariats avec des hôtels, restaurants de fruits de mer et excursions vers les Glénan. Des influenceurs bien-être bretons sont parfois invités pour des séjours tests, avec des codes promo pour leurs abonnés.
 
 **Portée et engagement** : les publications les plus performantes sont celles montrant le cadre naturel (coucher de soleil sur la baie, tempête vue des baies vitrées) et les offres limitées dans le temps. Les vidéos de démonstration de soins (enveloppement d’algues, douche marine) génèrent un fort taux de partage. Les comptes sont suivis par une majorité de clientes de 45-65 ans, résidant dans un rayon de 200 km, mais aussi par une clientèle parisienne en quête de week-end iodé.
+
+## Pour aller plus loin
+
+- [Découvrez la Gastronomie de Concarneau](/decouvrez-la-gastronomie-de-concarneau/)

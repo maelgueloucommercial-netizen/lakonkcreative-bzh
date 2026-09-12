@@ -256,3 +256,4 @@ Pour la baignade surveillée et les services, privilégiez les Sables Blancs ou 
 ## Pour aller plus loin
 
 - [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)
+- [Découvrez la Gastronomie de Concarneau](/decouvrez-la-gastronomie-de-concarneau/)
