@@ -184,6 +184,7 @@ Pour préparer votre séjour gourmand à Concarneau, consultez le site de l'offi
 Enfin, n'oubliez pas que la gastronomie est une affaire de saison. Les poissons, les coquillages et les légumes ont leurs périodes de pleine saveur. Renseignez-vous sur les saisons et privilégiez les produits locaux et de saison pour une expérience optimale. Bon appétit !
 
 Vous aimerez peut-être aussi [Decouvrir moulins les metz un guide complet](https://www.gros-rederching.fr/2026/01/09/decouvrir-moulins-les-metz-un-guide-complet-pour-les-visiteurs-de-la-metropole/).
+- [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)
 
 ## Notre sélection sur Amazon
 

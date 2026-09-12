@@ -252,3 +252,7 @@ Le Cabellou, presqu’île au sud de Concarneau, offre une succession de petites
 
 **Comparatif : quelle plage choisir selon vos besoins**
 Pour la baignade surveillée et les services, privilégiez les Sables Blancs ou Kerleven. Pour la tranquillité et les paysages naturels, optez pour les criques du Cabellou. Pour le paddle ou le kayak, les Sables Blancs offrent le meilleur équipement. Pour la pêche à pied, Kerleven est la plus adaptée. En termes de fréquentation, les Sables Blancs sont les plus prisées des touristes, tandis que le Cabellou reste plus confidentiel hors juillet-août.
+
+## Pour aller plus loin
+
+- [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)

@@ -228,3 +228,7 @@ Les chambres sont fonctionnelles et lumineuses, avec une décoration marine sobr
 L'hôtel dispose d'un jardin clos avec terrasse en bois, idéal pour le petit-déjeuner en plein air. Le buffet du matin (12 €) propose des produits locaux : pains et viennoiseries de la boulangerie voisine, confitures artisanales, fromages et charcuterie bretons. Un parking privé gratuit et sécurisé est disponible sur place, un avantage non négligeable en été. Pour les vélos, un local fermé est accessible.
 
 Les tarifs varient de 79 € à 149 € selon la saison et le type de chambre. L'établissement est ouvert toute l'année. La réception est assurée de 7h30 à 21h00. L'hôtel ne possède pas de restaurant, mais plusieurs crêperies et restaurants de fruits de mer se trouvent à moins de dix minutes à pied. Le port de plaisance et la criée sont accessibles en quinze minutes de marche.
+
+## Pour aller plus loin
+
+- [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)

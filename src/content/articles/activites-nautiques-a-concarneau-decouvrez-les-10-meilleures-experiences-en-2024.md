@@ -335,3 +335,7 @@ La navigation entre les pages s’effectue via une barre de pagination située e
 En pratique, la page 2 regroupe généralement les articles de la quinzaine précédente, incluant les comptes rendus de sorties encadrées et les mises à jour des tarifs de mouillage. Au-delà de la page 5, on trouve les archives saisonnières : bilans de fréquentation estivale, rappels des règles de sécurité en baie de la Forêt, et guides des spots de navigation (pointe du Cabellou, île aux Moutons, archipel des Glénan).
 
 Pour les utilisateurs souhaitant consulter l’intégralité des contenus sans pagination manuelle, une option « afficher tout » est proposée sur les catégories de moins de 50 articles. Cette fonctionnalité est particulièrement utile pour les moniteurs ou les organisateurs de stages qui doivent comparer plusieurs offres sur une même période. Enfin, chaque page de pagination intègre un compteur de résultats (ex. « 1–12 sur 87 ») et un lien direct vers le formulaire de contact pour toute demande non couverte par les articles listés.
+
+## Pour aller plus loin
+
+- [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)

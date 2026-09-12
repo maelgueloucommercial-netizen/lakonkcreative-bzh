@@ -270,3 +270,7 @@ Le site est particulièrement photogénique en fin de journée, quand la lumièr
 **L'archipel des Glénan (15 km au large)** : Accessible en bateau depuis Concarneau (45 min de traversée), cet archipel de 9 îles principales est classé site Natura 2000. La réserve naturelle de Saint-Nicolas, la plus grande île, abrite une école de voile fondée en 1947. Les eaux turquoise et les plages de sable blanc attirent chaque année environ 100 000 visiteurs entre mai et septembre.
 
 **La forêt de Carnoët (8 km)** : Cette forêt domaniale de 1 000 hectares, traversée par la Laïta, abrite les ruines de l'abbaye cistercienne de Saint-Maurice, fondée en 1170. Le site propose un sentier d'interprétation de 4 km et un parking aménagé.
+
+## Pour aller plus loin
+
+- [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)
