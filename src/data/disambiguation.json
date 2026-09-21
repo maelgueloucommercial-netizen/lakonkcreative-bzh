@@ -1,0 +1,33 @@
+{
+  "metaTitle": "Lakonkcreative - L'encyclopédie de Concarneau",
+  "metaDescription": "Découvrez l'histoire et les secrets de Concarneau avec Yann Le Goff, historien et spécialiste de la ville. Lakonkcreative, le guide en ligne pour tout savoir sur Concarneau.",
+  "heroBlockHtml": "<div class=\"about-hero\">Bonjour, je suis Yann Le Goff, historien et spécialiste de Concarneau. Sur Lakonkcreative, je vous propose une plongée dans l'histoire et la culture de cette ville bretonne. Mon objectif est de partager mes connaissances et mes passions pour faire découvrir Concarneau sous un jour nouveau. Rejoignez-moi dans cette aventure éditoriale pour explorer les secrets et les merveilles de cette ville que j'aime.</div>",
+  "jsonLd": {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://lakonkcreative.bzh/#organization",
+        "name": "lakonkcreative",
+        "url": "https://lakonkcreative.bzh",
+        "description": "Découvrez l'histoire et les secrets de Concarneau avec Yann Le Goff, historien et spécialiste de la ville. Lakonkcreative, le guide en ligne pour tout savoir sur Concarneau.",
+        "founder": {
+          "@id": "https://lakonkcreative.bzh/a-propos#yann"
+        }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://lakonkcreative.bzh/a-propos#yann",
+        "name": "Yann Le Goff",
+        "givenName": "Yann",
+        "familyName": "Le Goff",
+        "jobTitle": "Historien et spécialiste de Concarneau",
+        "worksFor": {
+          "@id": "https://lakonkcreative.bzh/#organization"
+        }
+      }
+    ]
+  },
+  "competingEntity": "Concarneau",
+  "generatedAt": "2026-09-21T06:44:21.150Z"
+}
