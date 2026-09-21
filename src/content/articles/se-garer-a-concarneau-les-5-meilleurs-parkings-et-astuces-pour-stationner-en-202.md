@@ -327,3 +327,7 @@ Oui, une aire de stationnement pour camping-cars est aménagée au niveau du Por
 ### ### Quelles sont les astuces pour éviter les embouteillages et trouver une place en été ?
 
 En haute saison, arrivez avant 9h30 ou après 18h pour trouver une place en centre-ville. Utilisez les parkings excentrés (Kersaux, Porzou) et la navette gratuite. Évitez le samedi après-midi, jour de marché, où la circulation est très dense autour des remparts.
+
+## Pour aller plus loin
+
+- [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)

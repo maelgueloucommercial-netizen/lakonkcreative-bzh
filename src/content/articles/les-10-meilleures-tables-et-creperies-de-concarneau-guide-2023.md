@@ -373,3 +373,7 @@ Côté crêperie, l'établissement ne se revendique pas comme tel, mais propose 
 Le service est souriant et efficace, même aux heures de pointe. La réservation est vivement conseillée le week-end. Le restaurant est ouvert du mardi au samedi, de 12h à 14h et de 19h à 21h30. Le dimanche, il est ouvert uniquement le midi. Pensez à vérifier les horaires hors saison, car ils peuvent être réduits en hiver.
 
 Le dessert signature, le fondant au chocolat coulant, est servi avec une boule de glace vanille de la ferme voisine. Pour un repas complet sans mauvaise surprise, c'est une valeur sûre, à la fois qualitative et abordable, loin des attrape-touristes.
+
+## Pour aller plus loin
+
+- [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)

@@ -227,3 +227,4 @@ Le Flaveur est ouvert du mardi au samedi, le midi et le soir. La salle étant pe
 ## Pour aller plus loin
 
 - [Concarneau et la gastronomie bretonne : guide des saveurs de la Ville Bleue](/concarneau-et-la-gastronomie-bretonne-guide-des-saveurs-de-la-ville-bleue/)
+- [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)

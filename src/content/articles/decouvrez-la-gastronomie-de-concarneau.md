@@ -78,3 +78,7 @@ Les restaurants de Concarneau sont situés dans le centre-ville, près du port e
 Les produits locaux que l'on peut trouver à Concarneau incluent des fromages, des charcuteries, des biscuits et des fleurs. 
 ### Quand a lieu le Festival de la Gastronomie de Concarneau ?
 Le Festival de la Gastronomie de Concarneau a lieu chaque année en août.
+
+## Pour aller plus loin
+
+- [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)

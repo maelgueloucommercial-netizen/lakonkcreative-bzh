@@ -200,3 +200,7 @@ Le stationnement est payant et réglementé dans le centre-ville, avec des parki
 
 ### Propose-t-on le petit-déjeuner et des services de restauration dans les hôtels de Concarneau ?
 La quasi-totalité des hôtels de la ville propose un petit-déjeuner buffet, facturé en supplément (souvent entre 9 € et 15 € par personne). Seuls quelques hôtels 3 étoiles disposent d'un restaurant ouvert le midi et le soir. Pour les autres, vous trouverez facilement des crêperies et des restaurants de fruits de mer à moins de 10 minutes à pied dans le centre-ville.
+
+## Pour aller plus loin
+
+- [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)
