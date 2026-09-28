@@ -331,3 +331,4 @@ En haute saison, arrivez avant 9h30 ou après 18h pour trouver une place en cent
 ## Pour aller plus loin
 
 - [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)
+- [Concarneau et les sports : Guide 2026](/concarneau-et-les-sports-guide-2026/)

@@ -82,3 +82,4 @@ Le Festival de la Gastronomie de Concarneau a lieu chaque année en août.
 ## Pour aller plus loin
 
 - [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)
+- [Concarneau et les sports : Guide 2026](/concarneau-et-les-sports-guide-2026/)
