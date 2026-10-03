@@ -263,3 +263,4 @@ Le circuit classique dure 2 heures : entrée par la porte du Passage, montée ve
 ## Pour aller plus loin
 
 - [Concarneau et la gastronomie bretonne : guide des saveurs de la Ville Bleue](/concarneau-et-la-gastronomie-bretonne-guide-des-saveurs-de-la-ville-bleue/)
+- [Concarneau, ville bretonne aux richesses historiques](/concarneau-ville-bretonne-aux-richesses-historiques/)

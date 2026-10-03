@@ -103,3 +103,6 @@ Sur un sujet voisin, découvrez [Visiter le chateau de foix en ariege](https://m
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau, ville bretonne aux richesses historiques](/concarneau-ville-bretonne-aux-richesses-historiques/)
