@@ -378,3 +378,4 @@ Le dessert signature, le fondant au chocolat coulant, est servi avec une boule d
 
 - [Eglises de Concarneau : Guide des édifices religieux](/eglises-de-concarneau-guide-des-edifices-religieux/)
 - [Concarneau et les sports : Guide 2026](/concarneau-et-les-sports-guide-2026/)
+- [Concarneau et les brocantes : un guide complet](/concarneau-et-les-brocantes-un-guide-complet/)
