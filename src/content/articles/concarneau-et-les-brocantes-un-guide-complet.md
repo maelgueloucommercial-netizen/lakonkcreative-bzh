@@ -95,3 +95,6 @@ Pour approfondir, voir également [Gestion patrimoine offshore conseils d un fid
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et les artisans : 5 secteurs clés à découvrir](/concarneau-et-les-artisans-5-secteurs-cles-a-decouvrir/)

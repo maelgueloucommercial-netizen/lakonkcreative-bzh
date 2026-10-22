@@ -187,3 +187,4 @@ Pour approfondir, voir également [Holdings suisses optimisation patrimoine](htt
 
 - [Concarneau, ville bretonne aux richesses historiques](/concarneau-ville-bretonne-aux-richesses-historiques/)
 - [Concarneau et les brocantes : un guide complet](/concarneau-et-les-brocantes-un-guide-complet/)
+- [Concarneau et les artisans : 5 secteurs clés à découvrir](/concarneau-et-les-artisans-5-secteurs-cles-a-decouvrir/)
