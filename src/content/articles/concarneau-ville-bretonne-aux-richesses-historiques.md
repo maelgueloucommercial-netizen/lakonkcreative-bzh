@@ -51,6 +51,7 @@ Concarneau est située dans le Finistère, dans la région de Bretagne. La ville
 
 ## Pour aller plus loin
 Pour en savoir plus sur l'histoire et le patrimoine de Concarneau, vous pouvez visiter le site officiel de la ville ou contacter l'office de tourisme. Vous pouvez également découvrir les produits locaux et les spécialités bretonnes dans les marchés et les restaurants de la ville. N'oubliez pas de visiter les monuments et les musées de la ville, tels que le château de Concarneau et le musée de la ville, pour découvrir l'histoire et la culture de cette ville bretonne.
+- [Concarneau ville portuaire : le guide 2026](/concarneau-ville-portuaire-le-guide-2026/)
 
 ## FAQ
 

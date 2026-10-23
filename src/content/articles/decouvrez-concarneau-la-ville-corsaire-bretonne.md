@@ -106,3 +106,4 @@ Sur un sujet voisin, découvrez [Visiter le chateau de foix en ariege](https://m
 ## Pour aller plus loin
 
 - [Concarneau, ville bretonne aux richesses historiques](/concarneau-ville-bretonne-aux-richesses-historiques/)
+- [Concarneau ville portuaire : le guide 2026](/concarneau-ville-portuaire-le-guide-2026/)

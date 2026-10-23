@@ -186,6 +186,7 @@ Enfin, n'oubliez pas que la gastronomie est une affaire de saison. Les poissons,
 Vous aimerez peut-être aussi [Decouvrir moulins les metz un guide complet](https://www.gros-rederching.fr/2026/01/09/decouvrir-moulins-les-metz-un-guide-complet-pour-les-visiteurs-de-la-metropole/).
 - [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)
 - [Concarneau, ville bretonne aux richesses historiques](/concarneau-ville-bretonne-aux-richesses-historiques/)
+- [Concarneau ville portuaire : le guide 2026](/concarneau-ville-portuaire-le-guide-2026/)
 
 ## Notre sélection sur Amazon
 
