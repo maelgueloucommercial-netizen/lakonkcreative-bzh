@@ -100,3 +100,4 @@ Pour approfondir, voir également [Gestion patrimoine offshore conseils d un fid
 - [Concarneau et les artisans : 5 secteurs clés à découvrir](/concarneau-et-les-artisans-5-secteurs-cles-a-decouvrir/)
 - [Concarneau et les galeries dart : le guide 2026](/concarneau-et-les-galeries-d-art-le-guide-2026/)
 - [Concarneau ville portuaire : le guide 2026](/concarneau-ville-portuaire-le-guide-2026/)
+- [Concarneau et ses plages de sable fin](/concarneau-et-ses-plages-de-sable-fin/)
