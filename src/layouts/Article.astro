@@ -10,6 +10,7 @@ import { render, type CollectionEntry } from 'astro:content';
 
 import TableOfContents from '../components/TableOfContents.astro';
 import AdUnit from '../components/AdUnit.astro';
+import AdInContent from '../components/AdInContent.astro';
 import AuthorBio from '../components/AuthorBio.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import ShareButtons from '../components/ShareButtons.astro';
@@ -233,6 +234,7 @@ const profile = SITE_CONFIG.profile;
 
       {/* Pub in-content haut (display responsive) — ne rend rien sans slot */}
       <AdUnit slotKey="inArticleTop" />
+      <AdInContent slotKey="inArticleMid" />
 
       {/* Body */}
       <div class="prose-article">
@@ -271,6 +273,7 @@ const profile = SITE_CONFIG.profile;
         description={data.description}
         faqOverride={faqOverride}
       />
+      <AdUnit slotKey="afterFaq" />
 
       {/* Sponsored disclosure */}
       <SponsoredBanner isArticleSponsored={data.sponsored} />

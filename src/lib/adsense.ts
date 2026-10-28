@@ -17,7 +17,8 @@ export const ADSENSE = {
   slots: {
     inArticleTop: { slot: '8466253345', format: 'auto' as 'auto' | 'autorelaxed' | 'fluid' },
     inArticleEnd: { slot: '2729572866', format: 'autorelaxed' as 'auto' | 'autorelaxed' | 'fluid' },
-    inArticleMid: { slot: '', format: 'auto' as 'auto' | 'autorelaxed' | 'fluid' },
+    inArticleMid: { slot: '8466253345', format: 'auto' as 'auto' | 'autorelaxed' | 'fluid' },
+    afterFaq: { slot: '8466253345', format: 'auto' as 'auto' | 'autorelaxed' | 'fluid' },
   },
 } as const;
 

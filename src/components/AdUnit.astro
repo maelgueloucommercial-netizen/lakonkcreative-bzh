@@ -6,6 +6,11 @@
  *
  * format : 'auto' (display responsive) | 'autorelaxed' (multiplex/grille) |
  *          'fluid' (in-article).
+ *
+ * Passe AdSense du 28/10/2026 : le push est DIFFÉRÉ jusqu'à ce que le <ins>
+ * ait une largeur. Poussé au parsing, Google levait « No slot size for
+ * availableWidth=0 » et « Invalid responsive width from Matched Content
+ * slot … : 0 » sur tout le réseau : les deux unités restaient vides.
  */
 import { ADSENSE, type AdSlotKey } from '../lib/adsense';
 
@@ -29,8 +34,8 @@ if (cfg?.format === 'fluid') {
 }
 ---
 {show && (
-  <div class="ad-unit not-prose" style="margin:36px 0;text-align:center;min-height:90px" data-ad-unit={slotKey} aria-label="Publicité">
+  <div class="ad-unit not-prose" style="margin:36px 0;text-align:center;min-height:90px;width:100%" data-ad-unit={slotKey} aria-label="Publicité">
     <ins {...insAttrs}></ins>
-    <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    <script is:inline>(function(){var s=document.currentScript,i=s&&s.previousElementSibling,n=0;function go(){if(!i||i.getAttribute('data-adsbygoogle-status'))return;if(i.offsetWidth>0||n>24){(window.adsbygoogle=window.adsbygoogle||[]).push({});}else{n++;setTimeout(go,250);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(go,0);});}else{setTimeout(go,0);}})();</script>
   </div>
 )}

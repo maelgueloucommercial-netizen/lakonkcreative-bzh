@@ -1,0 +1,23 @@
+---
+/**
+ * Unité AdSense insérée AU MILIEU du corps de l'article, côté client.
+ *
+ * Le corps est rendu par <Content /> (Markdown compilé) : on ne peut pas y
+ * poser un composant au build sans plugin rehype. Ce script, placé juste
+ * AVANT le conteneur du corps, cherche l'élément suivant qui contient au
+ * moins `minParagraphs` paragraphes, et insère un bloc display responsive
+ * après le paragraphe médian. Rien n'est inséré sur un article court.
+ *
+ * Ne rend RIEN si ADSENSE.enabled=false ou si le slot est vide.
+ * Le push attend que le <ins> ait une largeur (cf. AdUnit.astro).
+ */
+import { ADSENSE, type AdSlotKey } from '../lib/adsense';
+
+interface Props { slotKey: AdSlotKey; minParagraphs?: number; }
+const { slotKey, minParagraphs = 8 } = Astro.props as Props;
+const cfg = ADSENSE.slots[slotKey];
+const show = ADSENSE.enabled && cfg && cfg.slot;
+---
+{show && (
+  <script is:inline data-ad-incontent={slotKey} data-ad-client={ADSENSE.client} data-ad-slot={cfg.slot} data-min={String(minParagraphs)}>(function(){var s=document.currentScript;if(!s)return;var min=parseInt(s.getAttribute('data-min'),10)||8;var client=s.getAttribute('data-ad-client'),slot=s.getAttribute('data-ad-slot'),key=s.getAttribute('data-ad-incontent');function longP(p){return p.textContent.replace(/\s+/g,' ').trim().length>60;}function directPs(el){return Array.prototype.filter.call(el.children,function(c){return c.tagName==='P'&&longP(c);});}function allPs(el){return Array.prototype.filter.call(el.querySelectorAll('p'),longP);}function run(){if(document.querySelector('div[data-ad-unit="'+key+'"]'))return;var ps=null,e=s.nextElementSibling;while(e&&!ps){var d=directPs(e);if(d.length>=min){ps=d;}else{var a=allPs(e);if(a.length>=min)ps=a;}e=e.nextElementSibling;}if(!ps){var sib=[];e=s.nextElementSibling;while(e){if(e.tagName==='P'&&longP(e))sib.push(e);e=e.nextElementSibling;}if(sib.length>=min)ps=sib;}if(!ps||ps.length<min)return;var target=ps[Math.max(0,Math.floor(ps.length/2)-1)];if(!target||!target.parentNode)return;var wrap=document.createElement('div');wrap.className='ad-unit not-prose';wrap.setAttribute('data-ad-unit',key);wrap.setAttribute('aria-label','Publicité');wrap.style.cssText='margin:36px 0;text-align:center;min-height:90px;width:100%';var ins=document.createElement('ins');ins.className='adsbygoogle';ins.style.display='block';ins.setAttribute('data-ad-client',client);ins.setAttribute('data-ad-slot',slot);ins.setAttribute('data-ad-format','auto');ins.setAttribute('data-full-width-responsive','true');wrap.appendChild(ins);target.parentNode.insertBefore(wrap,target.nextSibling);var n=0;(function go(){if(ins.offsetWidth>0||n>24){(window.adsbygoogle=window.adsbygoogle||[]).push({});}else{n++;setTimeout(go,250);}})();}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(run,0);});}else{setTimeout(run,0);}})();</script>
+)}
