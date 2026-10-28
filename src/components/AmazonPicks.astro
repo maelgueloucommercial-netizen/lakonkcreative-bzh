@@ -1,0 +1,79 @@
+---
+/**
+ * Bloc « sélection Amazon » des articles (passe Amazon du 28/10/2026).
+ *
+ * Choisit des liens Amazon pertinents pour l'article, dans cet ordre :
+ *  1. fiches du catalogue `produits` qui partagent au moins 2 racines de 5 lettres
+ *     avec le titre, les tags ou la catégorie de l'article (lien Amazon de la fiche) ;
+ *  2. recherches de la sélection du site (src/data/amazon-selection.json) classées
+ *     par recouvrement avec l'article ;
+ *  3. puis les recherches de tête du site, pour toujours proposer 3 liens.
+ * variant="top" : 3 premiers liens, déplacé côté client après le 2e paragraphe du corps.
+ * variant="end" : 3 liens suivants, en fin de corps.
+ *
+ * Aucun prix ni image Amazon (règlement du programme Partenaires) ; mention officielle incluse.
+ */
+import { getCollection } from 'astro:content';
+import SEL from '../data/amazon-selection.json';
+
+interface Props { title?: string; tags?: string[] | string; category?: string; variant?: 'top' | 'end'; }
+const { title = '', tags = [], category = '', variant = 'end' } = Astro.props as Props;
+
+const TAG = 'guelou-21';
+const STOP = new Set(['guide', 'compl', 'compa', '2023', '2024', '2025', '2026', '2027', 'comme', 'pourq', 'avec', 'votre', 'notre', 'toute', 'tous', 'quell', 'meill', 'choix', 'chois', 'conse', 'astuc', 'savoi', 'sans', 'dans', 'entre', 'faire', 'avis', 'test', 'tests', 'mieux', 'petit', 'grand', 'nouve', 'etape', 'facil', 'rapid', 'simpl', 'ultim', 'essen', 'prati', 'vraim', 'quand', 'depui', 'ainsi', 'autre', 'encor', 'aussi', 'selon', 'decou', 'secre', 'conna', 'tout', 'plus', 'tres', 'bien', 'avoir', 'etre', 'cette', 'leurs', 'quoi', 'elle', 'vous', 'nous', 'pour', 'chez', 'sont', 'mode', 'emplo', 'gener', 'avant', 'apres', 'annee']);
+const norm = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const roots = (s: string) => new Set(norm(s).split(/[^a-z0-9]+/).filter((w) => w.length >= 4).map((w) => w.slice(0, 5)).filter((r) => !STOP.has(r)));
+const inter = (a: Set<string>, b: Set<string>) => { let n = 0; for (const x of a) if (b.has(x)) n++; return n; };
+const withTag = (u: string) => (/[?&]tag=/.test(u) ? u : u + (u.includes('?') ? '&' : '?') + 'tag=' + TAG);
+const short = (s: string, n = 72) => { const t = String(s).replace(/\s+/g, ' ').trim(); if (t.length <= n) return t; const c = t.slice(0, n); return c.slice(0, c.lastIndexOf(' ') > 30 ? c.lastIndexOf(' ') : n) + '…'; };
+
+const tagList = Array.isArray(tags) ? tags : String(tags || '').split(',');
+const art = roots(`${title} ${tagList.join(' ')} ${category}`);
+
+type Pick = { label: string; url: string; key: string };
+const picks: Pick[] = [];
+const seen = new Set<string>();
+const push = (p: Pick) => { if (!seen.has(p.key)) { seen.add(p.key); picks.push(p); } };
+
+// 1. Catalogue produits du site
+let produits: any[] = [];
+try { produits = await getCollection('produits' as any); } catch { produits = []; }
+produits
+  .map((p: any) => {
+    const d = p.data || {};
+    const m = (d.merchants || []).find((x: any) => /amazon\./.test(x?.url || ''));
+    const score = inter(roots(`${d.title} ${d.categoryLabel || d.category || ''} ${d.brand || ''}`), art);
+    return { d, m, score };
+  })
+  .filter((x) => x.m && x.score >= 2)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 6)
+  .forEach((x) => push({ label: short(x.d.title), url: withTag(x.m.url), key: 'p:' + x.d.slug }));
+
+// 2 et 3. Sélection du site
+const items = ((SEL as any).items || []).map((it: any, i: number) => ({ it, i, score: inter(roots(`${it.label} ${(it.mots || []).join(' ')}`), art) }));
+const toPick = (it: any): Pick => ({ label: it.label, url: `https://www.amazon.fr/s?k=${encodeURIComponent(it.q)}&tag=${TAG}`, key: 'q:' + it.q });
+items.filter((x: any) => x.score > 0).sort((a: any, b: any) => b.score - a.score || a.i - b.i).forEach((x: any) => push(toPick(x.it)));
+items.forEach((x: any) => push(toPick(x.it)));
+
+const shown = variant === 'top' ? picks.slice(0, 3) : picks.slice(3, 6).length ? picks.slice(3, 6) : picks.slice(0, 3);
+const heading = variant === 'top' ? (SEL as any).titre : ((SEL as any).titreFin || (SEL as any).titre);
+const bouton = (SEL as any).bouton || 'Voir sur Amazon';
+---
+{shown.length > 0 && (
+  <aside class="amz-sel not-prose" data-amz={variant} aria-label={heading} style="margin:32px 0;padding:18px 20px;border:1px solid var(--color-border, #e7e2da);border-radius:10px;background:var(--color-bg-card, #faf8f5);width:100%;box-sizing:border-box">
+    <p style="margin:0 0 12px;font-weight:700;font-size:1.02rem;line-height:1.3">{heading}</p>
+    <ul style="list-style:none;margin:0;padding:0;display:grid;gap:10px">
+      {shown.map((p) => (
+        <li style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0">
+          <span style="flex:1 1 220px;line-height:1.35">{p.label}</span>
+          <a href={p.url} rel="sponsored nofollow noopener" target="_blank" style="display:inline-block;background:#232f3e;color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:600;font-size:.92rem;white-space:nowrap">{bouton} →</a>
+        </li>
+      ))}
+    </ul>
+    <p style="margin:12px 0 0;font-size:.76rem;opacity:.75;line-height:1.4">En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.</p>
+  </aside>
+)}
+{variant === 'top' && shown.length > 0 && (
+  <script is:inline>(function(){var s=document.currentScript,b=s&&s.previousElementSibling;if(!b||!b.classList||!b.classList.contains('amz-sel'))return;function longP(p){return p.textContent.replace(/\s+/g,' ').trim().length>80&&!p.closest('aside,nav,figure,table,blockquote,.not-prose');}function run(){var ps=[],e=s.nextElementSibling;while(e&&ps.length<3){if(e.tagName==='P'){if(longP(e))ps.push(e);}else if(e.querySelectorAll){var c=e.querySelectorAll('p');for(var i=0;i<c.length&&ps.length<3;i++){if(longP(c[i]))ps.push(c[i]);}}e=e.nextElementSibling;}if(ps.length>=3){ps[1].parentNode.insertBefore(b,ps[1].nextSibling);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}})();</script>
+)}

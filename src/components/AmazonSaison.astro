@@ -1,0 +1,23 @@
+---
+/**
+ * Bandeau saisonnier Amazon (passe Amazon du 28/10/2026), sous l'en-tête de toutes les pages.
+ * Caché par défaut ; un script l'affiche selon la date du visiteur, sans rebuild :
+ *   14 nov. → 2 déc. : Black Friday et Cyber Monday ;
+ *   3 déc. → 22 déc. : idées cadeaux de Noël.
+ * Test hors saison : ajouter ?amzsaison=bf ou ?amzsaison=noel à l'URL.
+ * Liens tagués guelou-21 vers la recherche du thème du site et vers les offres Amazon.
+ */
+import SEL from '../data/amazon-selection.json';
+const TAG = 'guelou-21';
+const s: any = (SEL as any).saison || {};
+const q: string = s.q || (SEL as any).items?.[0]?.q || '';
+const urlTheme = q ? `https://www.amazon.fr/s?k=${encodeURIComponent(q)}&tag=${TAG}` : '';
+const urlDeals = `https://www.amazon.fr/deals?tag=${TAG}`;
+const libelle: string = s.libelle || '';
+---
+<div class="amz-saison" hidden data-libelle={libelle} style="background:#fff4e0;border-bottom:1px solid #f0d9a8;color:#3b2a10;font-size:.92rem;line-height:1.4;padding:9px 16px;text-align:center">
+  <span class="amz-saison-txt"></span>
+  <a class="amz-saison-a1" href={urlTheme || urlDeals} rel="sponsored nofollow noopener" target="_blank" style="color:#3b2a10;font-weight:700;text-decoration:underline;margin-left:6px"></a>
+  <a class="amz-saison-a2" href={urlDeals} rel="sponsored nofollow noopener" target="_blank" style="color:#3b2a10;text-decoration:underline;margin-left:10px">Toutes les offres Amazon</a>
+</div>
+<script is:inline>(function(){var b=document.currentScript&&document.currentScript.previousElementSibling;if(!b||!b.classList||!b.classList.contains('amz-saison'))return;var p=null,f=(location.search.match(/[?&]amzsaison=(bf|noel)/)||[])[1];if(f){p=f;}else{var d=new Date(),k=(d.getMonth()+1)*100+d.getDate();if(k>=1114&&k<=1202)p='bf';else if(k>=1203&&k<=1222)p='noel';}if(!p)return;var lib=b.getAttribute('data-libelle')||'';b.querySelector('.amz-saison-txt').textContent=p==='bf'?'Black Friday sur Amazon : les promos sont en ligne.':'Noël approche : des idées cadeaux livrées à temps sur Amazon.';b.querySelector('.amz-saison-a1').textContent=p==='bf'?('Voir les offres'+(lib?' '+lib:'')+' →'):('Idées cadeaux'+(lib?' '+lib:'')+' →');b.hidden=false;})();</script>

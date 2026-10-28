@@ -124,8 +124,9 @@ const headerLabels: Record<string, string> = {
 
 function buildAffiliateUrl(p: Product): string {
   if (p.affiliateUrl) return p.affiliateUrl;
-  // Lien Amazon de fallback (nofollow, just for engagement — pas de tracking ID hardcoded)
-  return `https://www.amazon.fr/s?k=${encodeURIComponent(p.brand + ' ' + p.name)}`;
+  // Lien Amazon de repli, tagué guelou-21 (passe Amazon du 28/10/2026)
+  const q = p.name.toLowerCase().startsWith(String(p.brand || '').toLowerCase()) ? p.name : `${p.brand} ${p.name}`;
+  return `https://www.amazon.fr/s?k=${encodeURIComponent(q)}&tag=guelou-21`;
 }
 ---
 <section class="product-comparator not-prose" style="margin:64px 0" aria-labelledby="comparator-heading">

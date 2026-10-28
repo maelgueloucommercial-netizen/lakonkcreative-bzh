@@ -29,6 +29,7 @@ import Calculator from '../components/niche/Calculator.astro';
 import RelatedSearches from '../components/RelatedSearches.astro';
 import FeedbackWidget from '../components/FeedbackWidget.astro';
 import Comments from '../components/Comments.astro';
+import AmazonPicks from '../components/AmazonPicks.astro';
 
 interface Props {
   entry: CollectionEntry<'articles'>;
@@ -235,6 +236,7 @@ const profile = SITE_CONFIG.profile;
       {/* Pub in-content haut (display responsive) — ne rend rien sans slot */}
       <AdUnit slotKey="inArticleTop" />
       <AdInContent slotKey="inArticleMid" />
+      <AmazonPicks variant="top" title={data.title} tags={data.tags} category={data.category} />
 
       {/* Body */}
       <div class="prose-article">
@@ -266,6 +268,7 @@ const profile = SITE_CONFIG.profile;
       })()}
 
       {/* Auto-FAQ */}
+      <AmazonPicks variant="end" title={data.title} tags={data.tags} category={data.category} />
       <AutoFaq
         title={data.title}
         intent={intent.primary}

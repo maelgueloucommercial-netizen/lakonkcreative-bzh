@@ -1,0 +1,74 @@
+{
+  "titre": "Pour découvrir Concarneau",
+  "titreFin": "Le Finistère dans le sac",
+  "saison": {
+    "q": "mariniere",
+    "libelle": "bretonnes"
+  },
+  "items": [
+    {
+      "label": "Guide du Finistère",
+      "q": "guide finistere",
+      "mots": [
+        "finistère",
+        "visiter",
+        "tourisme",
+        "bretagne",
+        "concarneau"
+      ]
+    },
+    {
+      "label": "Carte IGN de Concarneau",
+      "q": "carte ign concarneau",
+      "mots": [
+        "carte",
+        "randonnée",
+        "sentier",
+        "côtier",
+        "gr34"
+      ]
+    },
+    {
+      "label": "Marinière",
+      "q": "mariniere",
+      "mots": [
+        "marinière",
+        "breton",
+        "mode",
+        "rayures"
+      ]
+    },
+    {
+      "label": "Ciré breton",
+      "q": "ciré breton",
+      "mots": [
+        "pluie",
+        "ciré",
+        "port",
+        "marin"
+      ]
+    },
+    {
+      "label": "Livres sur l’histoire de la Bretagne",
+      "q": "livre histoire bretagne",
+      "mots": [
+        "histoire",
+        "patrimoine",
+        "ville close",
+        "remparts"
+      ]
+    },
+    {
+      "label": "Conserves de poisson bretonnes",
+      "q": "conserves poisson bretagne",
+      "mots": [
+        "poisson",
+        "sardines",
+        "thon",
+        "pêche",
+        "conserverie"
+      ]
+    }
+  ],
+  "bouton": "Voir sur Amazon"
+}
