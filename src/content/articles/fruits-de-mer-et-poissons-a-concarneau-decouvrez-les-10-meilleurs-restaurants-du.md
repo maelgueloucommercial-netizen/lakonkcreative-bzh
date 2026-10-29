@@ -273,3 +273,7 @@ La sardine concarnoise, pêchée au filet tournant de juin à octobre, est la st
 **Dossier 3 – Les restaurants avec vue sur le port : sélection pratique**
 
 Côté quai Carnot, les terrasses offrent une vue directe sur les bateaux de pêche et la criée. Côté Ville Close, les tables sont plus intimistes, avec vue sur le château et le vieux bassin. Quelques adresses se distinguent par leur terrasse chauffée (ouverture dès mars) et leur menu du jour à moins de 25 €, incluant entrée, plat de poisson et dessert. Il est conseillé de réserver en juillet-août, surtout pour les tables en bord de quai, prises d'assaut dès 19 h. En basse saison, la plupart des établissements ferment un jour par semaine (souvent le mardi ou le mercredi), à vérifier avant de se déplacer.
+
+## Pour aller plus loin
+
+- [Concarneau et les produits de la mer : le guide ultime 2026](/concarneau-et-les-produits-de-la-mer-le-guide-ultime-2026/)

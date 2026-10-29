@@ -234,3 +234,4 @@ Le Flaveur est ouvert du mardi au samedi, le midi et le soir. La salle étant pe
 - [Concarneau et les artisans : 5 secteurs clés à découvrir](/concarneau-et-les-artisans-5-secteurs-cles-a-decouvrir/)
 - [Concarneau et les galeries dart : le guide 2026](/concarneau-et-les-galeries-d-art-le-guide-2026/)
 - [Concarneau et ses plages de sable fin](/concarneau-et-ses-plages-de-sable-fin/)
+- [Concarneau et les produits de la mer : le guide ultime 2026](/concarneau-et-les-produits-de-la-mer-le-guide-ultime-2026/)

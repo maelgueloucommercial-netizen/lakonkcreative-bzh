@@ -101,3 +101,4 @@ Pour approfondir, voir également [Gestion patrimoine offshore conseils d un fid
 - [Concarneau et les galeries dart : le guide 2026](/concarneau-et-les-galeries-d-art-le-guide-2026/)
 - [Concarneau ville portuaire : le guide 2026](/concarneau-ville-portuaire-le-guide-2026/)
 - [Concarneau et ses plages de sable fin](/concarneau-et-ses-plages-de-sable-fin/)
+- [Concarneau et les produits de la mer : le guide ultime 2026](/concarneau-et-les-produits-de-la-mer-le-guide-ultime-2026/)

@@ -261,3 +261,7 @@ Les informations présentées s’appuient sur des sources vérifiables : les se
 Ce travail ne repose pas sur des avis subjectifs ou des expériences uniques. Chaque itinéraire proposé a été testé à pied, à vélo et en voiture, afin de mesurer les temps de parcours réels entre les sites (Ville Close, plage des Sables Blancs, chapelle de la Trinité, etc.). Les conseils pratiques, comme les alternatives de parking en haute saison ou les horaires de traversée vers les Glénan, sont issus de constats directs sur le terrain.
 
 Enfin, l’auteur s’engage à signaler toute modification notable (travaux, fermeture temporaire, changement de tarif) dès qu’elle est portée à sa connaissance. Pour toute question relative à une information précise, il est possible de nous contacter via le formulaire du site. Cette transparence vise à garantir une confiance durable avec les lecteurs qui préparent leur séjour à Concarneau.
+
+## Pour aller plus loin
+
+- [Concarneau et les produits de la mer : le guide ultime 2026](/concarneau-et-les-produits-de-la-mer-le-guide-ultime-2026/)
