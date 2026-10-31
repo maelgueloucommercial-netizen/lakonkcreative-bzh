@@ -176,3 +176,6 @@ Vous aimerez peut-être aussi [Marche paysan a gros rederching decouvrez les](ht
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et les festivals : Guide 2026](/concarneau-et-les-festivals-guide-2026/)

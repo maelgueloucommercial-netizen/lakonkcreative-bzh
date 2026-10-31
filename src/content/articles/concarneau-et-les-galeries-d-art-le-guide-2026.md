@@ -162,3 +162,6 @@ Les options pour acheter des œuvres d'**art** à Concarneau sont une excellente
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et les festivals : Guide 2026](/concarneau-et-les-festivals-guide-2026/)
