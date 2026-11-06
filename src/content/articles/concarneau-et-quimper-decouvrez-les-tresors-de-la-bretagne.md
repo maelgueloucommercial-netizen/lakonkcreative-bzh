@@ -99,3 +99,6 @@ Dans le même esprit : [Randonnees provinois 8 itineraires 77](https://sognolles
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et Brest : Découvrez les Trésors de la Bretagne](/concarneau-et-brest-decouvrez-les-tresors-de-la-bretagne/)

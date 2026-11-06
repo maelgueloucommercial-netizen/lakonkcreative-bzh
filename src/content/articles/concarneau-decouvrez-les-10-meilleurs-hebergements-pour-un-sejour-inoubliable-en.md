@@ -234,3 +234,4 @@ Les tarifs varient de 79 € à 149 € selon la saison et le type de chambre. L
 - [Découvrez Concarneau, la ville corsaire bretonne](/decouvrez-concarneau-la-ville-corsaire-bretonne/)
 - [Découvrez la Gastronomie de Concarneau](/decouvrez-la-gastronomie-de-concarneau/)
 - [Concarneau et Quimper : Découvrez les Trésors de la Bretagne](/concarneau-et-quimper-decouvrez-les-tresors-de-la-bretagne/)
+- [Concarneau et Brest : Découvrez les Trésors de la Bretagne](/concarneau-et-brest-decouvrez-les-tresors-de-la-bretagne/)

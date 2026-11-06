@@ -259,3 +259,4 @@ Pour la baignade surveillée et les services, privilégiez les Sables Blancs ou 
 - [Découvrez la Gastronomie de Concarneau](/decouvrez-la-gastronomie-de-concarneau/)
 - [Concarneau et ses plages de sable fin](/concarneau-et-ses-plages-de-sable-fin/)
 - [Concarneau et Quimper : Découvrez les Trésors de la Bretagne](/concarneau-et-quimper-decouvrez-les-tresors-de-la-bretagne/)
+- [Concarneau et Brest : Découvrez les Trésors de la Bretagne](/concarneau-et-brest-decouvrez-les-tresors-de-la-bretagne/)
