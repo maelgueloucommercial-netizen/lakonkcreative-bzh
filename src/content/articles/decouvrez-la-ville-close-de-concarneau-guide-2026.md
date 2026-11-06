@@ -153,3 +153,6 @@ Sur un sujet voisin, découvrez [Randonnee sur le gr10 entre aulus les](https://
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et Quimper : Découvrez les Trésors de la Bretagne](/concarneau-et-quimper-decouvrez-les-tresors-de-la-bretagne/)
