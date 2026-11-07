@@ -72,6 +72,7 @@ La Bretagne est une région idéale pour les amoureux de la mer, avec ses plages
 
 ## Pour aller plus loin
 Pour découvrir davantage sur Concarneau et Brest, les visiteurs peuvent consulter les sites officiels de la ville et de la région. Les sites [Insee · Statistiques officielles](https://www.insee.fr/fr/accueil) et [IGN · Cartographie nationale](https://www.ign.fr/) offrent des informations utiles sur la démographie, l'économie et la géographie de la région.
+- [Concarneau, ville dart et dhistoire : découvrez ses trésors](/concarneau-ville-d-art-et-d-histoire-decouvrez-ses-tresors/)
 
 ## Questions fréquentes
 

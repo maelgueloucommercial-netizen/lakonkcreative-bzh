@@ -163,3 +163,7 @@ L'US Concarneau, malgré sa montée en Ligue 2 en 2023, conserve une image de cl
 L'identité visuelle du club, avec ses couleurs bleu et rouge, est restée stable. Le club entretient une relation privilégiée avec ses partenaires locaux, notamment les entreprises de l'agroalimentaire et de la pêche, secteurs dominants de la région. Le soutien des collectivités territoriales (Ville de Concarneau, Quimperlé Communauté, Conseil départemental du Finistère) est crucial pour la viabilité du projet, le club ayant un budget parmi les plus faibles de Ligue 2 (environ 10 millions d'euros).
 
 L'image du club est également façonnée par sa politique de formation et son ancrage dans le football amateur breton. Il est perçu comme un « club de terroir » qui s'appuie sur un recrutement régional et une identité forte, contrastant avec les grosses écuries du championnat. La montée en Ligue 2 a généré une forte couverture médiatique régionale (Le Télégramme, Ouest-France) et une fierté locale palpable, sans pour autant créer une ferveur comparable à celle des grands clubs bretons comme Rennes ou Nantes. Les déplacements des supporters, organisés en bus, sont souvent décrits comme conviviaux et bon enfant.
+
+## Pour aller plus loin
+
+- [Concarneau, ville dart et dhistoire : découvrez ses trésors](/concarneau-ville-d-art-et-d-histoire-decouvrez-ses-tresors/)

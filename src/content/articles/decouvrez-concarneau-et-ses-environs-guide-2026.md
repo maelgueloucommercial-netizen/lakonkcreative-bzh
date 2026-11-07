@@ -278,3 +278,4 @@ Le site est particulièrement photogénique en fin de journée, quand la lumièr
 - [Concarneau et ses plages de sable fin](/concarneau-et-ses-plages-de-sable-fin/)
 - [Concarneau et Quimper : Découvrez les Trésors de la Bretagne](/concarneau-et-quimper-decouvrez-les-tresors-de-la-bretagne/)
 - [Concarneau et Brest : Découvrez les Trésors de la Bretagne](/concarneau-et-brest-decouvrez-les-tresors-de-la-bretagne/)
+- [Concarneau, ville dart et dhistoire : découvrez ses trésors](/concarneau-ville-d-art-et-d-histoire-decouvrez-ses-tresors/)

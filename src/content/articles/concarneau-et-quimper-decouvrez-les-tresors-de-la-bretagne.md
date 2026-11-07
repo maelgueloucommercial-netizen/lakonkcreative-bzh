@@ -102,3 +102,4 @@ Dans le même esprit : [Randonnees provinois 8 itineraires 77](https://sognolles
 ## Pour aller plus loin
 
 - [Concarneau et Brest : Découvrez les Trésors de la Bretagne](/concarneau-et-brest-decouvrez-les-tresors-de-la-bretagne/)
+- [Concarneau, ville dart et dhistoire : découvrez ses trésors](/concarneau-ville-d-art-et-d-histoire-decouvrez-ses-tresors/)

@@ -156,3 +156,4 @@ Sur un sujet voisin, découvrez [Randonnee sur le gr10 entre aulus les](https://
 ## Pour aller plus loin
 
 - [Concarneau et Quimper : Découvrez les Trésors de la Bretagne](/concarneau-et-quimper-decouvrez-les-tresors-de-la-bretagne/)
+- [Concarneau, ville dart et dhistoire : découvrez ses trésors](/concarneau-ville-d-art-et-d-histoire-decouvrez-ses-tresors/)
