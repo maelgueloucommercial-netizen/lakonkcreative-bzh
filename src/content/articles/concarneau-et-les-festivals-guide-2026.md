@@ -176,3 +176,4 @@ Sur un sujet voisin, découvrez [Visiter la carriere de talc de luzenac](https:/
 ## Pour aller plus loin
 
 - [Concarneau et les fromages locaux : guide complet du terroir à la table](/concarneau-et-les-fromages-locaux-guide-complet-du-terroir-a-la-table/)
+- [Concarneau et les autres villes bretonnes : comparaison, atouts et enjeux régionaux](/concarneau-et-les-autres-villes-bretonnes-comparaison-atouts-et-enjeux-regionaux/)

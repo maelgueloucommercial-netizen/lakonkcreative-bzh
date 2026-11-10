@@ -166,3 +166,4 @@ Les options pour acheter des œuvres d'**art** à Concarneau sont une excellente
 
 - [Concarneau et les festivals : Guide 2026](/concarneau-et-les-festivals-guide-2026/)
 - [Concarneau et les fromages locaux : guide complet du terroir à la table](/concarneau-et-les-fromages-locaux-guide-complet-du-terroir-a-la-table/)
+- [Concarneau et les autres villes bretonnes : comparaison, atouts et enjeux régionaux](/concarneau-et-les-autres-villes-bretonnes-comparaison-atouts-et-enjeux-regionaux/)
