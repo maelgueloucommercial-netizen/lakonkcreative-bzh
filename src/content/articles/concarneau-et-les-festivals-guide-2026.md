@@ -173,3 +173,6 @@ Sur un sujet voisin, découvrez [Visiter la carriere de talc de luzenac](https:/
 
 *Liens affiliés Amazon : nous touchons une petite commission sur les achats, sans surcoût pour vous.*
 
+## Pour aller plus loin
+
+- [Concarneau et les fromages locaux : guide complet du terroir à la table](/concarneau-et-les-fromages-locaux-guide-complet-du-terroir-a-la-table/)
