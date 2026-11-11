@@ -194,3 +194,4 @@ Pour approfondir, voir également [Holdings suisses optimisation patrimoine](htt
 - [Concarneau et les festivals : Guide 2026](/concarneau-et-les-festivals-guide-2026/)
 - [Concarneau et les fromages locaux : guide complet du terroir à la table](/concarneau-et-les-fromages-locaux-guide-complet-du-terroir-a-la-table/)
 - [Concarneau et les autres villes bretonnes : comparaison, atouts et enjeux régionaux](/concarneau-et-les-autres-villes-bretonnes-comparaison-atouts-et-enjeux-regionaux/)
+- [Concarneau : guide complet des visites culturelles et du patrimoine breton](/concarneau-guide-complet-des-visites-culturelles-et-du-patrimoine-breton/)
