@@ -13,27 +13,27 @@ const TEAM: Record<string, Array<{ name: string; role: string; bio: string; expe
     {
       name: profile?.author.name ?? 'Léa Charpentier',
       role: profile?.author.role ?? 'Rédactrice locale principale',
-      bio: profile?.author.bio ?? 'Habitante engagée depuis 8 ans, parcourt la région pour rencontrer commerçants, élus et acteurs associatifs.',
+      bio: profile?.author.bio ?? 'Rédige les pages du site sur la vie de la commune et des villages voisins.',
       expertise: ['Vie locale', 'Patrimoine', 'Démarches administratives', 'Annuaire commerces'],
     },
     {
       name: 'Pierre Maréchal',
       role: 'Rédacteur tourisme et patrimoine',
-      bio: 'Guide-conférencier de formation, Pierre photographie et écrit sur les lieux remarquables, sites historiques et chemins de randonnée de la région depuis 15 ans.',
+      bio: 'Pierre écrit les pages tourisme du site : lieux remarquables, sites historiques et chemins de randonnée des environs.',
       expertise: ['Tourisme', 'Histoire', 'Architecture', 'Randonnée'],
     },
   ],
   bricolage: [
     {
       name: profile?.author.name ?? 'Thomas Reno',
-      role: profile?.author.role ?? 'Expert outillage & rédacteur en chef',
-      bio: profile?.author.bio ?? 'Ancien chef de chantier (15 ans BTP). Teste chaque produit pendant plusieurs semaines avant publication. Sa passion : la sécurité au travail et la durabilité.',
+      role: profile?.author.role ?? 'Rédacteur outillage',
+      bio: profile?.author.bio ?? 'Rédige les guides du site à partir des fiches fabricants et des normes de sécurité. Sa priorité : la sécurité au travail.',
       expertise: ['Outillage électroportatif', 'Sécurité chantier', 'Béton et maçonnerie'],
     },
     {
       name: 'Stéphane Couture',
       role: 'Rédacteur menuiserie & ébénisterie',
-      bio: 'Compagnon menuisier formé sur le Tour de France. Maîtrise les techniques traditionnelles autant que l\'outillage électroportatif moderne.',
+      bio: 'Stéphane écrit les guides menuiserie du site à partir des fiches techniques des fabricants et des notices, citées dans chaque page.',
       expertise: ['Menuiserie', 'Ébénisterie', 'Outils manuels', 'Finitions bois'],
     },
   ],
@@ -41,22 +41,22 @@ const TEAM: Record<string, Array<{ name: string; role: string; bio: string; expe
     {
       name: profile?.author.name ?? 'Marc Devauclair',
       role: profile?.author.role ?? 'Rédacteur en chef',
-      bio: profile?.author.bio ?? 'Journaliste tech depuis 1998, teste les produits chez lui pendant plusieurs semaines avant chaque test. Aucune marque ne sponsorise ses tests.',
+      bio: profile?.author.bio ?? 'Rédige les guides du site à partir des fiches constructeurs et des sources publiques, citées dans chaque page.',
       expertise: ['Vidéoprojection', 'Audio Hi-Fi', 'Home cinéma', 'TV grand format'],
     },
     {
       name: 'Élise Vandermeulen',
-      role: 'Spécialiste audio',
-      bio: 'Ingénieure du son de formation (École Louis-Lumière, 2008). Studio de mesure calibré, analyses techniques détaillées (réponse fréquence, distorsion, latence).',
-      expertise: ['Audio Hi-Fi', 'Casques', 'Enceintes', 'Mesures acoustiques'],
+      role: 'Rédactrice audio',
+      bio: 'Élise rédige les guides audio du site à partir des fiches constructeurs et des mesures publiées par des laboratoires indépendants, citées dans chaque page.',
+      expertise: ['Audio Hi-Fi', 'Casques', 'Enceintes'],
     },
   ],
   adulte: [
     {
       name: profile?.author.name ?? 'Camille Vermeer',
       role: profile?.author.role ?? 'Rédactrice principale',
-      bio: profile?.author.bio ?? 'Sexologue diplômée DIU Sexologie clinique (Bordeaux 2020). Démystifie le plaisir avec un ton sans tabou ni vulgarité.',
-      expertise: ['Santé sexuelle', 'Pédagogie', 'Comparatifs produits'],
+      bio: profile?.author.bio ?? 'Coordonne les guides du site et la lecture des fiches produit, avec un ton sans tabou ni vulgarité.',
+      expertise: ['Guides de choix', 'Pédagogie', 'Comparatifs produits'],
     },
   ],
 };

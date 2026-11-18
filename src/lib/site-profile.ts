@@ -126,7 +126,7 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Curieux de sciences, familles, enseignant·es de SVT et passionnés de nature qui veulent comprendre et élever un blob chez eux.',
     author: {
       name: 'Léa Marchetti',
-      role: 'Médiatrice scientifique et rédactrice en chef',
+      role: 'Rédactrice en chef',
       credentials: 'Master de biologie, parcours médiation scientifique',
       bio: 'Passionnée de vulgarisation du vivant, Léa anime des ateliers blob en milieu scolaire depuis 2019. Elle s\'appuie sur les travaux de référence — dont ceux d\'Audrey Dussutour (CNRS) — pour expliquer simplement, sans sacrifier la rigueur, comment le blob vit, se déplace et « apprend ».',
     },
@@ -197,8 +197,8 @@ const PROFILES: Record<string, SiteProfile> = {
     author: {
       name: 'Agathe Roussel',
       role: 'Rédactrice en chef, passionnée de minéralogie',
-      credentials: 'Formation en lithothérapie + collectionneuse de minéraux',
-      bio: 'Agathe collectionne et étudie les pierres depuis quinze ans. Elle écrit une lithothérapie honnête : ce que dit la tradition, ce que dit la minéralogie, et où s\'arrête le bien-être. Aucune de ses fiches ne promet de guérison — seulement du ressenti, de la symbolique et des faits vérifiables.',
+      credentials: 'Fiches fondées sur les bases minéralogiques publiques et les sources citées',
+      bio: 'Agathe écrit une lithothérapie honnête : ce que dit la tradition, ce que dit la minéralogie, et où s\'arrête le bien-être. Aucune de ses fiches ne promet de guérison — seulement du ressenti, de la symbolique et des faits vérifiables.',
     },
     categories: [
       { slug: 'vertus-des-pierres', name: 'Vertus des pierres', emoji: '💜', description: 'Propriétés traditionnelles, symbolique et signification de chaque pierre, présentées sans promesse médicale.', keywords: ['vertu', 'propriete', 'bienfait', 'signification', 'symbolique', 'pierre', 'cristal', 'amethyste', 'quartz', 'jaspe', 'kambaba', 'calcedoine', 'opale', 'morado', 'obsidienne', 'aigue marine', 'shiva lingam', 'oeil', 'lapis', 'citrine', 'tourmaline', 'labradorite', 'pierre de lune', 'stichtite', 'vertus'] },
@@ -477,9 +477,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Vacanciers et curieux qui préparent un séjour dans le Finistère sud (Kerfany, Moëlan, Pont-Aven, région de Quimperlé).',
     author: {
       name: 'Soizic Le Goff',
-      role: 'Guide locale, amoureuse du Finistère sud',
-      credentials: 'Native de la région de Quimperlé',
-      bio: 'Soizic connaît chaque crique de la côte moëlanaise. Elle partage ses adresses et ses itinéraires préférés, de la plage de Kerfany aux sentiers du GR34, pour faire découvrir ce bout de Bretagne sans le dénaturer.',
+      role: 'Rédactrice, amoureuse du Finistère sud',
+      credentials: 'Guide rédigé à partir des sources publiques (commune, office de tourisme, Météo-France), citées',
+      bio: 'Soizic écrit le guide de la côte moëlanaise à partir des sources publiques citées. Elle rassemble adresses et itinéraires, de la plage de Kerfany aux sentiers du GR34, pour faire découvrir ce bout de Bretagne sans le dénaturer.',
     },
     categories: [
       { slug: 'plage-de-kerfany', name: 'La plage de Kerfany', emoji: '🏖️', description: 'Tout sur la plage de Kerfany-les-Pins : accès, marées, baignade, stationnement et bons plans.', keywords: ['plage', 'kerfany', 'kerfany les pins', 'baignade', 'maree', 'sable', 'eau turquoise', 'acces', 'parking', 'stationnement', 'crique', 'mer', 'plage moelan', 'famille'] },
@@ -549,9 +549,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Concarnois, vacanciers et curieux qui vivent ou préparent un séjour à Concarneau et en Cornouaille (Finistère sud).',
     author: {
       name: 'Yann Le Goff',
-      role: 'Historien et chroniqueur de Concarneau',
-      credentials: 'Né et formé en Cornouaille',
-      bio: 'Yann connaît Concarneau pierre par pierre, des remparts de la Ville Close aux pontons de l\'avant-port. Il raconte la ville, son patrimoine maritime et sa vie d\'aujourd\'hui, et partage ses adresses pour la découvrir sans cliché.',
+      role: 'Chroniqueur de Concarneau',
+      credentials: 'Histoire et patrimoine sourcés (archives, Inventaire du patrimoine, publications locales)',
+      bio: 'Yann écrit sur Concarneau, des remparts de la Ville Close aux pontons de l\'avant-port, à partir des archives et des publications sur le patrimoine, citées. Il raconte la ville, son patrimoine maritime et sa vie d\'aujourd\'hui, et partage ses adresses pour la découvrir sans cliché.',
     },
     geo: {
       region: 'FR-29',
@@ -629,7 +629,7 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Adultes (18+) curieux de comprendre ces plateformes, et créateurs ou créatrices qui veulent se lancer et monétiser leur contenu en règle.',
     author: {
       name: 'Léa Dubois',
-      role: 'Journaliste culture numérique',
+      role: 'Rédactrice culture numérique',
       credentials: 'Spécialiste de l\'économie des créateurs',
       bio: 'Léa suit l\'économie de la création de contenu en ligne depuis ses débuts. Elle explique le fonctionnement réel des plateformes — abonnements, commissions, fiscalité, sécurité — avec un ton factuel et sans jugement, pour aider à comprendre et à décider.',
     },
@@ -766,14 +766,14 @@ const PROFILES: Record<string, SiteProfile> = {
     ],
     layoutVariant: 'luxe',
     positioning: 'Magazine indépendant du plaisir : comparatifs, guides et conseils sans tabou.',
-    mission: 'Aider chacun·e à trouver le bon jouet selon son corps, son couple et ses envies. Tests indépendants, pédagogie sans gêne, et focus sur la sécurité (matières, hygiène, consentement).',
+    mission: 'Aider chacun·e à trouver le bon jouet selon son corps, son couple et ses envies. Comparatifs indépendants, pédagogie sans gêne, et focus sur la sécurité (matières, hygiène, consentement).',
     uniqueValue: 'Le seul site qui vous donne un calculateur de compatibilité lubrifiant et un quiz détaillé en 7 questions pour trouver VOTRE sextoy.',
     targetAudience: 'Adultes curieux, débutant·es comme initié·es, en couple ou solo, à la recherche de conseils factuels et d\'un ton respectueux.',
     author: {
       name: 'Camille Vermeer',
-      role: 'Sexologue et rédactrice principale',
-      credentials: 'Sexologue diplômée DIU Sexologie clinique (Bordeaux 2020)',
-      bio: 'Après 5 ans d\'exercice en cabinet, Camille a fondé ce magazine pour démystifier le plaisir avec un ton sans tabou ni vulgarité. Elle teste, compare et recommande dans le respect du consentement et avec une approche pédagogique.',
+      role: 'Rédactrice principale',
+      credentials: 'Guides fondés sur les fiches fabricants et les recommandations de santé publique, citées',
+      bio: 'Camille a fondé ce magazine pour démystifier le plaisir avec un ton sans tabou ni vulgarité. Elle compare et explique dans le respect du consentement et avec une approche pédagogique.',
     },
     categories: [
       { slug: 'vibros-stimulateurs', name: 'Vibros et stimulateurs', emoji: '✨', description: 'Tout sur les vibromasseurs internes, externes, à pression d\'air et hybrides. Notre rayon le plus complet.', keywords: ['vibro', 'vibromasseur', 'stimulateur', 'womanizer', 'satisfyer', 'rabbit', 'point g', 'gode', 'godemichet', 'sex toy', 'sex-toy', 'sextoy', 'fleshlight', 'masturbateur', 'masturbation', 'jouet', 'plug', 'oeuf vibrant', 'boules de geisha', 'poupee sexuelle', 'lelo', 'we-vibe', 'fun factory', 'tenga'] },
@@ -793,11 +793,11 @@ const PROFILES: Record<string, SiteProfile> = {
     ],
     hero: {
       title: 'Le plaisir, sans tabou ni mode d\'emploi mystère.',
-      subtitle: 'Tests indépendants, calculateur de compatibilité lube, quiz et guides pédagogiques.',
+      subtitle: 'Comparatifs indépendants, calculateur de compatibilité lube, quiz et guides pédagogiques.',
       intro: 'Vous êtes au bon endroit si vous cherchez des conseils factuels avant d\'acheter votre premier (ou dixième) sextoy. Pas de jugement, pas de vulgarité, juste de l\'information honnête : matières corps-safe, compatibilité lubrifiant, niveau sonore réel, retour utilisateur·trices. Notre quiz vous oriente en 7 questions, notre calculateur de compatibilité vous évite de ruiner votre jouet.',
       primaryCta: { label: '🧠 Faire le quiz (3 min)', href: '/outils/quiz-sextoy/' },
       secondaryCta: { label: '🧪 Compatibilité lubrifiant', href: '/outils/compatibilite-lubrifiant/' },
-      badges: ['🔒 Cookie-less', '📦 Pas de tracker', '🇫🇷 Site indépendant', '✅ Tests sans biais'],
+      badges: ['🔒 Cookie-less', '📦 Pas de tracker', '🇫🇷 Site indépendant', '✅ Comparatifs sans biais'],
       imageHint: 'silk fabric red',
     },
     targetKeywords: [
@@ -816,7 +816,7 @@ const PROFILES: Record<string, SiteProfile> = {
     trustBadges: [
       { emoji: '📦', label: 'Livraison neutre', tooltip: 'Tous les liens sponsorisés vers des marchands proposent une livraison en colis sans logo' },
       { emoji: '🔒', label: 'Aucun cookie tiers', tooltip: 'Pas de tracker pub. Mesure d\'audience anonyme uniquement.' },
-      { emoji: '✅', label: 'Tests indépendants', tooltip: 'Achetés en magasin ou prêt restitué après test. Aucune marque ne sponsorise nos avis.' },
+      { emoji: '✅', label: 'Comparatifs indépendants', tooltip: 'Aucune marque ne sponsorise nos avis.' },
       { emoji: '🇫🇷', label: 'Conseils RGPD-friendly', tooltip: 'Vos données ne servent qu\'à vous répondre. Pas de revente, jamais.' },
     ],
     calculatorPresets: [
@@ -938,8 +938,8 @@ const PROFILES: Record<string, SiteProfile> = {
     author: {
       name: 'Sophie Aubert',
       role: 'Rédactrice locale',
-      credentials: 'Habitante de Carcès depuis 12 ans, ancienne secrétaire de mairie',
-      bio: 'Sophie connaît chaque ruelle du village et chaque commerçant. Elle écrit avec un souci du détail historique et vérifie ses informations en mairie ou aux Archives départementales du Var.',
+      credentials: 'Rédaction indépendante, sources publiques citées',
+      bio: 'Sophie écrit les pages du site sur Carcès et le Centre-Var. Elle s’appuie sur les sources publiques (site de la commune, Archives départementales du Var, Insee) et renvoie vers elles plutôt que de les recopier.',
     },
     categories: [
       { slug: 'vie-locale', name: 'Vie locale & vie associative', emoji: '🏛️', description: 'Mairie, services publics, associations, école, sport. Tout le quotidien carcéen.', keywords: ['mairie', 'ecole', 'association', 'service', 'club', 'commune'] },
@@ -977,7 +977,7 @@ const PROFILES: Record<string, SiteProfile> = {
     trustBadges: [
       { emoji: '🇫🇷', label: 'Site indépendant', tooltip: 'Édité par une rédaction privée, non-officiel. Source officielle = mairie.' },
       { emoji: '🌿', label: 'Eco-conçu', tooltip: 'Hébergement Cloudflare, pas de tracker tiers, performance optimale.' },
-      { emoji: '✅', label: 'Sources vérifiées', tooltip: 'Informations vérifiées en mairie ou aux Archives du Var.' },
+      { emoji: '✅', label: 'Sources vérifiées', tooltip: 'Informations tirées des sources publiques (commune, Archives du Var, Insee), citées.' },
     ],
   },
 
@@ -1089,9 +1089,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Mérensois·es, randonneurs GR10, éleveurs de chevaux mérens, amateurs de thermalisme, passionnés des Pyrénées.',
     author: {
       name: 'Aurélie Fontaine',
-      role: 'Accompagnatrice en montagne',
-      credentials: 'BPJEPS Activités de la randonnée, accompagnatrice depuis 2014',
-      bio: 'Aurélie connaît chaque sentier du Couserans et chaque refuge des Pyrénées centrales. Elle accompagne des groupes sur le GR10 et écrit pour vulgariser la sécurité en montagne.',
+      role: 'Rédactrice randonnée',
+      credentials: 'Itinéraires sourcés (IGN, FFRandonnée, Météo-France), cités',
+      bio: 'Aurélie écrit les pages randonnée du site à partir des cartes IGN, des topos de la FFRandonnée et des bulletins Météo-France, cités. Elle met la sécurité en montagne au premier plan.',
     },
     categories: [
       { slug: 'randonnees-gr', name: 'Randonnées GR et sentiers', emoji: '🥾', description: 'GR10 Mérens-Bonac, sentiers d\'accès aux lacs, étangs de Bassiès, port de Mérens.', keywords: ['randonnee', 'sentier', 'gr', 'gr10', 'lac', 'etang', 'port', 'col'] },
@@ -1127,7 +1127,7 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['ariege-pyrenees.com', 'tourisme-couserans.com', 'parc-pyrenees-ariegeoises.fr'],
     wikiImageSubjects: ['Mérens-les-Vals', 'Cheval de Mérens', 'GR 10', 'Pyrénées', 'Ax-les-Thermes', 'Couserans', 'Ariège (département)', 'Vautour fauve'],
     trustBadges: [
-      { emoji: '🥾', label: 'Conseils pros', tooltip: 'Notre rédactrice est accompagnatrice montagne diplômée BPJEPS.' },
+      { emoji: '🥾', label: 'Itinéraires sourcés', tooltip: 'Distances et dénivelés tirés des cartes IGN et des topos publiés, cités.' },
       { emoji: '⚠️', label: 'Sécurité prioritaire', tooltip: 'Toutes nos infos rando incluent météo, dénivelé et conseils sécurité.' },
       { emoji: '🇫🇷', label: 'Site indépendant', tooltip: 'Non affilié à l\'office du tourisme. Source officielle = mairie.' },
     ],
@@ -1358,14 +1358,14 @@ const PROFILES: Record<string, SiteProfile> = {
     ],
     layoutVariant: 'lifestyle',
     positioning: 'Le guide indépendant des pompes à eau pour jardin, agriculture et bricolage.',
-    mission: 'Aider particuliers et professionnels à dimensionner correctement leur pompe selon usage, profondeur et débit nécessaire. Tests indépendants, focus efficacité énergétique et durabilité.',
+    mission: 'Aider particuliers et professionnels à dimensionner correctement leur pompe selon usage, profondeur et débit nécessaire. Comparatifs indépendants, focus efficacité énergétique et durabilité.',
     uniqueValue: 'Calculateur HMT (hauteur manométrique totale), dimensionnement débit selon usage (arrosage, irrigation, vide-cave), comparateur immergée vs surface vs solaire, calcul consommation énergétique annuelle.',
     targetAudience: 'Jardiniers amateurs, maraîchers, agriculteurs en irrigation, propriétaires de bassin, particuliers face à inondation/cave humide.',
     author: {
       name: 'Maxime Berthier',
-      role: 'Hydraulicien et rédacteur technique',
-      credentials: 'Ingénieur hydraulique (BTS GEMEAU + licence pro), 12 ans en bureau d\'études irrigation',
-      bio: 'Maxime conçoit des installations d\'irrigation pour la vigne et le maraîchage depuis 12 ans. Il vulgarise les concepts hydrauliques (HMT, NPSH, courbe de pompe) pour que les particuliers fassent le bon choix.',
+      role: 'Rédacteur technique',
+      credentials: 'Guides fondés sur les courbes constructeurs et les formules hydrauliques de référence',
+      bio: 'Maxime rédige les guides du site à partir des courbes débit/HMT publiées par les constructeurs. Il vulgarise les concepts hydrauliques (HMT, NPSH, courbe de pompe) pour que les particuliers fassent le bon choix.',
     },
     categories: [
       { slug: 'pompes-surface', name: 'Pompes de surface', emoji: '💧', description: 'Pompes auto-amorçantes, pompes de jardin, surpresseurs, jet pumps.', keywords: ['surface', 'jardin', 'amorcante', 'surpresseur', 'jet'] },
@@ -1386,10 +1386,10 @@ const PROFILES: Record<string, SiteProfile> = {
     hero: {
       title: 'La bonne pompe, du premier coup.',
       subtitle: 'Dimensionnement HMT, débit selon usage et comparatifs immergée/surface/solaire — par un hydraulicien.',
-      intro: 'Une pompe sous-dimensionnée tourne en surchauffe, une pompe surdimensionnée gaspille de l\'énergie. Notre rédacteur, ingénieur hydraulique 12 ans en bureau d\'études, vous donne les vrais critères de choix : HMT, débit nominal, NPSH, profondeur d\'aspiration. Notre calculateur HMT simplifie la formule pour vous orienter rapidement.',
+      intro: 'Une pompe sous-dimensionnée tourne en surchauffe, une pompe surdimensionnée gaspille de l\'énergie. Nos guides donnent les vrais critères de choix : HMT, débit nominal, NPSH, profondeur d\'aspiration. Notre calculateur HMT simplifie la formule pour vous orienter rapidement.',
       primaryCta: { label: '🧮 Calculer ma HMT', href: '/outils/calculateur/' },
       secondaryCta: { label: '⚖️ Comparer pompes', href: '/outils/comparateur/' },
-      badges: ['💧 12 ans hydraulique', '🌱 Irrigation pro', '☀️ Solutions solaires', '✅ Tests indépendants'],
+      badges: ['💧 Courbes constructeurs', '🌱 Irrigation pro', '☀️ Solutions solaires', '✅ Tests indépendants'],
       imageHint: 'water pump garden irrigation',
     },
     targetKeywords: [
@@ -1402,9 +1402,9 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['oxymax.fr', 'tubesetraccords.com', 'guideirrigation.com'],
     wikiImageSubjects: ['Pompe centrifuge', 'Irrigation', 'Pompe à eau', 'Jardin potager', 'Arrosage', 'Cours d\'eau', 'Réservoir d\'eau'],
     trustBadges: [
-      { emoji: '💧', label: 'Hydraulicien diplômé', tooltip: 'Notre rédacteur a 12 ans en bureau d\'études irrigation.' },
+      { emoji: '💧', label: 'Courbes constructeurs', tooltip: 'Débits et HMT relevés sur les courbes publiées par les fabricants.' },
       { emoji: '⚡', label: 'Calcul énergie', tooltip: 'Tous nos comparatifs incluent la consommation kWh annuelle.' },
-      { emoji: '✅', label: 'Tests indépendants', tooltip: 'Pompes testées en conditions réelles sur 30 jours minimum.' },
+      { emoji: '✅', label: 'Comparatifs indépendants', tooltip: 'Comparatifs établis sur les données constructeurs et les avis agrégés.' },
     ],
     calculatorPresets: [
       {
@@ -1913,12 +1913,12 @@ const PROFILES: Record<string, SiteProfile> = {
       { slug: 'timer', label: 'Minuteur pause écran 20-20-20', emoji: '⏱️', description: 'Règle ergonomique pour préserver la vue lors de longues sessions.', seoKeyword: 'regle 20 20 20 ecran' },
     ],
     hero: {
-      title: 'Le bon vidéoprojecteur, calibré et testé.',
-      subtitle: 'Tests 30 jours, mesures objectives à la sonde X-Rite, comparatifs Epson/BenQ/Optoma.',
-      intro: 'Choisir un vidéoprojecteur, c\'est arbitrer entre lumens, contraste, technologie (3LCD vs DLP vs LCoS), HDR et budget. Notre rédacteur, journaliste tech depuis 1998 et calibreur ISF certifié, mesure objectivement chaque modèle avec une sonde X-Rite. Notre calculateur distance/taille vous donne la position parfaite selon la norme SMPTE.',
+      title: 'Le bon vidéoprojecteur, bien choisi et bien réglé.',
+      subtitle: 'Fiches constructeurs, mesures publiées et calculateurs SMPTE : comparatifs Epson/BenQ/Optoma.',
+      intro: 'Choisir un vidéoprojecteur, c\'est arbitrer entre lumens, contraste, technologie (3LCD vs DLP vs LCoS), HDR et budget. Nos comparatifs s\'appuient sur les fiches constructeurs et les mesures publiées par des laboratoires indépendants, citées. Notre calculateur distance/taille vous donne la position parfaite selon la norme SMPTE.',
       primaryCta: { label: '🧮 Distance / taille image', href: '/outils/calculateur/' },
       secondaryCta: { label: '⚖️ Comparer 4 modèles', href: '/outils/comparateur/' },
-      badges: ['🎬 Calibrage ISF', '📐 Mesures sonde X-Rite', '🎮 Tests 4K@120Hz', '✅ Tests 30 jours'],
+      badges: ['🎬 Guides calibrage', '📐 Normes SMPTE/ANSI', '🎮 Gaming 4K@120Hz', '✅ Sources citées'],
       imageHint: 'home cinema projector dark room',
     },
     targetKeywords: [
@@ -1931,9 +1931,9 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['lesnumeriques.com', 'projectorcentral.com', 'avforums.com', 'cnetfrance.fr'],
     wikiImageSubjects: ['Vidéoprojecteur', 'Home cinéma', 'Salle de cinéma', 'Cinéma', 'Salon (pièce)', 'Écran (cinéma)', 'Projection cinématographique'],
     trustBadges: [
-      { emoji: '🎬', label: 'Calibreur ISF', tooltip: 'Notre rédacteur est certifié Imaging Science Foundation Level 1.' },
-      { emoji: '📐', label: 'Sonde X-Rite', tooltip: 'Mesures objectives luminance/gamma/delta E avec sonde calibrée.' },
-      { emoji: '✅', label: 'Tests 30 jours', tooltip: 'Achetés ou prêtés puis restitués. Aucune marque ne sponsorise nos tests.' },
+      { emoji: '🎬', label: 'Guides calibrage', tooltip: 'Réglages expliqués d’après les recommandations publiées (ISF, SMPTE).' },
+      { emoji: '📐', label: 'Mesures publiées', tooltip: 'Luminance, gamma et delta E repris des laboratoires indépendants, cités.' },
+      { emoji: '✅', label: 'Indépendant', tooltip: 'Aucune marque ne sponsorise nos comparatifs.' },
     ],
     calculatorPresets: [
       {
@@ -2041,9 +2041,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Propriétaires maisons individuelles en rénovation énergétique, bricoleurs ruraux, amateurs de distillation artisanale.',
     author: {
       name: 'Antoine Vasseur',
-      role: 'Installateur Qualibois 15 ans',
-      credentials: 'Qualibois Air/Eau RGE, formation Flamme Verte, ex-artisan Auvergne',
-      bio: 'Antoine installe poêles, inserts et chaudières bouilleur depuis 15 ans. Certifié Qualibois RGE, il a accompagné 800+ rénovations énergétiques et connaît tous les pièges : sous-dimensionnement, conduits inadaptés, bois mal séché.',
+      role: 'Rédacteur chauffage au bois',
+      credentials: 'Guides fondés sur les données ADEME, le label Flamme Verte et les fiches fabricants',
+      bio: 'Antoine rédige les guides du site à partir des publications de l’ADEME, du référentiel Flamme Verte, des DTU et des fiches techniques des fabricants, cités dans chaque page. Il signale les pièges courants : sous-dimensionnement, conduits inadaptés, bois mal séché.',
     },
     categories: [
       { slug: 'bois-chauffage', name: 'Bois de chauffage', emoji: '🔥', description: 'Essences, séchage, calorique, stère, achat malin.', keywords: ['bois', 'buche', 'chauffage', 'essence', 'sechage', 'stere', 'calorique', 'acacia', 'chene', 'hetre', 'charme', 'frene'] },
@@ -2063,11 +2063,11 @@ const PROFILES: Record<string, SiteProfile> = {
     ],
     hero: {
       title: 'Le chauffage au bois, du choix à l\'installation.',
-      subtitle: 'Poêle, insert, chaudière bouilleur : conseils Qualibois 15 ans, tests indépendants, calcul de puissance.',
-      intro: 'Bien choisir son chauffage au bois nécessite de dimensionner correctement la puissance, choisir le bon combustible et installer un conduit aux normes. Notre rédacteur installateur Qualibois vous guide étape par étape, du calcul kW au choix d\'essence.',
+      subtitle: 'Poêle, insert, chaudière bouilleur : conseils sourcés ADEME et Flamme Verte, comparatifs indépendants, calcul de puissance.',
+      intro: 'Bien choisir son chauffage au bois nécessite de dimensionner correctement la puissance, choisir le bon combustible et installer un conduit aux normes. Nos guides, fondés sur les données ADEME et les normes d’installation, vous accompagnent étape par étape, du calcul kW au choix d\'essence.',
       primaryCta: { label: '🧮 Calculer ma puissance', href: '/outils/calculateur/' },
       secondaryCta: { label: '⚖️ Comparer les solutions', href: '/outils/comparateur/' },
-      badges: ['🔥 15 ans Qualibois', '🪵 Flamme Verte', '💰 MaPrimeRénov', '✅ Tests indépendants'],
+      badges: ['🔥 Sources ADEME', '🪵 Flamme Verte', '💰 MaPrimeRénov', '✅ Tests indépendants'],
       imageHint: 'wood stove burner heating',
     },
     targetKeywords: [
@@ -2079,9 +2079,9 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['poele-cheminee.fr', 'maison-energy.com', 'quelleenergie.fr'],
     wikiImageSubjects: ['Poêle à bois', 'Cheminée', 'Bois de chauffage', 'Distillation', 'Alambic', 'Chaudière bois', 'Granulés de bois'],
     trustBadges: [
-      { emoji: '🔥', label: 'Qualibois RGE', tooltip: 'Notre rédacteur est certifié Qualibois Air/Eau 15 ans.' },
+      { emoji: '🔥', label: 'Normes citées', tooltip: 'DTU, Flamme Verte et fiches fabricants cités dans chaque guide.' },
       { emoji: '📚', label: 'Sources ADEME', tooltip: 'Données techniques sourcées ADEME et Flamme Verte.' },
-      { emoji: '✅', label: 'Tests indépendants', tooltip: 'Poêles testés en conditions réelles.' },
+      { emoji: '✅', label: 'Comparatifs indépendants', tooltip: 'Comparatifs établis sur les fiches fabricants et les données publiées, sans marque partenaire.' },
     ],
   },
 
@@ -2308,8 +2308,8 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['lorient-agglo.bzh', 'tourisme-bretagne.com'],
     wikiImageSubjects: ['Lanvénégen', 'Morbihan', 'Bretagne', 'Pays de Lorient', 'Mégalithe', 'Chapelle bretonne'],
     trustBadges: [
-      { emoji: '🏛️', label: 'Site officiel', tooltip: 'Information officielle mairie de Lanvénégen.' },
-      { emoji: '📚', label: 'Sources préfecture', tooltip: 'Données préfecture Morbihan vérifiées.' },
+      { emoji: '🏛️', label: 'Site indépendant', tooltip: 'Magazine indépendant, sans lien avec la mairie de Lanvénégen.' },
+      { emoji: '📚', label: 'Sources citées', tooltip: 'Les sources publiques sont citées dans chaque article.' },
       { emoji: '✅', label: 'Mises à jour régulières', tooltip: 'Agenda et annuaires actualisés.' },
     ],
     geo: { region: 'FR-56', placename: 'Lanvénégen', lat: 47.9531, lng: -3.4789, wikidataId: 'Q1006988', parentEntities: [{ name: 'Morbihan', wikidataId: 'Q3279' }, { name: 'Bretagne', wikidataId: 'Q12130' }] },
@@ -2331,7 +2331,7 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Amateurs cuisine du terroir, touristes Ardèche, restaurateurs, expatriés ardéchois nostalgiques.',
     author: {
       name: 'Sophie Dumas',
-      role: 'Chef ardéchoise',
+      role: 'Rédactrice cuisine ardéchoise',
       credentials: '15 ans restauration gastronomique Ardèche, formation Bocuse',
       bio: 'Sophie a passé 15 ans en cuisine gastronomique en Ardèche, formée chez Bocuse. Elle défend une cuisine du terroir authentique, valorisant les producteurs locaux et les AOC/AOP ardéchoises.',
     },
@@ -2446,9 +2446,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Particuliers face à panne, bricoleurs DIY, écolo-conscients, étudiants/budgets serrés.',
     author: {
       name: 'Maëlle Constant',
-      role: 'Spécialiste réparation DIY',
-      credentials: 'Passionnée économie circulaire, ex-formatrice atelier réparation',
-      bio: 'Maëlle a animé pendant 5 ans des ateliers de réparation collaboratifs. Elle vulgarise les techniques DIY pour redonner vie aux appareils du quotidien.',
+      role: 'Rédactrice réparation',
+      credentials: 'Procédures tirées des notices et documentations constructeurs, citées',
+      bio: 'Maëlle rédige les procédures du site à partir des notices et documentations des constructeurs, citées dans chaque page. Elle vulgarise les techniques de réparation pour redonner vie aux appareils du quotidien.',
     },
     categories: [
       { slug: 'electromenager', name: 'Électroménager', emoji: '🔧', description: 'Lave-linge, frigo, four, lave-vaisselle, micro-ondes.', keywords: ['lave-linge', 'frigo', 'four', 'lave-vaisselle', 'micro-ondes', 'aspirateur', 'cafetiere'] },
@@ -2481,7 +2481,7 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['ifixit.com', 'spareka.fr', 'commentreparer.com'],
     wikiImageSubjects: ['Réparation', 'Électroménager', 'Outils', 'Économie circulaire', 'Obsolescence programmée'],
     trustBadges: [
-      { emoji: '🔧', label: 'Tutos testés', tooltip: 'Chaque tuto a été réalisé et vérifié.' },
+      { emoji: '🔧', label: 'Procédures sourcées', tooltip: 'Chaque procédure renvoie à la notice ou à la documentation du constructeur.' },
       { emoji: '♻️', label: 'Économie circulaire', tooltip: 'Engagement anti-gaspillage.' },
       { emoji: '💰', label: 'Bonus Qualirepar', tooltip: 'Aides 25-45€ pour faire réparer.' },
     ],
@@ -2561,9 +2561,9 @@ const PROFILES: Record<string, SiteProfile> = {
     targetAudience: 'Particuliers face à perte de données, smartphones cassés, oubli mot de passe, soutien technique amis/famille.',
     author: {
       name: 'Thomas Roux',
-      role: 'Spécialiste mobile + data recovery',
-      credentials: '10 ans réparation et récupération données mobiles',
-      bio: 'Thomas répare et récupère des données mobiles depuis 10 ans (Samsung, Xiaomi, iPhone). Il vulgarise les techniques ADB, OTG, JTAG pour le grand public.',
+      role: 'Rédacteur, récupération de données mobiles',
+      credentials: 'Tutos rédigés à partir des documentations Android, constructeurs et éditeurs, citées',
+      bio: 'Thomas rédige les tutos du site à partir de la documentation officielle Android (ADB, mode recovery), des pages d’aide des constructeurs (Samsung, Xiaomi, Google) et des éditeurs d’outils, citées dans chaque page. Il vulgarise les techniques ADB et OTG pour le grand public.',
     },
     categories: [
       { slug: 'recuperation-photos', name: 'Récupération photos/vidéos', emoji: '📸', description: 'Photos supprimées, carte SD endommagée, Google Photos.', keywords: ['photo', 'photo supprime', 'video', 'sd', 'google photos', 'recuperer'] },
@@ -2585,7 +2585,7 @@ const PROFILES: Record<string, SiteProfile> = {
       intro: 'Photos supprimées, écran cassé, mot de passe oublié : la plupart des cas se résolvent avec les bons outils gratuits. Nos tutos couvrent Samsung, Xiaomi, Oppo et tous les Android récents.',
       primaryCta: { label: '📸 Récupérer photos', href: '/categorie/recuperation-photos/' },
       secondaryCta: { label: '📱 Écran cassé', href: '/categorie/ecran-casse/' },
-      badges: ['💾 10 ans mobile', '🔧 Outils gratuits', '✅ Tutos testés', '🆓 Méthodes free'],
+      badges: ['📚 Sources citées', '🔧 Outils gratuits', '✅ Pas à pas', '🆓 Méthodes free'],
       imageHint: 'Android smartphone recovery data',
     },
     targetKeywords: [
@@ -2596,9 +2596,9 @@ const PROFILES: Record<string, SiteProfile> = {
     competitors: ['drfone.wondershare.com', 'tenorshare.fr', 'easeus.com'],
     wikiImageSubjects: ['Android', 'Smartphone', 'Samsung Galaxy', 'Récupération de données'],
     trustBadges: [
-      { emoji: '💾', label: '10 ans mobile', tooltip: 'Spécialiste réparation/récupération données.' },
+      { emoji: '📚', label: 'Sources citées', tooltip: 'Documentation Android, pages d’aide des constructeurs et des éditeurs.' },
       { emoji: '🆓', label: 'Méthodes gratuites privilégiées', tooltip: 'Toujours essayer le gratuit avant le payant.' },
-      { emoji: '✅', label: 'Tutos testés', tooltip: 'Chaque méthode a été vérifiée.' },
+      { emoji: '✅', label: 'Tutos pas à pas', tooltip: 'Chaque méthode est décrite étape par étape, avec ses limites.' },
     ],
   },
 

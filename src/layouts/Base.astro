@@ -113,7 +113,6 @@ const authorPerson = profile?.author?.name ? {
   name: profile.author.name,
   ...(profile.author.role && { jobTitle: profile.author.role }),
   ...(profile.author.bio && { description: profile.author.bio }),
-  ...(profile.author.credentials && { award: profile.author.credentials, alumniOf: profile.author.credentials }),
   url: `${SITE_CONFIG.siteUrl}/equipe-editoriale/`,
   ...(profile.authorSameAs?.length && { sameAs: profile.authorSameAs }),
   worksFor: { '@type': 'Organization', name: SITE_CONFIG.siteName, url: SITE_CONFIG.siteUrl },
@@ -131,7 +130,7 @@ const organizationSchema = {
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'editorial',
-    email: `mael.guelou.commercial@gmail.com`,
+    email: `contact@lakonkcreative.bzh`,
     availableLanguage: ['fr'],
   },
   ...(profile?.geo && {

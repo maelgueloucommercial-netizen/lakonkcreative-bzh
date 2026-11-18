@@ -63,7 +63,6 @@ export function buildNicheSchemas(opts: BuildSchemasOpts): Record<string, unknow
         name: opts.author.name,
         ...(opts.author.role && { jobTitle: opts.author.role }),
         ...(opts.author.bio && { description: opts.author.bio }),
-        ...(opts.author.credentials && { award: opts.author.credentials }),
         url: `${opts.siteUrl}/equipe-editoriale/`,
         ...(opts.author.sameAs?.length && { sameAs: opts.author.sameAs }),
         worksFor: { '@type': 'Organization', name: opts.siteName, url: opts.siteUrl },
