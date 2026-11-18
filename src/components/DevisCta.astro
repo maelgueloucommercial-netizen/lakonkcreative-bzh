@@ -10,7 +10,7 @@ const profile: any = SITE_CONFIG.profile ?? {};
 const { service = SITE_CONFIG.siteName, usps, phone = profile.phone } = Astro.props as Props;
 const tel = phone ? String(phone).replace(/\s/g, '') : '';
 const uspList = (usps && usps.length ? usps : (Array.isArray(profile.usps) && profile.usps.length ? profile.usps : ['Sans engagement', 'Réponse 24-48h', 'Professionnels vérifiés', '100% gratuit']));
-const LEAD_ENDPOINT = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const LEAD_ENDPOINT = '/api/lead';
 const source = SITE_CONFIG.siteUrl;
 ---
 <section style="background:var(--color-ink);color:var(--color-bg-base);padding:96px 0">

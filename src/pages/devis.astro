@@ -16,7 +16,7 @@ const tel = phone ? String(phone).replace(/\s/g, '') : '';
 const usps: string[] = Array.isArray(profile.usps) && profile.usps.length
   ? profile.usps
   : ['Sans engagement', 'Réponse rapide', 'Professionnels vérifiés', 'Devis 100% gratuit'];
-const LEAD_ENDPOINT = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const LEAD_ENDPOINT = '/api/lead';
 const title = `Devis gratuit — ${service}`;
 const description = `Demandez votre devis gratuit et sans engagement. Réponse rapide, professionnels vérifiés.`;
 const jsonLd = [

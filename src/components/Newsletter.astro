@@ -71,7 +71,7 @@ const m = messages[archetype] ?? messages.village;
     btn.disabled = true;
     btn.textContent = 'Envoi…';
     try {
-      const r = await fetch('https://felleries-cron.mael-guelou-commercial.workers.dev/legacy-newsletter-signup', {
+      const r = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, site: siteName, honeypot }),

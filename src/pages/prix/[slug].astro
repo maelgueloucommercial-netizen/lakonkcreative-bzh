@@ -22,7 +22,7 @@ const d = entry.data;
 const { Content } = await render(entry);
 const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
 const tel = d.phone ? d.phone.replace(/\s/g, '') : '';
-const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const LEAD = '/api/lead';
 const maj = new Date(d.modifiedDate ?? d.pubDate).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
 
 const graph: Record<string, unknown>[] = [

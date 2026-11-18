@@ -24,7 +24,7 @@ const { Content } = await render(entry);
 const pageUrl = new URL(Astro.url.pathname, SITE_CONFIG.siteUrl).toString();
 const title = d.title || `${d.service} à ${d.ville}`;
 const tel = d.phone ? d.phone.replace(/\s/g, '') : '';
-const LEAD = 'https://felleries-cron.mael-guelou-commercial.workers.dev/lead';
+const LEAD = '/api/lead';
 const insurers = ['MAIF', 'MAAF', 'Macif', 'AXA', 'Allianz', 'GMF', 'Matmut', 'Groupama'];
 const hasRealRating = typeof d.note === 'number' && typeof d.nbAvis === 'number' && d.nbAvis > 0;
 const stars = (n: number) => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
