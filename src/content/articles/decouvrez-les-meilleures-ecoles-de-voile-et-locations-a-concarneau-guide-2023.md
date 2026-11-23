@@ -101,7 +101,7 @@ La Ville Bleue concentre une offre nautique dense autour de son port de plaisanc
 | Piriou | Chantier naval | Navires professionnels | 02 98 97 10 00 |
 | Chantier du Moros | Réparation plaisance | Carénage, structure | 02 98 50 51 00 |
 | Bretagne Croisières | Location | Voiliers 7-12 m | 02 98 60 45 00 |
-| L'Étoile de France | Sorties en mer | Vieux gréement | 06 00 00 00 00 |
+| L'Étoile de France | Sorties en mer | Vieux gréement | n.c. |
 | CNC | École de voile | Stages FFVoile | 02 98 97 10 10 |
 
 Pour un projet complet (formation + location), privilégiez les acteurs situés sur le port de plaisance : l'accès aux pontons est direct et les départs se font sans écluse.
